@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+echo -e "\n Cleaning RDS Service Broker Docker image..."
+docker rmi cf-platform-eng/rds-broker || true
+
+echo -e "\n Cleaning Builder Docker image..."
+docker rmi cf-platform-eng/rds-broker-builder || true
+
+echo -e "\n Creating Builder Docker image..."
+docker build -t cf-platform-eng/rds-broker-builder .
+
+echo -e "\n Creating RDS Service Broker Docker image..."
+docker run -ti --rm --name rds-broker-builder \
+       -e DOCKER_HOST=${DOCKER_HOST} \
+       -e DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY} \
+       -e DOCKER_CERT_PATH=${DOCKER_CERT_PATH} \
+       -v ${DOCKER_CERT_PATH}:${DOCKER_CERT_PATH} \
+       -v $(which docker):$(which docker) \
+       cf-platform-eng/rds-broker-builder
+
+echo -e "\n Cleaning Builder Docker image..."
+docker rmi cf-platform-eng/rds-broker-builder
