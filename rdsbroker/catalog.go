@@ -45,7 +45,7 @@ type ServicePlan struct {
 
 type ServicePlanMetadata struct {
 	Bullets     []string `json:"bullets,omitempty"`
-	Costs       Costs    `json:"costs,omitempty"`
+	Costs       []Costs  `json:"costs,omitempty"`
 	DisplayName string   `json:"displayName,omitempty"`
 }
 
