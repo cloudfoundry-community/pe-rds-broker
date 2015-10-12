@@ -2,7 +2,7 @@ FROM scratch
 MAINTAINER Ferran Rodenas <frodenas@gmail.com>
 
 # Add files
-ADD main /rds-broker
+ADD rds-broker /rds-broker
 ADD config.json /config.json
 
 # Command to run
