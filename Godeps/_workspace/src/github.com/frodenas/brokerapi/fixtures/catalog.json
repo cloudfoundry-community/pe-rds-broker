@@ -24,7 +24,6 @@
                     "name": "default",
                     "description": "The default Cassandra plan",
                     "metadata": {
-                        "costs": {},
                         "displayName": "Cassandra"
                     }
                 }

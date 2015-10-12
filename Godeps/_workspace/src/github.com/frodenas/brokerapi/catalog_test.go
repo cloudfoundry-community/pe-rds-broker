@@ -210,7 +210,7 @@ var _ = Describe("ServicePlan", func() {
 
 	Describe("JSON encoding", func() {
 		It("uses the correct keys", func() {
-			json := `{"id":"ID-1","name":"Cassandra","description":"A Cassandra Plan","metadata":{"costs":{}},"free":true}`
+			json := `{"id":"ID-1","name":"Cassandra","description":"A Cassandra Plan","metadata":{},"free":true}`
 
 			Expect(servicePlan).To(matchers.MarshalToJSON(json))
 		})
@@ -254,7 +254,7 @@ var _ = Describe("ServicePlanMetadata", func() {
 
 		validServicePlanMetadata = ServicePlanMetadata{
 			Bullets:     []string{},
-			Costs:       Costs{},
+			Costs:       []Costs{},
 			DisplayName: "Some display name",
 		}
 	)
@@ -265,7 +265,7 @@ var _ = Describe("ServicePlanMetadata", func() {
 
 	Describe("JSON encoding", func() {
 		It("uses the correct keys", func() {
-			json := `{"costs":{},"displayName":"Some display name"}`
+			json := `{"displayName":"Some display name"}`
 
 			Expect(servicePlanMetadata).To(matchers.MarshalToJSON(json))
 		})
