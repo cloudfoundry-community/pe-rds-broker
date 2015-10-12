@@ -73,38 +73,6 @@ curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET "h
 
 ####################################################################################################################################
 
-# Provision MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmaria?accepts_incomplete=true" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"634682af-888b-4c7a-af95-aefcbcfefd3e","organization_guid":"organization_id","space_guid":"space_id"}'
-
-# Last Operation MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET "http://username:password@localhost:3000/v2/service_instances/testmaria/last_operation"
-
-# Bind MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-1-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"634682af-888b-4c7a-af95-aefcbcfefd3e"}'
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-2-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"634682af-888b-4c7a-af95-aefcbcfefd3e","parameters":{"dbname":"cf_manualdb_1"}}'
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-3-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"634682af-888b-4c7a-af95-aefcbcfefd3e","parameters":{"dbname":"cf_manualdb_1"}}'
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-4-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"634682af-888b-4c7a-af95-aefcbcfefd3e","parameters":{"dbname":"cf_manualdb_2"}}'
-
-# Update MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PATCH "http://username:password@localhost:3000/v2/service_instances/testmaria?accepts_incomplete=true" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"d8a12401-2b14-4620-a955-6f851f2b9c26","previous_values":{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"634682af-888b-4c7a-af95-aefcbcfefd3e","organization_guid":"organization_id","space_guid":"space_id"},"parameters":{"apply_immediately":true}}'
-
-# Last Operation MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET "http://username:password@localhost:3000/v2/service_instances/testmaria/last_operation"
-
-# Unbind MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-4-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"d8a12401-2b14-4620-a955-6f851f2b9c26"}'
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-3-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"d8a12401-2b14-4620-a955-6f851f2b9c26"}'
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-2-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"d8a12401-2b14-4620-a955-6f851f2b9c26"}'
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmaria/service_bindings/maria-1-binding" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"d8a12401-2b14-4620-a955-6f851f2b9c26"}'
-
-# Deprovision MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmaria?accepts_incomplete=true" -d '{"service_id":"604d754f-ae2b-4d5a-875d-2d92fe5c156a","plan_id":"d8a12401-2b14-4620-a955-6f851f2b9c26"}'
-
-# Last Operation MariaDB
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET "http://username:password@localhost:3000/v2/service_instances/testmaria/last_operation"
-
-####################################################################################################################################
-
 # Provision Errors
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmy" -d '{"service_id":"ce71b484-d542-40f7-9dd4-5526e38c81ba","plan_id":"5b8282cf-a669-4ffc-b426-c169a7bbfc71","organization_guid":"organization_id","space_guid":"space_id"}'
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmy?accepts_incomplete=true" -d '{"service_id":"ce71b484-d542-40f7-9dd4-5526e38c81ba","plan_id":"unknown","organization_guid":"organization_id","space_guid":"space_id"}'
