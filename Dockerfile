@@ -15,4 +15,4 @@ ADD Dockerfile.final /go/bin/Dockerfile
 ADD config-sample.json /go/bin/config.json
 
 # Command to run
-CMD docker build -t cf-platform-eng/rds-broker /go/bin
+CMD docker build -t cfplatformeng/rds-broker /go/bin
