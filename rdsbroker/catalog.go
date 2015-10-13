@@ -13,16 +13,16 @@ type Catalog struct {
 }
 
 type Service struct {
-	ID              string          `json:"id,omitempty"`
-	Name            string          `json:"name,omitempty"`
-	Description     string          `json:"description,omitempty"`
-	Bindable        bool            `json:"bindable,omitempty"`
-	Tags            []string        `json:"tags,omitempty"`
-	Metadata        ServiceMetadata `json:"metadata,omitempty"`
-	Requires        []string        `json:"requires,omitempty"`
-	PlanUpdateable  bool            `json:"plan_updateable,omitempty"`
-	Plans           []ServicePlan   `json:"plans,omitempty"`
-	DashboardClient DashboardClient `json:"dashboard_client,omitempty"`
+	ID              string           `json:"id"`
+	Name            string           `json:"name"`
+	Description     string           `json:"description"`
+	Bindable        bool             `json:"bindable,omitempty"`
+	Tags            []string         `json:"tags,omitempty"`
+	Metadata        *ServiceMetadata `json:"metadata,omitempty"`
+	Requires        []string         `json:"requires,omitempty"`
+	PlanUpdateable  bool             `json:"plan_updateable,omitempty"`
+	Plans           []ServicePlan    `json:"plans,omitempty"`
+	DashboardClient *DashboardClient `json:"dashboard_client,omitempty"`
 }
 
 type ServiceMetadata struct {
@@ -35,17 +35,17 @@ type ServiceMetadata struct {
 }
 
 type ServicePlan struct {
-	ID            string              `json:"id,omitempty"`
-	Name          string              `json:"name,omitempty"`
-	Description   string              `json:"description,omitempty"`
-	Metadata      ServicePlanMetadata `json:"metadata,omitempty"`
-	Free          bool                `json:"free,omitempty"`
-	RDSProperties RDSProperties       `json:"rds_properties,omitempty"`
+	ID            string               `json:"id"`
+	Name          string               `json:"name"`
+	Description   string               `json:"description"`
+	Metadata      *ServicePlanMetadata `json:"metadata,omitempty"`
+	Free          bool                 `json:"free,omitempty"`
+	RDSProperties RDSProperties        `json:"rds_properties,omitempty"`
 }
 
 type ServicePlanMetadata struct {
 	Bullets     []string `json:"bullets,omitempty"`
-	Costs       []Costs  `json:"costs,omitempty"`
+	Costs       []Cost   `json:"costs,omitempty"`
 	DisplayName string   `json:"displayName,omitempty"`
 }
 
@@ -55,7 +55,7 @@ type DashboardClient struct {
 	RedirectURI string `json:"redirect_uri,omitempty"`
 }
 
-type Costs struct {
+type Cost struct {
 	Amount map[string]float64 `json:"amount,omitempty"`
 	Unit   string             `json:"unit,omitempty"`
 }

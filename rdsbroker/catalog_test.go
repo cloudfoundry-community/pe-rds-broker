@@ -89,11 +89,11 @@ var _ = Describe("Service", func() {
 			Description:     "Service 1 description",
 			Bindable:        true,
 			Tags:            []string{"service"},
-			Metadata:        ServiceMetadata{},
+			Metadata:        &ServiceMetadata{},
 			Requires:        []string{"syslog"},
 			PlanUpdateable:  true,
 			Plans:           []ServicePlan{},
-			DashboardClient: DashboardClient{},
+			DashboardClient: &DashboardClient{},
 		}
 	)
 
@@ -151,7 +151,7 @@ var _ = Describe("ServicePlan", func() {
 			ID:          "Plan-1",
 			Name:        "Plan 1",
 			Description: "Plan-1 description",
-			Metadata:    ServicePlanMetadata{},
+			Metadata:    &ServicePlanMetadata{},
 			Free:        true,
 			RDSProperties: RDSProperties{
 				DBInstanceClass:  "db.m3.medium",
