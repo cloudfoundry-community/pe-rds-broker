@@ -18,7 +18,7 @@ $ go install github.com/cf-platform-eng/rds-broker
 
 ### Docker
 
-If you want to run the AWS RDS Service Broker on a Docker container, you can use the [cf-platform-eng/rds-broker](https://registry.hub.docker.com/u/cf-platform-eng/rds-broker/) Docker image.
+If you want to run the AWS RDS Service Broker on a Docker container, you can use the [cfplatformeng/rds-broker](https://registry.hub.docker.com/u/cfplatformeng/rds-broker/) Docker image.
 
 ```
 $ docker run -d --name rds-broker -p 3000:3000 cfplatformeng/rds-broker
