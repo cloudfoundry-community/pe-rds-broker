@@ -24,11 +24,27 @@
                     "name": "default",
                     "description": "The default Cassandra plan",
                     "metadata": {
+                        "bullets": [
+                            "bullet-1"
+                        ],
+                        "costs": [
+                            {
+                                "amount": {
+                                    "eur": 49,
+                                    "usd": 99
+                                },
+                                "unit": "MONTHLY"
+                            }
+                        ],
                         "displayName": "Cassandra"
                     }
                 }
             ],
-            "dashboard_client": {}
+            "dashboard_client": {
+                "id": "dashboard-id",
+                "secret": "dashboard-secret",
+                "redirect_uri": "http://dashboard-redirect"
+            }
         }
     ]
 }

@@ -102,11 +102,11 @@ var _ = Describe("Service", func() {
 			Description:     "A Cassandra Plan",
 			Bindable:        true,
 			Tags:            []string{"cassandra"},
-			Metadata:        ServiceMetadata{},
+			Metadata:        &ServiceMetadata{},
 			Requires:        []string{"syslog"},
 			PlanUpdateable:  true,
 			Plans:           []ServicePlan{},
-			DashboardClient: DashboardClient{},
+			DashboardClient: &DashboardClient{},
 		}
 	)
 
@@ -199,7 +199,7 @@ var _ = Describe("ServicePlan", func() {
 			ID:          "ID-1",
 			Name:        "Cassandra",
 			Description: "A Cassandra Plan",
-			Metadata:    ServicePlanMetadata{},
+			Metadata:    &ServicePlanMetadata{},
 			Free:        true,
 		}
 	)
@@ -254,7 +254,7 @@ var _ = Describe("ServicePlanMetadata", func() {
 
 		validServicePlanMetadata = ServicePlanMetadata{
 			Bullets:     []string{},
-			Costs:       []Costs{},
+			Costs:       []Cost{},
 			DisplayName: "Some display name",
 		}
 	)
@@ -296,25 +296,25 @@ var _ = Describe("DashboardClient", func() {
 	})
 })
 
-var _ = Describe("Costs", func() {
+var _ = Describe("Cost", func() {
 	var (
-		costs Costs
+		cost Cost
 
-		validCosts = Costs{
+		validCost = Cost{
 			Amount: map[string]float64{"usd": 99, "eur": 49},
 			Unit:   "MONTHLY",
 		}
 	)
 
 	BeforeEach(func() {
-		costs = validCosts
+		cost = validCost
 	})
 
 	Describe("JSON encoding", func() {
 		It("uses the correct keys", func() {
 			json := `{"amount":{"eur":49,"usd":99},"unit":"MONTHLY"}`
 
-			Expect(costs).To(matchers.MarshalToJSON(json))
+			Expect(cost).To(matchers.MarshalToJSON(json))
 		})
 	})
 })

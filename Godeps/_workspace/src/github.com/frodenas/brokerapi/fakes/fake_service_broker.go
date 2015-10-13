@@ -54,7 +54,7 @@ func (fakeBroker *FakeServiceBroker) Services() brokerapi.CatalogResponse {
 					"pivotal",
 					"cassandra",
 				},
-				Metadata: brokerapi.ServiceMetadata{
+				Metadata: &brokerapi.ServiceMetadata{
 					DisplayName:         "Cassandra",
 					ImageURL:            "http://foo.com/thing.png",
 					LongDescription:     "Long description",
@@ -68,12 +68,23 @@ func (fakeBroker *FakeServiceBroker) Services() brokerapi.CatalogResponse {
 						ID:          "ABE176EE-F69F-4A96-80CE-142595CC24E3",
 						Name:        "default",
 						Description: "The default Cassandra plan",
-						Metadata: brokerapi.ServicePlanMetadata{
-							Bullets:     []string{},
+						Metadata: &brokerapi.ServicePlanMetadata{
+							Bullets: []string{"bullet-1"},
+							Costs: []brokerapi.Cost{
+								brokerapi.Cost{
+									Amount: map[string]float64{"usd": 99, "eur": 49},
+									Unit:   "MONTHLY",
+								},
+							},
 							DisplayName: "Cassandra",
 						},
 						Free: false,
 					},
+				},
+				DashboardClient: &brokerapi.DashboardClient{
+					ID:          "dashboard-id",
+					Secret:      "dashboard-secret",
+					RedirectURI: "http://dashboard-redirect",
 				},
 			},
 		},
