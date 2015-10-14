@@ -56,8 +56,8 @@ type DashboardClient struct {
 }
 
 type Cost struct {
-	Amount map[string]float64 `json:"amount,omitempty"`
-	Unit   string             `json:"unit,omitempty"`
+	Amount map[string]interface{} `json:"amount,omitempty"`
+	Unit   string                 `json:"unit,omitempty"`
 }
 
 type RDSProperties struct {
