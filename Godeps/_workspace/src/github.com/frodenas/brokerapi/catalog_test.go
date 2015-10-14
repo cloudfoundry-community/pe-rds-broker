@@ -301,7 +301,7 @@ var _ = Describe("Cost", func() {
 		cost Cost
 
 		validCost = Cost{
-			Amount: map[string]float64{"usd": 99, "eur": 49},
+			Amount: map[string]interface{}{"usd": 99, "eur": 49},
 			Unit:   "MONTHLY",
 		}
 	)
