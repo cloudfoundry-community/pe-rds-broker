@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	Region                       string  `json:"region"`
+	DBPrefix                     string  `json:"db_prefix"`
 	MaxDBInstances               int     `json:"max_db_instances"`
 	AllowUserProvisionParameters bool    `json:"allow_user_provision_parameters"`
 	AllowUserUpdateParameters    bool    `json:"allow_user_update_parameters"`
@@ -17,6 +18,10 @@ type Config struct {
 func (c Config) Validate() error {
 	if c.Region == "" {
 		return errors.New("Must provide a non-empty Region")
+	}
+
+	if c.DBPrefix == "" {
+		return errors.New("Must provide a non-empty DBPrefix")
 	}
 
 	if err := c.Catalog.Validate(); err != nil {

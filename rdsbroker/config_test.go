@@ -12,7 +12,8 @@ var _ = Describe("Config", func() {
 		config Config
 
 		validConfig = Config{
-			Region: "rds-region",
+			Region:   "rds-region",
+			DBPrefix: "cf",
 			Catalog: Catalog{
 				[]Service{
 					Service{
@@ -41,6 +42,14 @@ var _ = Describe("Config", func() {
 			err := config.Validate()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("Must provide a non-empty Region"))
+		})
+
+		It("returns error if DBPrefix is not valid", func() {
+			config.DBPrefix = ""
+
+			err := config.Validate()
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Must provide a non-empty DBPrefix"))
 		})
 
 		It("returns error if Catalog is not valid", func() {

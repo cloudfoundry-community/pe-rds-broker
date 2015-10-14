@@ -5,6 +5,7 @@
   "password": "password",
   "rds_config": {
     "region": "us-east-1",
+    "db_prefix": "cf",
     "max_db_instances":0,
     "allow_user_provision_parameters": true,
     "allow_user_update_parameters": true,

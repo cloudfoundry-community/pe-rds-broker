@@ -55,6 +55,7 @@ type CredentialsHash struct {
 
 type RDSBroker struct {
 	region                       string
+	dbPrefix                     string
 	maxDBInstances               int
 	allowUserProvisionParameters bool
 	allowUserUpdateParameters    bool
@@ -72,6 +73,7 @@ func New(
 	awsConfig := aws.NewConfig().WithRegion(config.Region)
 	return &RDSBroker{
 		region:                       config.Region,
+		dbPrefix:                     config.DBPrefix,
 		maxDBInstances:               config.MaxDBInstances,
 		allowUserProvisionParameters: config.AllowUserProvisionParameters,
 		allowUserUpdateParameters:    config.AllowUserUpdateParameters,
@@ -411,6 +413,10 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 	return lastOperationResponse, nil
 }
 
+func (b *RDSBroker) dbInstanceIdentifier(instanceID string) string {
+	return fmt.Sprintf("%s_%s", b.dbPrefix, strings.Replace(instanceID, "-", "_", -1))
+}
+
 func (b *RDSBroker) masterUsername() string {
 	return utils.RandomAlphaNum(defaultUsernameLength)
 }
@@ -420,7 +426,7 @@ func (b *RDSBroker) masterPassword(instanceID string) string {
 }
 
 func (b *RDSBroker) dbName(instanceID string) string {
-	return "cf_" + strings.Replace(instanceID, "-", "_", -1)
+	return fmt.Sprintf("%s_%s", b.dbPrefix, strings.Replace(instanceID, "-", "_", -1))
 }
 
 func (b *RDSBroker) dbSnapshotName(instanceID string) string {
@@ -459,7 +465,7 @@ func (b *RDSBroker) userARN(logger lager.Logger) (string, error) {
 
 func (b *RDSBroker) describeDBInstance(instanceID string, logger lager.Logger) (*rds.DBInstance, error) {
 	describeDBInstancesInput := &rds.DescribeDBInstancesInput{
-		DBInstanceIdentifier: aws.String(instanceID),
+		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
 	}
 
 	logger.Debug("describe-db-instances", lager.Data{"input": describeDBInstancesInput})
@@ -481,7 +487,7 @@ func (b *RDSBroker) describeDBInstance(instanceID string, logger lager.Logger) (
 	logger.Debug("describe-db-instances", lager.Data{"db-instances": dbInstances})
 
 	for _, dbInstance := range dbInstances.DBInstances {
-		if instanceID == *dbInstance.DBInstanceIdentifier {
+		if b.dbInstanceIdentifier(instanceID) == *dbInstance.DBInstanceIdentifier {
 			return dbInstance, nil
 		}
 	}
@@ -556,7 +562,7 @@ func (b *RDSBroker) buildCreateDBInstanceInput(
 	servicePlan ServicePlan,
 ) *rds.CreateDBInstanceInput {
 	createDBInstanceInput := &rds.CreateDBInstanceInput{
-		DBInstanceIdentifier: aws.String(instanceID),
+		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
 		DBInstanceClass:      aws.String(servicePlan.RDSProperties.DBInstanceClass),
 		Engine:               aws.String(servicePlan.RDSProperties.Engine),
 		EngineVersion:        aws.String(servicePlan.RDSProperties.EngineVersion),
@@ -671,7 +677,7 @@ func (b *RDSBroker) buildModifyDBInstanceInput(
 	dbInstance *rds.DBInstance,
 ) (*rds.ModifyDBInstanceInput, error) {
 	modifyDBInstanceInput := &rds.ModifyDBInstanceInput{
-		DBInstanceIdentifier: aws.String(instanceID),
+		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
 		ApplyImmediately:     aws.Bool(updateParameters.ApplyImmediately),
 	}
 
@@ -831,7 +837,7 @@ func (b *RDSBroker) allowMajorVersionUpgrade(newEngineVersion, oldEngineVersion 
 
 func (b *RDSBroker) buildDeleteDBInstanceInput(instanceID string, servicePlan ServicePlan) *rds.DeleteDBInstanceInput {
 	deleteDBInstanceInput := &rds.DeleteDBInstanceInput{
-		DBInstanceIdentifier: aws.String(instanceID),
+		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
 		SkipFinalSnapshot:    aws.Bool(servicePlan.RDSProperties.SkipFinalSnapshot),
 	}
 
