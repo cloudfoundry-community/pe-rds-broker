@@ -406,6 +406,8 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 		return lastOperationResponse, err
 	}
 
+	lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' status is '%s'", b.dbInstanceIdentifier(instanceID), *dbInstance.DBInstanceStatus)
+
 	if state, ok := rdsStatus2State[*dbInstance.DBInstanceStatus]; ok {
 		lastOperationResponse.State = state
 	}
