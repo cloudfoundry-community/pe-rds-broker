@@ -37,7 +37,8 @@
                             }
                         ],
                         "displayName": "Cassandra"
-                    }
+                    },
+                    "free": false
                 }
             ],
             "dashboard_client": {
