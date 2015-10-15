@@ -414,7 +414,7 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 }
 
 func (b *RDSBroker) dbInstanceIdentifier(instanceID string) string {
-	return fmt.Sprintf("%s_%s", b.dbPrefix, strings.Replace(instanceID, "_", "-", -1))
+	return fmt.Sprintf("%s-%s", b.dbPrefix, strings.Replace(instanceID, "_", "-", -1))
 }
 
 func (b *RDSBroker) masterUsername() string {
