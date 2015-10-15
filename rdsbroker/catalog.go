@@ -20,7 +20,7 @@ type Service struct {
 	Tags            []string         `json:"tags,omitempty"`
 	Metadata        *ServiceMetadata `json:"metadata,omitempty"`
 	Requires        []string         `json:"requires,omitempty"`
-	PlanUpdateable  bool             `json:"plan_updateable,omitempty"`
+	PlanUpdateable  bool             `json:"plan_updateable"`
 	Plans           []ServicePlan    `json:"plans,omitempty"`
 	DashboardClient *DashboardClient `json:"dashboard_client,omitempty"`
 }
@@ -39,7 +39,7 @@ type ServicePlan struct {
 	Name          string               `json:"name"`
 	Description   string               `json:"description"`
 	Metadata      *ServicePlanMetadata `json:"metadata,omitempty"`
-	Free          bool                 `json:"free,omitempty"`
+	Free          bool                 `json:"free"`
 	RDSProperties RDSProperties        `json:"rds_properties,omitempty"`
 }
 
