@@ -17,15 +17,16 @@ const unbindLogKey = "unbind"
 const lastOperationLogKey = "last-operation"
 
 const instanceIDLogKey = "instance-id"
-const instanceDetailsLogKey = "instance-details"
 const bindingIDLogKey = "binding-id"
+const provisionDetailsLogKey = "provision-details"
+const updateDetailsLogKey = "update-details"
+const deprovisionDetailsLogKey = "deprovision-details"
 const bindDetailsLogKey = "bind-details"
+const unbindDetailsLogKey = "unbind-details"
 
 const invalidProvisionDetailsErrorKey = "invalid-provision-details"
 const invalidUpdateDetailsErrorKey = "invalid-update-details"
-const invalidDeprovisionDetailsErrorKey = "invalid-deprovision-details"
 const invalidBindDetailsErrorKey = "invalid-bind-details"
-const invalidUnbindDetailsErrorKey = "invalid-unbind-details"
 
 const instanceAlreadyExistsErrorKey = "instance-already-exists"
 const instanceMissingErrorKey = "instance-missing"
@@ -97,7 +98,7 @@ func provision(serviceBroker ServiceBroker, router httpRouter, logger lager.Logg
 		}
 
 		logger = logger.WithData(lager.Data{
-			instanceDetailsLogKey: details,
+			provisionDetailsLogKey: details,
 		})
 
 		provisioningResponse, asynch, err := serviceBroker.Provision(instanceID, details, acceptsIncomplete)
@@ -158,7 +159,7 @@ func update(serviceBroker ServiceBroker, router httpRouter, logger lager.Logger)
 		}
 
 		logger = logger.WithData(lager.Data{
-			instanceDetailsLogKey: details,
+			updateDetailsLogKey: details,
 		})
 
 		asynch, err := serviceBroker.Update(instanceID, details, acceptsIncomplete)
@@ -209,17 +210,13 @@ func deprovision(serviceBroker ServiceBroker, router httpRouter, logger lager.Lo
 			instanceIDLogKey: instanceID,
 		})
 
-		var details DeprovisionDetails
-		if err := json.NewDecoder(req.Body).Decode(&details); err != nil {
-			logger.Error(invalidDeprovisionDetailsErrorKey, err)
-			respond(w, http.StatusBadRequest, ErrorResponse{
-				Description: err.Error(),
-			})
-			return
+		details := DeprovisionDetails{
+			ServiceID: req.FormValue("service_id"),
+			PlanID:    req.FormValue("plan_id"),
 		}
 
 		logger = logger.WithData(lager.Data{
-			instanceDetailsLogKey: details,
+			deprovisionDetailsLogKey: details,
 		})
 
 		asynch, err := serviceBroker.Deprovision(instanceID, details, acceptsIncomplete)
@@ -324,17 +321,13 @@ func unbind(serviceBroker ServiceBroker, router httpRouter, logger lager.Logger)
 			bindingIDLogKey:  bindingID,
 		})
 
-		var details UnbindDetails
-		if err := json.NewDecoder(req.Body).Decode(&details); err != nil {
-			logger.Error(invalidUnbindDetailsErrorKey, err)
-			respond(w, http.StatusBadRequest, ErrorResponse{
-				Description: err.Error(),
-			})
-			return
+		details := UnbindDetails{
+			ServiceID: req.FormValue("service_id"),
+			PlanID:    req.FormValue("plan_id"),
 		}
 
 		logger = logger.WithData(lager.Data{
-			bindDetailsLogKey: details,
+			unbindDetailsLogKey: details,
 		})
 
 		if err := serviceBroker.Unbind(instanceID, bindingID, details); err != nil {

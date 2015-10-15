@@ -47,7 +47,7 @@
 		},
 		{
 			"ImportPath": "github.com/frodenas/brokerapi",
-			"Rev": "693b31cf4b36401447b60eef62fdce35553700b9"
+			"Rev": "e43c1f92abd6fdd9b185ab057d938d05fba322a7"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
