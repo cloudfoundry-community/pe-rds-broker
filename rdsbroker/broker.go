@@ -894,6 +894,10 @@ func (b *RDSBroker) createDB(db *sql.DB, engine string, dbName string, logger la
 }
 
 func (b *RDSBroker) dropDB(db *sql.DB, engine string, dbName string, logger lager.Logger) error {
+	if err := b.dropDBConnections(db, engine, dbName, logger); err != nil {
+		return err
+	}
+
 	var dropDBStatement string
 	switch strings.ToLower(engine) {
 	case "mysql", "mariadb":
@@ -907,6 +911,28 @@ func (b *RDSBroker) dropDB(db *sql.DB, engine string, dbName string, logger lage
 	logger.Debug("drop-database", lager.Data{"statement": dropDBStatement})
 
 	if _, err := db.Exec(dropDBStatement); err != nil {
+		logger.Error("sql-error", err)
+		return err
+	}
+
+	return nil
+}
+
+func (b *RDSBroker) dropDBConnections(db *sql.DB, engine string, dbName string, logger lager.Logger) error {
+	var dropDBConnectionsStatement string
+	switch strings.ToLower(engine) {
+	case "mysql", "mariadb":
+		// Function not supported
+		return nil
+	case "postgres":
+		dropDBConnectionsStatement = "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '" + dbName + "' AND pid <> pg_backend_pid()"
+	default:
+		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
+	}
+
+	logger.Debug("drop-db-connections", lager.Data{"statement": dropDBConnectionsStatement})
+
+	if _, err := db.Exec(dropDBConnectionsStatement); err != nil {
 		logger.Error("sql-error", err)
 		return err
 	}
