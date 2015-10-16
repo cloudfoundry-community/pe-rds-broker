@@ -966,7 +966,8 @@ func (b *RDSBroker) dropUser(db *sql.DB, engine string, dbUsername string, logge
 	case "mysql", "mariadb":
 		dropUserStatement = "DROP USER '" + dbUsername + "'@'%'"
 	case "postgres":
-		dropUserStatement = "DROP USER IF EXISTS \"" + dbUsername + "\""
+		// For PostgreSQL we don't drop the user because it might still be owner of some objects
+		return nil
 	default:
 		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
 	}
