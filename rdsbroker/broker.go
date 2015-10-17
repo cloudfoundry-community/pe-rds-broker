@@ -486,10 +486,9 @@ func (b *RDSBroker) describeDBInstance(instanceID string, logger lager.Logger) (
 		return nil, err
 	}
 
-	logger.Debug("describe-db-instances", lager.Data{"db-instances": dbInstances})
-
 	for _, dbInstance := range dbInstances.DBInstances {
 		if b.dbInstanceIdentifier(instanceID) == *dbInstance.DBInstanceIdentifier {
+			logger.Debug("describe-db-instances", lager.Data{"db-instance": dbInstance})
 			return dbInstance, nil
 		}
 	}
