@@ -8,12 +8,28 @@ This is **NOT** presently a production ready Service Broker. This is a work in p
 
 ## Installation
 
-### Manually
+### Locally
 
-Using the standard `go install`:
+Using the standard `go install` (you must have [Go](https://golang.org/) already installed in your local machine):
 
 ```
 $ go install github.com/cf-platform-eng/rds-broker
+$ rds-broker -port=3000 -config=<path-to-your-config-file>
+```
+
+### Cloud Foundry
+
+The broker can be deployed to a [Cloud Foundry](https://www.cloudfoundry.org/) installation:
+
+```
+$ git clone https://github.com/cf-platform-eng/rds-broker.git
+$ cd rds-broker
+```
+
+Modify the [included manifest file](https://github.com/cf-platform-eng/rds-broker/blob/master/manifest.yml) to include your AWS credentials and optionally the [sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). Then you can push the broker to your Cloud Foundry](https://www.cloudfoundry.org/) environment:
+
+```
+$ cf push rds-broker
 ```
 
 ### Docker
@@ -21,10 +37,13 @@ $ go install github.com/cf-platform-eng/rds-broker
 If you want to run the AWS RDS Service Broker on a Docker container, you can use the [cfplatformeng/rds-broker](https://registry.hub.docker.com/u/cfplatformeng/rds-broker/) Docker image.
 
 ```
-$ docker run -d --name rds-broker -p 3000:3000 cfplatformeng/rds-broker
+$ docker run -d --name rds-broker -p 3000:3000 \
+  -e AWS_ACCESS_KEY_ID=<your-aws-access-key-id> \
+  -e AWS_SECRET_ACCESS_KEY=<your-aws-secret-access-key> \
+  cfplatformeng/rds-broker
 ```
 
-Alternativelly, you can create the Docker image by yourself:
+The Docker image cames with an [embedded sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). If you want to override it, you can create the Docker image with you custome configuration file running:
 
 ```
 $ git clone https://github.com/cf-platform-eng/rds-broker.git
