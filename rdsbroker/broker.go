@@ -449,7 +449,7 @@ func (b *RDSBroker) instanceARN(instanceID string, logger lager.Logger) (string,
 		return "", err
 	}
 
-	return fmt.Sprintf("arn:aws:rds:%s:%s:db:%s", b.region, userARN, instanceID), nil
+	return fmt.Sprintf("arn:aws:rds:%s:%s:db:%s", b.region, userARN, b.dbInstanceIdentifier(instanceID)), nil
 }
 
 func (b *RDSBroker) userARN(logger lager.Logger) (string, error) {
