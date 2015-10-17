@@ -26,7 +26,7 @@ $ git clone https://github.com/cf-platform-eng/rds-broker.git
 $ cd rds-broker
 ```
 
-Modify the [included manifest file](https://github.com/cf-platform-eng/rds-broker/blob/master/manifest.yml) to include your AWS credentials and optionally the [sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). Then you can push the broker to your Cloud Foundry](https://www.cloudfoundry.org/) environment:
+Modify the [included manifest file](https://github.com/cf-platform-eng/rds-broker/blob/master/manifest.yml) to include your AWS credentials and optionally the [sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). Then you can push the broker to your [Cloud Foundry](https://www.cloudfoundry.org/) environment:
 
 ```
 $ cf push rds-broker
