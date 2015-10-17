@@ -15,7 +15,6 @@ var _ = Describe("Config", func() {
 
 		validConfig = Config{
 			LogLevel: "DEBUG",
-			Port:     "3000",
 			Username: "broker-username",
 			Password: "broker-password",
 			RDSConfig: rdsbroker.Config{
@@ -41,14 +40,6 @@ var _ = Describe("Config", func() {
 			err := config.Validate()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("Must provide a non-empty LogLevel"))
-		})
-
-		It("returns error if Port is not valid", func() {
-			config.Port = ""
-
-			err := config.Validate()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Must provide a non-empty Port"))
 		})
 
 		It("returns error if Username is not valid", func() {

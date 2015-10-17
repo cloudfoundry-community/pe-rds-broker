@@ -1,6 +1,5 @@
 {
   "log_level": "DEBUG",
-  "port": "3000",
   "username": "username",
   "password": "password",
   "rds_config": {

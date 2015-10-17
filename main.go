@@ -16,6 +16,7 @@ import (
 
 var (
 	configFilePath string
+	port           string
 
 	logLevels = map[string]lager.LogLevel{
 		"DEBUG": lager.DEBUG,
@@ -27,6 +28,7 @@ var (
 
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
+	flag.StringVar(&port, "port", "3000", "Listen port")
 }
 
 func buildLogger(logLevel string) lager.Logger {
@@ -61,6 +63,6 @@ func main() {
 	brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
 	http.Handle("/", brokerAPI)
 
-	fmt.Println("RDS Service Broker started on port " + config.Port + "...")
-	http.ListenAndServe(":"+config.Port, nil)
+	fmt.Println("RDS Service Broker started on port " + port + "...")
+	http.ListenAndServe(":"+port, nil)
 }

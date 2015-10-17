@@ -12,7 +12,6 @@ import (
 
 type Config struct {
 	LogLevel  string           `json:"log_level"`
-	Port      string           `json:"port"`
 	Username  string           `json:"username"`
 	Password  string           `json:"password"`
 	RDSConfig rdsbroker.Config `json:"rds_config"`
@@ -48,10 +47,6 @@ func LoadConfig(configFile string) (config *Config, err error) {
 func (c Config) Validate() error {
 	if c.LogLevel == "" {
 		return errors.New("Must provide a non-empty LogLevel")
-	}
-
-	if c.Port == "" {
-		return errors.New("Must provide a non-empty Port")
 	}
 
 	if c.Username == "" {

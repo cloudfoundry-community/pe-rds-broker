@@ -7,7 +7,6 @@ A sample configuration can be found at [config-sample.json](https://github.com/c
 | Option     | Required | Type   | Description
 |:-----------|:--------:|:------ |:-----------
 | log_level  | Y        | String | Broker Log Level (DEBUG, INFO, ERROR, FATAL)
-| port       | Y        | String | Broker Listen Port
 | username   | Y        | String | Broker Auth Username
 | password   | Y        | String | Broker Auth Password
 | rds_config | Y        | Hash   | [RDS Broker configuration](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#rds-broker-configuration)
