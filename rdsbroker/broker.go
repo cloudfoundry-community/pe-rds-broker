@@ -286,14 +286,21 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 		return bindingResponse, err
 	}
 
-	connectionString, err := b.connectionString(*dbInstance.Engine, *dbInstance.Endpoint.Address, *dbInstance.Endpoint.Port, *dbInstance.DBName, *dbInstance.MasterUsername, b.masterPassword(instanceID))
+	connectionString, err := b.connectionString(
+		aws.StringValue(dbInstance.Engine),
+		aws.StringValue(dbInstance.Endpoint.Address),
+		aws.Int64Value(dbInstance.Endpoint.Port),
+		aws.StringValue(dbInstance.DBName),
+		aws.StringValue(dbInstance.MasterUsername),
+		b.masterPassword(instanceID),
+	)
 	if err != nil {
 		return bindingResponse, err
 	}
 
 	logger.Debug("sql-open", lager.Data{"connection-string": connectionString})
 
-	db, err := sql.Open(*dbInstance.Engine, connectionString)
+	db, err := sql.Open(aws.StringValue(dbInstance.Engine), connectionString)
 	if err != nil {
 		return bindingResponse, err
 	}
@@ -301,31 +308,31 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 
 	dbUsername := b.dbUsername(bindingID)
 	dbPassword := b.dbPassword()
-	dbName := *dbInstance.DBName
+	dbName := aws.StringValue(dbInstance.DBName)
 
 	if bindParameters.DBName != "" {
 		dbName = bindParameters.DBName
-		if err = b.createDB(db, *dbInstance.Engine, dbName, logger); err != nil {
+		if err = b.createDB(db, aws.StringValue(dbInstance.Engine), dbName, logger); err != nil {
 			return bindingResponse, err
 		}
 	}
 
-	if err = b.createUser(db, *dbInstance.Engine, dbUsername, dbPassword, logger); err != nil {
+	if err = b.createUser(db, aws.StringValue(dbInstance.Engine), dbUsername, dbPassword, logger); err != nil {
 		return bindingResponse, err
 	}
 
-	if err = b.grantPrivileges(db, *dbInstance.Engine, dbName, dbUsername, logger); err != nil {
+	if err = b.grantPrivileges(db, aws.StringValue(dbInstance.Engine), dbName, dbUsername, logger); err != nil {
 		return bindingResponse, err
 	}
 
 	bindingResponse.Credentials = &CredentialsHash{
-		Host:     *dbInstance.Endpoint.Address,
-		Port:     *dbInstance.Endpoint.Port,
+		Host:     aws.StringValue(dbInstance.Endpoint.Address),
+		Port:     aws.Int64Value(dbInstance.Endpoint.Port),
 		Name:     dbName,
 		Username: dbUsername,
 		Password: dbPassword,
-		URI:      fmt.Sprintf("%s://%s:%s@%s:%d/%s?reconnect=true", *dbInstance.Engine, dbUsername, dbPassword, *dbInstance.Endpoint.Address, *dbInstance.Endpoint.Port, dbName),
-		JDBCURI:  fmt.Sprintf("jdbc:%s://%s:%d/%s?user=%s&password=%s", *dbInstance.Engine, *dbInstance.Endpoint.Address, *dbInstance.Endpoint.Port, dbName, dbUsername, dbPassword),
+		URI:      fmt.Sprintf("%s://%s:%s@%s:%d/%s?reconnect=true", aws.StringValue(dbInstance.Engine), dbUsername, dbPassword, aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName),
+		JDBCURI:  fmt.Sprintf("jdbc:%s://%s:%d/%s?user=%s&password=%s", aws.StringValue(dbInstance.Engine), aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName, dbUsername, dbPassword),
 	}
 
 	return bindingResponse, nil
@@ -343,20 +350,27 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 		return err
 	}
 
-	connectionString, err := b.connectionString(*dbInstance.Engine, *dbInstance.Endpoint.Address, *dbInstance.Endpoint.Port, *dbInstance.DBName, *dbInstance.MasterUsername, b.masterPassword(instanceID))
+	connectionString, err := b.connectionString(
+		aws.StringValue(dbInstance.Engine),
+		aws.StringValue(dbInstance.Endpoint.Address),
+		aws.Int64Value(dbInstance.Endpoint.Port),
+		aws.StringValue(dbInstance.DBName),
+		aws.StringValue(dbInstance.MasterUsername),
+		b.masterPassword(instanceID),
+	)
 	if err != nil {
 		return err
 	}
 
 	logger.Debug("sql-open", lager.Data{"connection-string": connectionString})
 
-	db, err := sql.Open(*dbInstance.Engine, connectionString)
+	db, err := sql.Open(aws.StringValue(dbInstance.Engine), connectionString)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	privileges, err := b.dbPrivileges(db, *dbInstance.Engine, logger)
+	privileges, err := b.dbPrivileges(db, aws.StringValue(dbInstance.Engine), logger)
 	if err != nil {
 		return err
 	}
@@ -373,21 +387,21 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 	}
 
 	if userDB != "" {
-		if err = b.revokePrivileges(db, *dbInstance.Engine, userDB, dbUsername, logger); err != nil {
+		if err = b.revokePrivileges(db, aws.StringValue(dbInstance.Engine), userDB, dbUsername, logger); err != nil {
 			return err
 		}
 
-		if userDB != *dbInstance.DBName {
+		if userDB != aws.StringValue(dbInstance.DBName) {
 			users := privileges[userDB]
 			if len(users) == 1 {
-				if err = b.dropDB(db, *dbInstance.Engine, userDB, logger); err != nil {
+				if err = b.dropDB(db, aws.StringValue(dbInstance.Engine), userDB, logger); err != nil {
 					return err
 				}
 			}
 		}
 	}
 
-	if err = b.dropUser(db, *dbInstance.Engine, dbUsername, logger); err != nil {
+	if err = b.dropUser(db, aws.StringValue(dbInstance.Engine), dbUsername, logger); err != nil {
 		return err
 	}
 
@@ -406,9 +420,9 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 		return lastOperationResponse, err
 	}
 
-	lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' status is '%s'", b.dbInstanceIdentifier(instanceID), *dbInstance.DBInstanceStatus)
+	lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' status is '%s'", b.dbInstanceIdentifier(instanceID), aws.StringValue(dbInstance.DBInstanceStatus))
 
-	if state, ok := rdsStatus2State[*dbInstance.DBInstanceStatus]; ok {
+	if state, ok := rdsStatus2State[aws.StringValue(dbInstance.DBInstanceStatus)]; ok {
 		lastOperationResponse.State = state
 	}
 
@@ -487,7 +501,7 @@ func (b *RDSBroker) describeDBInstance(instanceID string, logger lager.Logger) (
 	}
 
 	for _, dbInstance := range dbInstances.DBInstances {
-		if b.dbInstanceIdentifier(instanceID) == *dbInstance.DBInstanceIdentifier {
+		if b.dbInstanceIdentifier(instanceID) == aws.StringValue(dbInstance.DBInstanceIdentifier) {
 			logger.Debug("describe-db-instances", lager.Data{"db-instance": dbInstance})
 			return dbInstance, nil
 		}
@@ -682,34 +696,34 @@ func (b *RDSBroker) buildModifyDBInstanceInput(
 		ApplyImmediately:     aws.Bool(updateParameters.ApplyImmediately),
 	}
 
-	if *dbInstance.DBInstanceClass != servicePlan.RDSProperties.DBInstanceClass {
+	if aws.StringValue(dbInstance.DBInstanceClass) != servicePlan.RDSProperties.DBInstanceClass {
 		modifyDBInstanceInput.DBInstanceClass = aws.String(servicePlan.RDSProperties.DBInstanceClass)
 	}
 
-	if strings.ToLower(*dbInstance.Engine) != strings.ToLower(servicePlan.RDSProperties.Engine) {
-		return modifyDBInstanceInput, fmt.Errorf("This broker does not support updating the RDS engine from '%s' to '%s'", *dbInstance.Engine, servicePlan.RDSProperties.Engine)
+	if strings.ToLower(aws.StringValue(dbInstance.Engine)) != strings.ToLower(servicePlan.RDSProperties.Engine) {
+		return modifyDBInstanceInput, fmt.Errorf("This broker does not support updating the RDS engine from '%s' to '%s'", aws.StringValue(dbInstance.Engine), servicePlan.RDSProperties.Engine)
 	}
 
-	if *dbInstance.EngineVersion != servicePlan.RDSProperties.EngineVersion {
+	if aws.StringValue(dbInstance.EngineVersion) != servicePlan.RDSProperties.EngineVersion {
 		modifyDBInstanceInput.EngineVersion = aws.String(servicePlan.RDSProperties.EngineVersion)
-		modifyDBInstanceInput.AllowMajorVersionUpgrade = aws.Bool(b.allowMajorVersionUpgrade(servicePlan.RDSProperties.EngineVersion, *dbInstance.EngineVersion))
+		modifyDBInstanceInput.AllowMajorVersionUpgrade = aws.Bool(b.allowMajorVersionUpgrade(servicePlan.RDSProperties.EngineVersion, aws.StringValue(dbInstance.EngineVersion)))
 	}
 
-	if *dbInstance.AllocatedStorage < servicePlan.RDSProperties.AllocatedStorage {
+	if aws.Int64Value(dbInstance.AllocatedStorage) < servicePlan.RDSProperties.AllocatedStorage {
 		modifyDBInstanceInput.AllocatedStorage = aws.Int64(servicePlan.RDSProperties.AllocatedStorage)
 	}
 
-	if *dbInstance.AutoMinorVersionUpgrade != servicePlan.RDSProperties.AutoMinorVersionUpgrade {
+	if aws.BoolValue(dbInstance.AutoMinorVersionUpgrade) != servicePlan.RDSProperties.AutoMinorVersionUpgrade {
 		modifyDBInstanceInput.AutoMinorVersionUpgrade = aws.Bool(servicePlan.RDSProperties.AutoMinorVersionUpgrade)
 	}
 
 	if updateParameters.BackupRetentionPeriod > 0 {
-		if *dbInstance.BackupRetentionPeriod != updateParameters.BackupRetentionPeriod {
+		if aws.Int64Value(dbInstance.BackupRetentionPeriod) != updateParameters.BackupRetentionPeriod {
 			modifyDBInstanceInput.BackupRetentionPeriod = aws.Int64(updateParameters.BackupRetentionPeriod)
 		}
 	} else {
 		if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
-			if *dbInstance.BackupRetentionPeriod != servicePlan.RDSProperties.BackupRetentionPeriod {
+			if aws.Int64Value(dbInstance.BackupRetentionPeriod) != servicePlan.RDSProperties.BackupRetentionPeriod {
 				modifyDBInstanceInput.BackupRetentionPeriod = aws.Int64(servicePlan.RDSProperties.BackupRetentionPeriod)
 			}
 		}
@@ -745,7 +759,7 @@ func (b *RDSBroker) buildModifyDBInstanceInput(
 		modifyDBInstanceInput.DBSecurityGroups = aws.StringSlice(servicePlan.RDSProperties.DBSecurityGroups)
 	}
 
-	if *dbInstance.MultiAZ != servicePlan.RDSProperties.MultiAZ {
+	if aws.BoolValue(dbInstance.MultiAZ) != servicePlan.RDSProperties.MultiAZ {
 		modifyDBInstanceInput.MultiAZ = aws.Bool(servicePlan.RDSProperties.MultiAZ)
 	}
 
@@ -759,37 +773,37 @@ func (b *RDSBroker) buildModifyDBInstanceInput(
 	}
 
 	if updateParameters.PreferredBackupWindow != "" {
-		if *dbInstance.PreferredBackupWindow != updateParameters.PreferredBackupWindow {
+		if aws.StringValue(dbInstance.PreferredBackupWindow) != updateParameters.PreferredBackupWindow {
 			modifyDBInstanceInput.PreferredBackupWindow = aws.String(updateParameters.PreferredBackupWindow)
 		}
 	} else {
 		if servicePlan.RDSProperties.PreferredBackupWindow != "" {
-			if *dbInstance.PreferredBackupWindow != servicePlan.RDSProperties.PreferredBackupWindow {
+			if aws.StringValue(dbInstance.PreferredBackupWindow) != servicePlan.RDSProperties.PreferredBackupWindow {
 				modifyDBInstanceInput.PreferredBackupWindow = aws.String(servicePlan.RDSProperties.PreferredBackupWindow)
 			}
 		}
 	}
 
 	if updateParameters.PreferredMaintenanceWindow != "" {
-		if *dbInstance.PreferredMaintenanceWindow != updateParameters.PreferredMaintenanceWindow {
+		if aws.StringValue(dbInstance.PreferredMaintenanceWindow) != updateParameters.PreferredMaintenanceWindow {
 			modifyDBInstanceInput.PreferredMaintenanceWindow = aws.String(updateParameters.PreferredMaintenanceWindow)
 		}
 	} else {
 		if servicePlan.RDSProperties.PreferredMaintenanceWindow != "" {
-			if *dbInstance.PreferredMaintenanceWindow != servicePlan.RDSProperties.PreferredMaintenanceWindow {
+			if aws.StringValue(dbInstance.PreferredMaintenanceWindow) != servicePlan.RDSProperties.PreferredMaintenanceWindow {
 				modifyDBInstanceInput.PreferredMaintenanceWindow = aws.String(servicePlan.RDSProperties.PreferredMaintenanceWindow)
 			}
 		}
 	}
 
 	if servicePlan.RDSProperties.StorageType != "" {
-		if *dbInstance.StorageType != servicePlan.RDSProperties.StorageType {
+		if aws.StringValue(dbInstance.StorageType) != servicePlan.RDSProperties.StorageType {
 			modifyDBInstanceInput.StorageType = aws.String(servicePlan.RDSProperties.StorageType)
 		}
 	}
 
 	if servicePlan.RDSProperties.Iops > 0 {
-		if *dbInstance.Iops != servicePlan.RDSProperties.Iops {
+		if aws.Int64Value(dbInstance.Iops) != servicePlan.RDSProperties.Iops {
 			modifyDBInstanceInput.Iops = aws.Int64(servicePlan.RDSProperties.Iops)
 		}
 	}
@@ -815,7 +829,7 @@ func (b *RDSBroker) buildModifyDBInstanceInput(
 		modifyDBInstanceInput.VpcSecurityGroupIds = aws.StringSlice(servicePlan.RDSProperties.VpcSecurityGroupIds)
 	}
 
-	if *dbInstance.CopyTagsToSnapshot != servicePlan.RDSProperties.CopyTagsToSnapshot {
+	if aws.BoolValue(dbInstance.CopyTagsToSnapshot) != servicePlan.RDSProperties.CopyTagsToSnapshot {
 		modifyDBInstanceInput.CopyTagsToSnapshot = aws.Bool(servicePlan.RDSProperties.CopyTagsToSnapshot)
 	}
 
