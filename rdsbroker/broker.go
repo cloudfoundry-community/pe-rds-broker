@@ -31,16 +31,16 @@ const detailsLogKey = "details"
 const acceptsIncompleteLogKey = "acceptsIncomplete"
 
 var rdsStatus2State = map[string]string{
-	"available":                    "succeeded",
-	"backing-up":                   "in progress",
-	"creating":                     "in progress",
-	"deleting":                     "in progress",
-	"maintenance":                  "in progress",
-	"modifying":                    "in progress",
-	"rebooting":                    "in progress",
-	"renaming":                     "in progress",
-	"resetting-master-credentials": "in progress",
-	"upgrading":                    "in progress",
+	"available":                    brokerapi.LastOperationSucceeded,
+	"backing-up":                   brokerapi.LastOperationInProgress,
+	"creating":                     brokerapi.LastOperationInProgress,
+	"deleting":                     brokerapi.LastOperationInProgress,
+	"maintenance":                  brokerapi.LastOperationInProgress,
+	"modifying":                    brokerapi.LastOperationInProgress,
+	"rebooting":                    brokerapi.LastOperationInProgress,
+	"renaming":                     brokerapi.LastOperationInProgress,
+	"resetting-master-credentials": brokerapi.LastOperationInProgress,
+	"upgrading":                    brokerapi.LastOperationInProgress,
 }
 
 type CredentialsHash struct {
@@ -413,7 +413,7 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 		instanceIDLogKey: instanceID,
 	})
 
-	lastOperationResponse := brokerapi.LastOperationResponse{State: "failed"}
+	lastOperationResponse := brokerapi.LastOperationResponse{State: brokerapi.LastOperationFailed}
 
 	dbInstance, err := b.describeDBInstance(instanceID, logger)
 	if err != nil {
