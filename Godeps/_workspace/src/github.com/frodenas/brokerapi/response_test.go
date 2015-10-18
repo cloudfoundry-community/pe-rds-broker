@@ -99,10 +99,37 @@ var _ = Describe("Last Operation Response", func() {
 			Expect(lastOperationResponse).To(matchers.MarshalToJSON(json))
 		})
 
+		It("operation in progress", func() {
+			lastOperationResponse := LastOperationResponse{
+				State: LastOperationInProgress,
+			}
+			json := `{"state":"in progress"}`
+
+			Expect(lastOperationResponse).To(matchers.MarshalToJSON(json))
+		})
+
+		It("operation failed", func() {
+			lastOperationResponse := LastOperationResponse{
+				State: LastOperationFailed,
+			}
+			json := `{"state":"failed"}`
+
+			Expect(lastOperationResponse).To(matchers.MarshalToJSON(json))
+		})
+
+		It("operation succeeded", func() {
+			lastOperationResponse := LastOperationResponse{
+				State: LastOperationSucceeded,
+			}
+			json := `{"state":"succeeded"}`
+
+			Expect(lastOperationResponse).To(matchers.MarshalToJSON(json))
+		})
+
 		Context("when a description is present", func() {
 			It("has a description field", func() {
 				lastOperationResponse := LastOperationResponse{
-					State:       "succeeded",
+					State:       LastOperationSucceeded,
 					Description: "the operation succeeded",
 				}
 				json := `{"state":"succeeded","description":"the operation succeeded"}`

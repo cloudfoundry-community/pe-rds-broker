@@ -24,3 +24,7 @@ type LastOperationResponse struct {
 	State       string `json:"state"`
 	Description string `json:"description,omitempty"`
 }
+
+const LastOperationInProgress = "in progress"
+const LastOperationFailed = "failed"
+const LastOperationSucceeded = "succeeded"
