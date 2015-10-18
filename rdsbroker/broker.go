@@ -426,6 +426,12 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 		lastOperationResponse.State = state
 	}
 
+	emptyPendingModifiedValues := &rds.PendingModifiedValues{}
+	if lastOperationResponse.State == brokerapi.LastOperationSucceeded && *dbInstance.PendingModifiedValues != *emptyPendingModifiedValues {
+		lastOperationResponse.State = brokerapi.LastOperationInProgress
+		lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' has pending modifications", b.dbInstanceIdentifier(instanceID))
+	}
+
 	return lastOperationResponse, nil
 }
 
