@@ -17,7 +17,7 @@ A sample configuration can be found at [config-sample.json](https://github.com/c
 |:-------------------------------|:--------:|:------- |:-----------
 | region                         | Y        | String  | RDS Region
 | db_prefix                      | Y        | String  | Prefix to add to DB Indentifiers
-| max_db_instances               | N        | Integer | Maximum number of RDS DB Instances that can be provisioned by this broker. `0` means `unlimited` (defaults to `0`)
+| max_db_instances               | N        | Integer | Maximum number of RDS DB Instances that can be provisioned by this broker. `0` means `unlimited` (defaults to `0`). NOT YET IMPLEMENTED.
 | allow_user_provision_parameters| N        | Boolean | Allow users to send arbitrary parameters on provision calls (defaults to `false`)
 | allow_user_update_parameters   | N        | Boolean | Allow users to send arbitrary parameters on update calls (defaults to `false`)
 | allow_user_bind_parameters     | N        | Boolean | Allow users to send arbitrary parameters on bind calls (defaults to `false`)
