@@ -58,7 +58,7 @@ var _ = Describe("Config", func() {
 			Expect(err.Error()).To(ContainSubstring("Must provide a non-empty Password"))
 		})
 
-		It("returns error if Password is not valid", func() {
+		It("returns error if RDS configuration is not valid", func() {
 			config.RDSConfig = rdsbroker.Config{}
 
 			err := config.Validate()
