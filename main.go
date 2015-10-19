@@ -8,6 +8,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/frodenas/brokerapi"
 	"github.com/pivotal-golang/lager"
 
@@ -53,7 +56,10 @@ func main() {
 
 	logger := buildLogger(config.LogLevel)
 
-	serviceBroker := rdsbroker.New(config.RDSConfig, logger)
+	awsConfig := aws.NewConfig().WithRegion(config.RDSConfig.Region)
+	iamsvc := iam.New(awsConfig)
+	rdssvc := rds.New(awsConfig)
+	serviceBroker := rdsbroker.New(config.RDSConfig, logger, iamsvc, rdssvc)
 
 	credentials := brokerapi.BrokerCredentials{
 		Username: config.Username,

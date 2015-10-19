@@ -69,8 +69,9 @@ type RDSBroker struct {
 func New(
 	config Config,
 	logger lager.Logger,
+	iamsvc *iam.IAM,
+	rdssvc *rds.RDS,
 ) *RDSBroker {
-	awsConfig := aws.NewConfig().WithRegion(config.Region)
 	return &RDSBroker{
 		region:                       config.Region,
 		dbPrefix:                     config.DBPrefix,
@@ -80,8 +81,8 @@ func New(
 		allowUserBindParameters:      config.AllowUserBindParameters,
 		catalog:                      config.Catalog,
 		logger:                       logger,
-		iamsvc:                       iam.New(awsConfig),
-		rdssvc:                       rds.New(awsConfig),
+		iamsvc:                       iamsvc,
+		rdssvc:                       rdssvc,
 	}
 }
 
