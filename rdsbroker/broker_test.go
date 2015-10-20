@@ -8,6 +8,8 @@ import (
 
 	. "github.com/cf-platform-eng/rds-broker/rdsbroker"
 
+	"github.com/cf-platform-eng/rds-broker/database/fakes"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/request"
@@ -29,34 +31,44 @@ var _ = Describe("RDS Broker", func() {
 
 		config Config
 
-		logger lager.Logger
-
 		iamsvc  *iam.IAM
 		iamCall func(r *request.Request)
 
 		rdssvc  *rds.RDS
 		rdsCall func(r *request.Request)
 
+		dbProvider *fakes.FakeProvider
+		database   *fakes.FakeDatabase
+
+		testSink *lagertest.TestSink
+		logger   lager.Logger
+
 		rdsBroker *RDSBroker
 
 		allowUserProvisionParameters bool
 		allowUserUpdateParameters    bool
 		allowUserBindParameters      bool
+		serviceBindable              bool
 		planUpdateable               bool
 		skipFinalSnapshot            bool
 
-		testSink = lagertest.NewTestSink()
-
 		instanceID           = "instance-id"
+		bindingID            = "binding-id"
 		dbInstanceIdentifier = "cf-instance-id"
+		dbUsername           = "YmluZGluZy1pZNQd"
 	)
 
 	BeforeEach(func() {
 		allowUserProvisionParameters = true
 		allowUserUpdateParameters = true
 		allowUserBindParameters = true
+		serviceBindable = true
 		planUpdateable = true
 		skipFinalSnapshot = true
+
+		dbProvider = &fakes.FakeProvider{}
+		database = &fakes.FakeDatabase{}
+		dbProvider.GetDatabaseDatabase = database
 	})
 
 	JustBeforeEach(func() {
@@ -85,6 +97,7 @@ var _ = Describe("RDS Broker", func() {
 			ID:             "Service-1",
 			Name:           "Service 1",
 			Description:    "This is the Service 1",
+			Bindable:       serviceBindable,
 			PlanUpdateable: planUpdateable,
 			Plans:          []ServicePlan{plan1},
 		}
@@ -92,6 +105,7 @@ var _ = Describe("RDS Broker", func() {
 			ID:             "Service-2",
 			Name:           "Service 2",
 			Description:    "This is the Service 2",
+			Bindable:       serviceBindable,
 			PlanUpdateable: planUpdateable,
 			Plans:          []ServicePlan{plan2},
 		}
@@ -109,13 +123,14 @@ var _ = Describe("RDS Broker", func() {
 			Catalog:                      catalog,
 		}
 
-		logger = lager.NewLogger("rdsbroker_test")
-		logger.RegisterSink(testSink)
-
 		iamsvc = iam.New(nil)
 		rdssvc = rds.New(nil)
 
-		rdsBroker = New(config, logger, iamsvc, rdssvc)
+		logger = lager.NewLogger("rdsbroker_test")
+		testSink = lagertest.NewTestSink()
+		logger.RegisterSink(testSink)
+
+		rdsBroker = New(config, iamsvc, rdssvc, dbProvider, logger)
 	})
 
 	var _ = Describe("Services", func() {
@@ -130,6 +145,7 @@ var _ = Describe("RDS Broker", func() {
 						ID:             "Service-1",
 						Name:           "Service 1",
 						Description:    "This is the Service 1",
+						Bindable:       serviceBindable,
 						PlanUpdateable: planUpdateable,
 						Plans: []brokerapi.ServicePlan{
 							brokerapi.ServicePlan{
@@ -143,6 +159,7 @@ var _ = Describe("RDS Broker", func() {
 						ID:             "Service-2",
 						Name:           "Service 2",
 						Description:    "This is the Service 2",
+						Bindable:       serviceBindable,
 						PlanUpdateable: planUpdateable,
 						Plans: []brokerapi.ServicePlan{
 							brokerapi.ServicePlan{
@@ -230,7 +247,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("backup_retention_period' expected type 'int64', got unconvertible type 'string'"))
+				Expect(err.Error()).To(ContainSubstring("'backup_retention_period' expected type 'int64', got unconvertible type 'string'"))
 			})
 
 			Context("and user provision parameters are not allowed", func() {
@@ -422,7 +439,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("backup_retention_period' expected type 'int64', got unconvertible type 'string'"))
+				Expect(err.Error()).To(ContainSubstring("'backup_retention_period' expected type 'int64', got unconvertible type 'string'"))
 			})
 
 			Context("and user update parameters are not allowed", func() {
@@ -437,18 +454,6 @@ var _ = Describe("RDS Broker", func() {
 			})
 		})
 
-		Context("when Plan is not updateable", func() {
-			BeforeEach(func() {
-				planUpdateable = false
-			})
-
-			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(Equal(brokerapi.ErrInstanceNotUpdateable))
-			})
-		})
-
 		Context("when Service is not found", func() {
 			BeforeEach(func() {
 				updateDetails.ServiceID = "unknown"
@@ -458,6 +463,18 @@ var _ = Describe("RDS Broker", func() {
 				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service 'unknown' not found"))
+			})
+		})
+
+		Context("when Plans are not updateable", func() {
+			BeforeEach(func() {
+				planUpdateable = false
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(Equal(brokerapi.ErrInstanceNotUpdateable))
 			})
 		})
 
@@ -669,6 +686,453 @@ var _ = Describe("RDS Broker", func() {
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 				})
+			})
+		})
+	})
+
+	var _ = Describe("Bind", func() {
+		var (
+			bindDetails brokerapi.BindDetails
+
+			dbInstances []*rds.DBInstance
+			dbInstance  *rds.DBInstance
+
+			describeDBInstancesInput *rds.DescribeDBInstancesInput
+			describeDBInstanceError  error
+		)
+
+		BeforeEach(func() {
+			bindDetails = brokerapi.BindDetails{
+				ServiceID:  "Service-1",
+				PlanID:     "Plan-1",
+				AppGUID:    "Application-1",
+				Parameters: map[string]interface{}{},
+			}
+
+			describeDBInstancesInput = &rds.DescribeDBInstancesInput{
+				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+			}
+
+			describeDBInstanceError = nil
+		})
+
+		JustBeforeEach(func() {
+			rdssvc.Handlers.Clear()
+
+			dbInstance = &rds.DBInstance{
+				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+				Engine:               aws.String("test-engine"),
+				Endpoint: &rds.Endpoint{
+					Address: aws.String("endpoint-address"),
+					Port:    aws.Int64(3306),
+				},
+				DBName:         aws.String("test-db"),
+				MasterUsername: aws.String("master-username"),
+			}
+			dbInstances = []*rds.DBInstance{dbInstance}
+
+			rdsCall = func(r *request.Request) {
+				Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
+				Expect(r.Params).To(Equal(describeDBInstancesInput))
+				data := r.Data.(*rds.DescribeDBInstancesOutput)
+				data.DBInstances = dbInstances
+				r.Error = describeDBInstanceError
+			}
+			rdssvc.Handlers.Send.PushBack(rdsCall)
+		})
+
+		It("returns the proper response", func() {
+			bindingResponse, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+			credentials := bindingResponse.Credentials.(*CredentialsHash)
+			Expect(bindingResponse.SyslogDrainURL).To(BeEmpty())
+			Expect(credentials.Host).To(Equal("endpoint-address"))
+			Expect(credentials.Port).To(Equal(int64(3306)))
+			Expect(credentials.Name).To(Equal("test-db"))
+			Expect(credentials.Username).To(Equal(dbUsername))
+			Expect(credentials.Password).ToNot(BeEmpty())
+			Expect(credentials.URI).To(ContainSubstring("@endpoint-address:3306/test-db?reconnect=true"))
+			Expect(credentials.JDBCURI).To(ContainSubstring("jdbc:test-engine://endpoint-address:3306/test-db?user=" + dbUsername + "&password="))
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("makes the proper calls", func() {
+			_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+			Expect(dbProvider.GetDatabaseCalled).To(BeTrue())
+			Expect(dbProvider.GetDatabaseEngine).To(Equal("test-engine"))
+			Expect(database.OpenCalled).To(BeTrue())
+			Expect(database.OpenAddress).To(Equal("endpoint-address"))
+			Expect(database.OpenPort).To(Equal(int64(3306)))
+			Expect(database.OpenName).To(Equal("test-db"))
+			Expect(database.OpenUsername).To(Equal("master-username"))
+			Expect(database.OpenPassword).ToNot(BeEmpty())
+			Expect(database.CreateCalled).To(BeFalse())
+			Expect(database.CreateUserCalled).To(BeTrue())
+			Expect(database.CreateUserUsername).To(Equal(dbUsername))
+			Expect(database.CreateUserPassword).ToNot(BeEmpty())
+			Expect(database.GrantPrivilegesCalled).To(BeTrue())
+			Expect(database.GrantPrivilegesName).To(Equal("test-db"))
+			Expect(database.GrantPrivilegesUsername).To(Equal(dbUsername))
+			Expect(database.CloseCalled).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("when Parameters are not valid", func() {
+			BeforeEach(func() {
+				bindDetails.Parameters = map[string]interface{}{"dbname": true}
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("'dbname' expected type 'string', got unconvertible type 'bool'"))
+			})
+
+			Context("and user bind parameters are not allowed", func() {
+				BeforeEach(func() {
+					allowUserBindParameters = false
+				})
+
+				It("does not return an error", func() {
+					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+		})
+
+		Context("when Service is not found", func() {
+			BeforeEach(func() {
+				bindDetails.ServiceID = "unknown"
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Service 'unknown' not found"))
+			})
+		})
+
+		Context("when Service is not bindable", func() {
+			BeforeEach(func() {
+				serviceBindable = false
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(Equal(brokerapi.ErrInstanceNotBindable))
+			})
+		})
+
+		Context("when Service Plan is not found", func() {
+			BeforeEach(func() {
+				bindDetails.PlanID = "unknown"
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
+			})
+		})
+
+		Context("when describing the DB instance fails", func() {
+			BeforeEach(func() {
+				describeDBInstanceError = errors.New("operation failed")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("operation failed"))
+			})
+		})
+
+		Context("when getting the database fails", func() {
+			BeforeEach(func() {
+				dbProvider.GetDatabaseError = errors.New("Database 'unknown' not supported")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Database 'unknown' not supported"))
+			})
+		})
+
+		Context("when opening a database fails", func() {
+			BeforeEach(func() {
+				database.OpenError = errors.New("Failed to open database")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Failed to open database"))
+			})
+		})
+
+		Context("when DBNname Parameter is set", func() {
+			BeforeEach(func() {
+				bindDetails.Parameters = map[string]interface{}{"dbname": "my-test-db"}
+			})
+
+			It("returns the proper response", func() {
+				bindingResponse, _ := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				credentials := bindingResponse.Credentials.(*CredentialsHash)
+				Expect(bindingResponse.SyslogDrainURL).To(BeEmpty())
+				Expect(credentials.Name).To(Equal("my-test-db"))
+			})
+
+			It("creates the database with the proper name", func() {
+				rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(database.CreateCalled).To(BeTrue())
+				Expect(database.CreateName).To(Equal("my-test-db"))
+				Expect(database.GrantPrivilegesName).To(Equal("my-test-db"))
+			})
+
+			Context("when creating the database fails", func() {
+				BeforeEach(func() {
+					database.CreateError = errors.New("Failed to create database")
+				})
+
+				It("returns the proper error", func() {
+					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(Equal("Failed to create database"))
+					Expect(database.CloseCalled).To(BeTrue())
+				})
+			})
+		})
+
+		Context("when creating a user fails", func() {
+			BeforeEach(func() {
+				database.CreateUserError = errors.New("Failed to create user")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Failed to create user"))
+				Expect(database.CloseCalled).To(BeTrue())
+			})
+		})
+
+		Context("when granting privileges fails", func() {
+			BeforeEach(func() {
+				database.GrantPrivilegesError = errors.New("Failed to grant privileges")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Failed to grant privileges"))
+				Expect(database.CloseCalled).To(BeTrue())
+			})
+		})
+	})
+
+	var _ = Describe("Unbind", func() {
+		var (
+			unbindDetails brokerapi.UnbindDetails
+
+			dbInstances []*rds.DBInstance
+			dbInstance  *rds.DBInstance
+
+			describeDBInstancesInput *rds.DescribeDBInstancesInput
+			describeDBInstanceError  error
+		)
+
+		BeforeEach(func() {
+			unbindDetails = brokerapi.UnbindDetails{
+				ServiceID: "Service-1",
+				PlanID:    "Plan-1",
+			}
+
+			describeDBInstancesInput = &rds.DescribeDBInstancesInput{
+				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+			}
+
+			describeDBInstanceError = nil
+		})
+
+		JustBeforeEach(func() {
+			rdssvc.Handlers.Clear()
+
+			dbInstance = &rds.DBInstance{
+				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+				Engine:               aws.String("test-engine"),
+				Endpoint: &rds.Endpoint{
+					Address: aws.String("endpoint-address"),
+					Port:    aws.Int64(3306),
+				},
+				DBName:         aws.String("test-db"),
+				MasterUsername: aws.String("master-username"),
+			}
+			dbInstances = []*rds.DBInstance{dbInstance}
+
+			rdsCall = func(r *request.Request) {
+				Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
+				Expect(r.Params).To(Equal(describeDBInstancesInput))
+				data := r.Data.(*rds.DescribeDBInstancesOutput)
+				data.DBInstances = dbInstances
+				r.Error = describeDBInstanceError
+			}
+			rdssvc.Handlers.Send.PushBack(rdsCall)
+		})
+
+		It("makes the proper calls", func() {
+			err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+			Expect(dbProvider.GetDatabaseCalled).To(BeTrue())
+			Expect(dbProvider.GetDatabaseEngine).To(Equal("test-engine"))
+			Expect(database.OpenCalled).To(BeTrue())
+			Expect(database.OpenAddress).To(Equal("endpoint-address"))
+			Expect(database.OpenPort).To(Equal(int64(3306)))
+			Expect(database.OpenName).To(Equal("test-db"))
+			Expect(database.OpenUsername).To(Equal("master-username"))
+			Expect(database.OpenPassword).ToNot(BeEmpty())
+			Expect(database.PrivilegesCalled).To(BeTrue())
+			Expect(database.RevokePrivilegesCalled).To(BeFalse())
+			Expect(database.DropCalled).To(BeFalse())
+			Expect(database.DropUserCalled).To(BeTrue())
+			Expect(database.DropUserUsername).To(Equal(dbUsername))
+			Expect(database.CloseCalled).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("when describing the DB instance fails", func() {
+			BeforeEach(func() {
+				describeDBInstanceError = errors.New("operation failed")
+			})
+
+			It("returns the proper error", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("operation failed"))
+			})
+		})
+
+		Context("when getting the database fails", func() {
+			BeforeEach(func() {
+				dbProvider.GetDatabaseError = errors.New("Database 'unknown' not supported")
+			})
+
+			It("returns the proper error", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Database 'unknown' not supported"))
+			})
+		})
+
+		Context("when opening a database fails", func() {
+			BeforeEach(func() {
+				database.OpenError = errors.New("Failed to open database")
+			})
+
+			It("returns the proper error", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Failed to open database"))
+			})
+		})
+
+		Context("when getting privileges fails", func() {
+			BeforeEach(func() {
+				database.PrivilegesError = errors.New("Failed to get privileges")
+			})
+
+			It("returns the proper error", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Failed to get privileges"))
+				Expect(database.CloseCalled).To(BeTrue())
+			})
+		})
+
+		Context("when user has privileges over a db", func() {
+			BeforeEach(func() {
+				database.PrivilegesPrivileges = map[string][]string{"test-db": []string{dbUsername}}
+			})
+
+			It("makes the proper calls", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(database.RevokePrivilegesCalled).To(BeTrue())
+				Expect(database.RevokePrivilegesName).To(Equal("test-db"))
+				Expect(database.RevokePrivilegesUsername).To(Equal(dbUsername))
+				Expect(database.DropCalled).To(BeFalse())
+				Expect(database.CloseCalled).To(BeTrue())
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			Context("when revoking privileges fails", func() {
+				BeforeEach(func() {
+					database.RevokePrivilegesError = errors.New("Failed to revoke privileges")
+				})
+
+				It("returns the proper error", func() {
+					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(Equal("Failed to revoke privileges"))
+					Expect(database.CloseCalled).To(BeTrue())
+				})
+			})
+
+			Context("and the db is not the master db", func() {
+				BeforeEach(func() {
+					database.PrivilegesPrivileges = map[string][]string{"another-test-db": []string{dbUsername}}
+				})
+
+				It("makes the proper calls", func() {
+					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					Expect(database.RevokePrivilegesCalled).To(BeTrue())
+					Expect(database.RevokePrivilegesName).To(Equal("another-test-db"))
+					Expect(database.RevokePrivilegesUsername).To(Equal(dbUsername))
+					Expect(database.DropCalled).To(BeTrue())
+					Expect(database.DropName).To(Equal("another-test-db"))
+					Expect(database.CloseCalled).To(BeTrue())
+					Expect(err).ToNot(HaveOccurred())
+				})
+
+				Context("when droping the db fails", func() {
+					BeforeEach(func() {
+						database.DropError = errors.New("Failed to drop db")
+					})
+
+					It("returns the proper error", func() {
+						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+						Expect(err).To(HaveOccurred())
+						Expect(err.Error()).To(Equal("Failed to drop db"))
+						Expect(database.CloseCalled).To(BeTrue())
+					})
+				})
+
+				Context("but there are other users with grants over the db", func() {
+					BeforeEach(func() {
+						database.PrivilegesPrivileges = map[string][]string{"another-test-db": []string{dbUsername, "another-user"}}
+					})
+
+					It("makes the proper calls", func() {
+						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+						Expect(database.RevokePrivilegesCalled).To(BeTrue())
+						Expect(database.RevokePrivilegesName).To(Equal("another-test-db"))
+						Expect(database.RevokePrivilegesUsername).To(Equal(dbUsername))
+						Expect(database.DropCalled).To(BeFalse())
+						Expect(database.CloseCalled).To(BeTrue())
+						Expect(err).ToNot(HaveOccurred())
+					})
+				})
+			})
+		})
+
+		Context("when deleting a user fails", func() {
+			BeforeEach(func() {
+				database.DropUserError = errors.New("Failed to delete user")
+			})
+
+			It("returns the proper error", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Failed to delete user"))
+				Expect(database.CloseCalled).To(BeTrue())
 			})
 		})
 	})

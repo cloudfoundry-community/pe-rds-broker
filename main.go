@@ -14,6 +14,7 @@ import (
 	"github.com/frodenas/brokerapi"
 	"github.com/pivotal-golang/lager"
 
+	"github.com/cf-platform-eng/rds-broker/database"
 	"github.com/cf-platform-eng/rds-broker/rdsbroker"
 )
 
@@ -54,12 +55,12 @@ func main() {
 		log.Fatalf("Error loading config file: %s", err)
 	}
 
-	logger := buildLogger(config.LogLevel)
-
 	awsConfig := aws.NewConfig().WithRegion(config.RDSConfig.Region)
 	iamsvc := iam.New(awsConfig)
 	rdssvc := rds.New(awsConfig)
-	serviceBroker := rdsbroker.New(config.RDSConfig, logger, iamsvc, rdssvc)
+	dbProvider := database.NewProviderService()
+	logger := buildLogger(config.LogLevel)
+	serviceBroker := rdsbroker.New(config.RDSConfig, iamsvc, rdssvc, dbProvider, logger)
 
 	credentials := brokerapi.BrokerCredentials{
 		Username: config.Username,

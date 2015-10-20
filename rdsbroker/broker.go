@@ -1,15 +1,11 @@
 package rdsbroker
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql" // MySQL Driver
-	_ "github.com/lib/pq"              // PostgreSQL Driver
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -19,6 +15,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/pivotal-golang/lager"
 
+	"github.com/cf-platform-eng/rds-broker/database"
 	"github.com/cf-platform-eng/rds-broker/utils"
 )
 
@@ -61,16 +58,18 @@ type RDSBroker struct {
 	allowUserUpdateParameters    bool
 	allowUserBindParameters      bool
 	catalog                      Catalog
-	logger                       lager.Logger
 	iamsvc                       *iam.IAM
 	rdssvc                       *rds.RDS
+	dbProvider                   database.Provider
+	logger                       lager.Logger
 }
 
 func New(
 	config Config,
-	logger lager.Logger,
 	iamsvc *iam.IAM,
 	rdssvc *rds.RDS,
+	dbProvider database.Provider,
+	logger lager.Logger,
 ) *RDSBroker {
 	return &RDSBroker{
 		region:                       config.Region,
@@ -80,9 +79,10 @@ func New(
 		allowUserUpdateParameters:    config.AllowUserUpdateParameters,
 		allowUserBindParameters:      config.AllowUserBindParameters,
 		catalog:                      config.Catalog,
-		logger:                       logger,
 		iamsvc:                       iamsvc,
 		rdssvc:                       rdssvc,
+		dbProvider:                   dbProvider,
+		logger:                       logger,
 	}
 }
 
@@ -279,7 +279,7 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 
 	_, ok = b.catalog.FindServicePlan(details.PlanID)
 	if !ok {
-		return bindingResponse, fmt.Errorf("Plan '%s' not found", details.PlanID)
+		return bindingResponse, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
 	dbInstance, err := b.describeDBInstance(instanceID, logger)
@@ -287,22 +287,12 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 		return bindingResponse, err
 	}
 
-	connectionString, err := b.connectionString(
-		aws.StringValue(dbInstance.Engine),
-		aws.StringValue(dbInstance.Endpoint.Address),
-		aws.Int64Value(dbInstance.Endpoint.Port),
-		aws.StringValue(dbInstance.DBName),
-		aws.StringValue(dbInstance.MasterUsername),
-		b.masterPassword(instanceID),
-	)
+	db, err := b.dbProvider.GetDatabase(*dbInstance.Engine, logger)
 	if err != nil {
 		return bindingResponse, err
 	}
 
-	logger.Debug("sql-open", lager.Data{"connection-string": connectionString})
-
-	db, err := sql.Open(aws.StringValue(dbInstance.Engine), connectionString)
-	if err != nil {
+	if err = db.Open(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), aws.StringValue(dbInstance.DBName), aws.StringValue(dbInstance.MasterUsername), b.masterPassword(instanceID)); err != nil {
 		return bindingResponse, err
 	}
 	defer db.Close()
@@ -313,16 +303,16 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 
 	if bindParameters.DBName != "" {
 		dbName = bindParameters.DBName
-		if err = b.createDB(db, aws.StringValue(dbInstance.Engine), dbName, logger); err != nil {
+		if err = db.Create(dbName); err != nil {
 			return bindingResponse, err
 		}
 	}
 
-	if err = b.createUser(db, aws.StringValue(dbInstance.Engine), dbUsername, dbPassword, logger); err != nil {
+	if err = db.CreateUser(dbUsername, dbPassword); err != nil {
 		return bindingResponse, err
 	}
 
-	if err = b.grantPrivileges(db, aws.StringValue(dbInstance.Engine), dbName, dbUsername, logger); err != nil {
+	if err = db.GrantPrivileges(dbName, dbUsername); err != nil {
 		return bindingResponse, err
 	}
 
@@ -351,27 +341,17 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 		return err
 	}
 
-	connectionString, err := b.connectionString(
-		aws.StringValue(dbInstance.Engine),
-		aws.StringValue(dbInstance.Endpoint.Address),
-		aws.Int64Value(dbInstance.Endpoint.Port),
-		aws.StringValue(dbInstance.DBName),
-		aws.StringValue(dbInstance.MasterUsername),
-		b.masterPassword(instanceID),
-	)
+	db, err := b.dbProvider.GetDatabase(*dbInstance.Engine, logger)
 	if err != nil {
 		return err
 	}
 
-	logger.Debug("sql-open", lager.Data{"connection-string": connectionString})
-
-	db, err := sql.Open(aws.StringValue(dbInstance.Engine), connectionString)
-	if err != nil {
+	if err = db.Open(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), aws.StringValue(dbInstance.DBName), aws.StringValue(dbInstance.MasterUsername), b.masterPassword(instanceID)); err != nil {
 		return err
 	}
 	defer db.Close()
 
-	privileges, err := b.dbPrivileges(db, aws.StringValue(dbInstance.Engine), logger)
+	privileges, err := db.Privileges()
 	if err != nil {
 		return err
 	}
@@ -388,21 +368,21 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 	}
 
 	if userDB != "" {
-		if err = b.revokePrivileges(db, aws.StringValue(dbInstance.Engine), userDB, dbUsername, logger); err != nil {
+		if err = db.RevokePrivileges(userDB, dbUsername); err != nil {
 			return err
 		}
 
 		if userDB != aws.StringValue(dbInstance.DBName) {
 			users := privileges[userDB]
 			if len(users) == 1 {
-				if err = b.dropDB(db, aws.StringValue(dbInstance.Engine), userDB, logger); err != nil {
+				if err = db.Drop(userDB); err != nil {
 					return err
 				}
 			}
 		}
 	}
 
-	if err = b.dropUser(db, aws.StringValue(dbInstance.Engine), dbUsername, logger); err != nil {
+	if err = db.DropUser(dbUsername); err != nil {
 		return err
 	}
 
@@ -868,243 +848,4 @@ func (b *RDSBroker) buildDeleteDBInstanceInput(instanceID string, servicePlan Se
 	}
 
 	return deleteDBInstanceInput
-}
-
-func (b *RDSBroker) connectionString(engine string, dbAddress string, dbPort int64, dbName string, masterUsername string, masterPassword string) (string, error) {
-	var connectionString string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", masterUsername, masterPassword, dbAddress, dbPort, dbName)
-	case "postgres":
-		connectionString = fmt.Sprintf("host=%s port=%d dbname=%s user='%s' password='%s'", dbAddress, dbPort, dbName, masterUsername, masterPassword)
-	default:
-		return connectionString, fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	return connectionString, nil
-}
-
-func (b *RDSBroker) createDB(db *sql.DB, engine string, dbName string, logger lager.Logger) error {
-	dbAlreadyExists, err := b.dbExists(db, engine, dbName, logger)
-	if err != nil {
-		return err
-	}
-	if dbAlreadyExists {
-		return nil
-	}
-
-	var createDBStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		createDBStatement = "CREATE DATABASE IF NOT EXISTS " + dbName
-	case "postgres":
-		createDBStatement = "CREATE DATABASE \"" + dbName + "\""
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("create-database", lager.Data{"statement": createDBStatement})
-
-	if _, err := db.Exec(createDBStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) dropDB(db *sql.DB, engine string, dbName string, logger lager.Logger) error {
-	if err := b.dropDBConnections(db, engine, dbName, logger); err != nil {
-		return err
-	}
-
-	var dropDBStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		dropDBStatement = "DROP DATABASE IF EXISTS " + dbName
-	case "postgres":
-		dropDBStatement = "DROP DATABASE IF EXISTS \"" + dbName + "\""
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("drop-database", lager.Data{"statement": dropDBStatement})
-
-	if _, err := db.Exec(dropDBStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) dropDBConnections(db *sql.DB, engine string, dbName string, logger lager.Logger) error {
-	var dropDBConnectionsStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		// Function not supported
-		return nil
-	case "postgres":
-		dropDBConnectionsStatement = "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '" + dbName + "' AND pid <> pg_backend_pid()"
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("drop-db-connections", lager.Data{"statement": dropDBConnectionsStatement})
-
-	if _, err := db.Exec(dropDBConnectionsStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) dbExists(db *sql.DB, engine string, dbName string, logger lager.Logger) (bool, error) {
-	var selectDatabaseStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		selectDatabaseStatement = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" + dbName + "'"
-	case "postgres":
-		selectDatabaseStatement = "SELECT datname FROM pg_database WHERE datname='" + dbName + "'"
-	default:
-		return false, fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("db-exists", lager.Data{"statement": selectDatabaseStatement})
-
-	var dummy string
-	err := db.QueryRow(selectDatabaseStatement).Scan(&dummy)
-	switch {
-	case err == sql.ErrNoRows:
-		return false, nil
-	case err != nil:
-		return false, err
-	}
-
-	return true, nil
-}
-
-func (b *RDSBroker) createUser(db *sql.DB, engine string, dbUsername string, dbPassword string, logger lager.Logger) error {
-	var createUserStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		createUserStatement = "CREATE USER '" + dbUsername + "' IDENTIFIED BY '" + dbPassword + "'"
-	case "postgres":
-		createUserStatement = "CREATE USER \"" + dbUsername + "\" WITH PASSWORD '" + dbPassword + "'"
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("create-user", lager.Data{"statement": createUserStatement})
-
-	if _, err := db.Exec(createUserStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) dropUser(db *sql.DB, engine string, dbUsername string, logger lager.Logger) error {
-	var dropUserStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		dropUserStatement = "DROP USER '" + dbUsername + "'@'%'"
-	case "postgres":
-		// For PostgreSQL we don't drop the user because it might still be owner of some objects
-		return nil
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("drop-user", lager.Data{"statement": dropUserStatement})
-
-	if _, err := db.Exec(dropUserStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) grantPrivileges(db *sql.DB, engine string, dbName string, dbUsername string, logger lager.Logger) error {
-	var grantPrivilegesStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		grantPrivilegesStatement = "GRANT ALL PRIVILEGES ON " + dbName + ".* TO '" + dbUsername + "'@'%'"
-	case "postgres":
-		grantPrivilegesStatement = "GRANT ALL PRIVILEGES ON DATABASE \"" + dbName + "\" TO \"" + dbUsername + "\""
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("grant-privileges", lager.Data{"statement": grantPrivilegesStatement})
-
-	if _, err := db.Exec(grantPrivilegesStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) revokePrivileges(db *sql.DB, engine string, dbName string, dbUsername string, logger lager.Logger) error {
-	var revokePrivilegesStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		revokePrivilegesStatement = "REVOKE ALL PRIVILEGES ON " + dbName + ".* from '" + dbUsername + "'@'%'"
-	case "postgres":
-		revokePrivilegesStatement = "REVOKE ALL PRIVILEGES ON DATABASE \"" + dbName + "\" FROM \"" + dbUsername + "\""
-	default:
-		return fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("revoke-privileges", lager.Data{"statement": revokePrivilegesStatement})
-
-	if _, err := db.Exec(revokePrivilegesStatement); err != nil {
-		logger.Error("sql-error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (b *RDSBroker) dbPrivileges(db *sql.DB, engine string, logger lager.Logger) (map[string][]string, error) {
-	privileges := make(map[string][]string)
-
-	var selectPrivilegesStatement string
-	switch strings.ToLower(engine) {
-	case "mysql", "mariadb":
-		selectPrivilegesStatement = "SELECT db, user FROM mysql.db"
-	case "postgres":
-		selectPrivilegesStatement = "SELECT datname, usename FROM pg_database d, pg_user u WHERE usecreatedb = false AND (SELECT has_database_privilege(u.usename, d.datname, 'create'))"
-	default:
-		return privileges, fmt.Errorf("This broker does not support RDS engine '%s'", engine)
-	}
-
-	logger.Debug("db-privileges", lager.Data{"statement": selectPrivilegesStatement})
-
-	rows, err := db.Query(selectPrivilegesStatement)
-	defer rows.Close()
-
-	var dbname, username string
-	for rows.Next() {
-		err := rows.Scan(&dbname, &username)
-		if err != nil {
-			return privileges, err
-		}
-		if _, ok := privileges[dbname]; !ok {
-			privileges[dbname] = []string{}
-		}
-		privileges[dbname] = append(privileges[dbname], username)
-	}
-	err = rows.Err()
-	if err != nil {
-		return privileges, err
-	}
-
-	logger.Debug("db-privileges", lager.Data{"output": privileges})
-
-	return privileges, nil
 }
