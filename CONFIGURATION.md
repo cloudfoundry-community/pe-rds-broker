@@ -75,7 +75,7 @@ Please refer to the [Amazon Relational Database Service Documentation](https://a
 | Option                       | Required | Type      | Description
 |:-----------------------------|:--------:|:--------- |:-----------
 | db_instance_class            | Y        | String    | The name of the DB Instance Class
-| engine                       | Y        | String    | The name of the Database Engine (only `mariadb`, `mysql` and `postgres` are supported)
+| engine                       | Y        | String    | The name of the Database Engine (only `aurora`, `mariadb`, `mysql` and `postgres` are supported)
 | engine_version               | Y        | String    | The version number of the Database Engine
 | allocated_storage            | Y        | Integer   | The amount of storage (in gigabytes) to be initially allocated for the database instances (between `5` and `6144`)
 | auto_minor_version_upgrade   | N        | Boolean   | Enable or disable automatic upgrades to new minor versions as they are released (defaults to `false`)
