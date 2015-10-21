@@ -322,8 +322,8 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 		Name:     dbName,
 		Username: dbUsername,
 		Password: dbPassword,
-		URI:      fmt.Sprintf("%s://%s:%s@%s:%d/%s?reconnect=true", aws.StringValue(dbInstance.Engine), dbUsername, dbPassword, aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName),
-		JDBCURI:  fmt.Sprintf("jdbc:%s://%s:%d/%s?user=%s&password=%s", aws.StringValue(dbInstance.Engine), aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName, dbUsername, dbPassword),
+		URI:      db.URI(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName, dbUsername, dbPassword),
+		JDBCURI:  db.JDBCURI(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName, dbUsername, dbPassword),
 	}
 
 	return bindingResponse, nil

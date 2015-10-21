@@ -1,5 +1,9 @@
 package fakes
 
+import (
+	"fmt"
+)
+
 type FakeDatabase struct {
 	OpenCalled   bool
 	OpenAddress  string
@@ -45,6 +49,14 @@ type FakeDatabase struct {
 	RevokePrivilegesName     string
 	RevokePrivilegesUsername string
 	RevokePrivilegesError    error
+}
+
+func (d *FakeDatabase) URI(address string, port int64, name string, username string, password string) string {
+	return fmt.Sprintf("fake://%s:%s@%s:%d/%s?reconnect=true", username, password, address, port, name)
+}
+
+func (d *FakeDatabase) JDBCURI(address string, port int64, name string, username string, password string) string {
+	return fmt.Sprintf("jdbc:fake://%s:%d/%s?user=%s&password=%s", address, port, name, username, password)
 }
 
 func (f *FakeDatabase) Open(address string, port int64, name string, username string, password string) error {

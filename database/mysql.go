@@ -20,6 +20,14 @@ func NewMySQLDatabase(logger lager.Logger) *MySQLDatabase {
 	}
 }
 
+func (d *MySQLDatabase) URI(address string, port int64, name string, username string, password string) string {
+	return fmt.Sprintf("mysql://%s:%s@%s:%d/%s?reconnect=true", username, password, address, port, name)
+}
+
+func (d *MySQLDatabase) JDBCURI(address string, port int64, name string, username string, password string) string {
+	return fmt.Sprintf("jdbc:mysql://%s:%d/%s?user=%s&password=%s", address, port, name, username, password)
+}
+
 func (d *MySQLDatabase) Open(address string, port int64, name string, username string, password string) error {
 	connectionString := d.connectionString(address, port, name, username, password)
 	d.logger.Debug("sql-open", lager.Data{"connection-string": connectionString})

@@ -17,7 +17,7 @@ func (d *ProviderService) GetDatabase(engine string, logger lager.Logger) (Datab
 	switch strings.ToLower(engine) {
 	case "aurora", "mariadb", "mysql":
 		return NewMySQLDatabase(logger), nil
-	case "postgres":
+	case "postgres", "postgresql":
 		return NewPostgresDatabase(logger), nil
 	}
 

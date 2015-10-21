@@ -1,6 +1,8 @@
 package database
 
 type Database interface {
+	URI(address string, port int64, name string, username string, password string) string
+	JDBCURI(address string, port int64, name string, username string, password string) string
 	Open(address string, port int64, name string, username string, password string) error
 	Close()
 	Exists(name string) (bool, error)

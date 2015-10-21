@@ -751,7 +751,7 @@ var _ = Describe("RDS Broker", func() {
 			Expect(credentials.Username).To(Equal(dbUsername))
 			Expect(credentials.Password).ToNot(BeEmpty())
 			Expect(credentials.URI).To(ContainSubstring("@endpoint-address:3306/test-db?reconnect=true"))
-			Expect(credentials.JDBCURI).To(ContainSubstring("jdbc:test-engine://endpoint-address:3306/test-db?user=" + dbUsername + "&password="))
+			Expect(credentials.JDBCURI).To(ContainSubstring("jdbc:fake://endpoint-address:3306/test-db?user=" + dbUsername + "&password="))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
