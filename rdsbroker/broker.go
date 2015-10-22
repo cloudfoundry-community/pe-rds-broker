@@ -2,20 +2,16 @@ package rdsbroker
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/frodenas/brokerapi"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pivotal-golang/lager"
 
-	"github.com/cf-platform-eng/rds-broker/database"
+	"github.com/cf-platform-eng/rds-broker/awsrds"
+	"github.com/cf-platform-eng/rds-broker/sqlengine"
 	"github.com/cf-platform-eng/rds-broker/utils"
 )
 
@@ -40,66 +36,47 @@ var rdsStatus2State = map[string]string{
 	"upgrading":                    brokerapi.LastOperationInProgress,
 }
 
-type CredentialsHash struct {
-	Host     string `json:"host"`
-	Port     int64  `json:"port"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	URI      string `json:"uri"`
-	JDBCURI  string `json:"jdbcUrl"`
-}
-
 type RDSBroker struct {
-	region                       string
 	dbPrefix                     string
-	maxDBInstances               int
 	allowUserProvisionParameters bool
 	allowUserUpdateParameters    bool
 	allowUserBindParameters      bool
 	catalog                      Catalog
-	iamsvc                       *iam.IAM
-	rdssvc                       *rds.RDS
-	dbProvider                   database.Provider
+	dbInstance                   awsrds.DBInstance
+	sqlProvider                  sqlengine.Provider
 	logger                       lager.Logger
 }
 
 func New(
 	config Config,
-	iamsvc *iam.IAM,
-	rdssvc *rds.RDS,
-	dbProvider database.Provider,
+	dbInstance awsrds.DBInstance,
+	sqlProvider sqlengine.Provider,
 	logger lager.Logger,
 ) *RDSBroker {
 	return &RDSBroker{
-		region:                       config.Region,
 		dbPrefix:                     config.DBPrefix,
-		maxDBInstances:               config.MaxDBInstances,
 		allowUserProvisionParameters: config.AllowUserProvisionParameters,
 		allowUserUpdateParameters:    config.AllowUserUpdateParameters,
 		allowUserBindParameters:      config.AllowUserBindParameters,
 		catalog:                      config.Catalog,
-		iamsvc:                       iamsvc,
-		rdssvc:                       rdssvc,
-		dbProvider:                   dbProvider,
-		logger:                       logger,
+		dbInstance:                   dbInstance,
+		sqlProvider:                  sqlProvider,
+		logger:                       logger.Session("broker"),
 	}
 }
 
 func (b *RDSBroker) Services() brokerapi.CatalogResponse {
 	catalogResponse := brokerapi.CatalogResponse{}
 
-	logger := b.logger.Session("broker.services")
-
 	brokerCatalog, err := json.Marshal(b.catalog)
 	if err != nil {
-		logger.Error("marshal-error", err)
+		b.logger.Error("marshal-error", err)
 		return catalogResponse
 	}
 
 	apiCatalog := brokerapi.Catalog{}
 	if err = json.Unmarshal(brokerCatalog, &apiCatalog); err != nil {
-		logger.Error("unmarshal-error", err)
+		b.logger.Error("unmarshal-error", err)
 		return catalogResponse
 	}
 
@@ -109,7 +86,7 @@ func (b *RDSBroker) Services() brokerapi.CatalogResponse {
 }
 
 func (b *RDSBroker) Provision(instanceID string, details brokerapi.ProvisionDetails, acceptsIncomplete bool) (brokerapi.ProvisioningResponse, bool, error) {
-	logger := b.logger.Session("broker.provision", lager.Data{
+	b.logger.Debug("provision", lager.Data{
 		instanceIDLogKey:        instanceID,
 		detailsLogKey:           details,
 		acceptsIncompleteLogKey: acceptsIncomplete,
@@ -133,28 +110,16 @@ func (b *RDSBroker) Provision(instanceID string, details brokerapi.ProvisionDeta
 		return provisioningResponse, false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	createDBInstanceInput := b.buildCreateDBInstanceInput(instanceID, details, provisionParameters, servicePlan)
-	logger.Debug("create-db-instance", lager.Data{"input": createDBInstanceInput})
-
-	createDBInstanceInput.MasterUsername = aws.String(b.masterUsername())
-	createDBInstanceInput.MasterUserPassword = aws.String(b.masterPassword(instanceID))
-
-	createDBInstanceOutput, err := b.rdssvc.CreateDBInstance(createDBInstanceInput)
-	if err != nil {
-		logger.Error("aws-rds-error", err)
-		if awsErr, ok := err.(awserr.Error); ok {
-			return provisioningResponse, false, errors.New(awsErr.Code() + ": " + awsErr.Message())
-		}
+	createDBInstance := b.createDBInstance(instanceID, servicePlan, provisionParameters, details)
+	if err := b.dbInstance.Create(b.dbInstanceIdentifier(instanceID), *createDBInstance); err != nil {
 		return provisioningResponse, false, err
 	}
-
-	logger.Debug("create-db-instance", lager.Data{"output": createDBInstanceOutput})
 
 	return provisioningResponse, true, nil
 }
 
 func (b *RDSBroker) Update(instanceID string, details brokerapi.UpdateDetails, acceptsIncomplete bool) (bool, error) {
-	logger := b.logger.Session("broker.update", lager.Data{
+	b.logger.Debug("update", lager.Data{
 		instanceIDLogKey:        instanceID,
 		detailsLogKey:           details,
 		acceptsIncompleteLogKey: acceptsIncomplete,
@@ -185,37 +150,19 @@ func (b *RDSBroker) Update(instanceID string, details brokerapi.UpdateDetails, a
 		return false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	dbInstance, err := b.describeDBInstance(instanceID, logger)
-	if err != nil {
-		return false, err
-	}
-
-	modifyDBInstanceInput, err := b.buildModifyDBInstanceInput(instanceID, details, updateParameters, servicePlan, dbInstance)
-	if err != nil {
-		return false, err
-	}
-
-	logger.Debug("modify-db-instance", lager.Data{"input": modifyDBInstanceInput})
-
-	modifyDBInstanceOutput, err := b.rdssvc.ModifyDBInstance(modifyDBInstanceInput)
-	if err != nil {
-		logger.Error("aws-rds-error", err)
-		if awsErr, ok := err.(awserr.Error); ok {
-			return false, errors.New(awsErr.Code() + ": " + awsErr.Message())
+	modifyDBInstance := b.modifyDBInstance(instanceID, servicePlan, updateParameters, details)
+	if err := b.dbInstance.Modify(b.dbInstanceIdentifier(instanceID), *modifyDBInstance, updateParameters.ApplyImmediately); err != nil {
+		if err == awsrds.ErrDBInstanceDoesNotExist {
+			return false, brokerapi.ErrInstanceDoesNotExist
 		}
 		return false, err
 	}
-
-	logger.Debug("modify-db-instance", lager.Data{"output": modifyDBInstanceOutput})
-
-	tags := b.buildInstanceTags("Updated", details.ServiceID, details.PlanID, "", "")
-	b.addTagsToResource(instanceID, tags, logger)
 
 	return true, nil
 }
 
 func (b *RDSBroker) Deprovision(instanceID string, details brokerapi.DeprovisionDetails, acceptsIncomplete bool) (bool, error) {
-	logger := b.logger.Session("broker.deprovision", lager.Data{
+	b.logger.Debug("deprovision", lager.Data{
 		instanceIDLogKey:        instanceID,
 		detailsLogKey:           details,
 		acceptsIncompleteLogKey: acceptsIncomplete,
@@ -230,30 +177,18 @@ func (b *RDSBroker) Deprovision(instanceID string, details brokerapi.Deprovision
 		return false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	deleteDBInstanceInput := b.buildDeleteDBInstanceInput(instanceID, servicePlan)
-	logger.Debug("delete-db-instance", lager.Data{"input": deleteDBInstanceInput})
-
-	deleteDBInstanceOutput, err := b.rdssvc.DeleteDBInstance(deleteDBInstanceInput)
-	if err != nil {
-		logger.Error("aws-rds-error", err)
-		if awsErr, ok := err.(awserr.Error); ok {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 404 {
-					return false, brokerapi.ErrInstanceDoesNotExist
-				}
-			}
-			return false, errors.New(awsErr.Code() + ": " + awsErr.Message())
+	if err := b.dbInstance.Delete(b.dbInstanceIdentifier(instanceID), servicePlan.RDSProperties.SkipFinalSnapshot); err != nil {
+		if err == awsrds.ErrDBInstanceDoesNotExist {
+			return false, brokerapi.ErrInstanceDoesNotExist
 		}
 		return false, err
 	}
-
-	logger.Debug("delete-db-instance", lager.Data{"output": deleteDBInstanceOutput})
 
 	return true, nil
 }
 
 func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDetails) (brokerapi.BindingResponse, error) {
-	logger := b.logger.Session("broker.bind", lager.Data{
+	b.logger.Debug("bind", lager.Data{
 		instanceIDLogKey: instanceID,
 		bindingIDLogKey:  bindingID,
 		detailsLogKey:    details,
@@ -282,76 +217,87 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 		return bindingResponse, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	dbInstance, err := b.describeDBInstance(instanceID, logger)
+	dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
+	if err != nil {
+		if err == awsrds.ErrDBInstanceDoesNotExist {
+			return bindingResponse, brokerapi.ErrInstanceDoesNotExist
+		}
+		return bindingResponse, err
+	}
+
+	sqlEngine, err := b.sqlProvider.GetSQLEngine(dbInstanceDetails.Engine)
 	if err != nil {
 		return bindingResponse, err
 	}
 
-	db, err := b.dbProvider.GetDatabase(*dbInstance.Engine, logger)
-	if err != nil {
+	if err = sqlEngine.Open(dbInstanceDetails.Address, dbInstanceDetails.Port, dbInstanceDetails.DBName, dbInstanceDetails.MasterUsername, b.masterPassword(instanceID)); err != nil {
 		return bindingResponse, err
 	}
-
-	if err = db.Open(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), aws.StringValue(dbInstance.DBName), aws.StringValue(dbInstance.MasterUsername), b.masterPassword(instanceID)); err != nil {
-		return bindingResponse, err
-	}
-	defer db.Close()
+	defer sqlEngine.Close()
 
 	dbUsername := b.dbUsername(bindingID)
 	dbPassword := b.dbPassword()
-	dbName := aws.StringValue(dbInstance.DBName)
+	dbName := dbInstanceDetails.DBName
 
 	if bindParameters.DBName != "" {
 		dbName = bindParameters.DBName
-		if err = db.Create(dbName); err != nil {
+		if err = sqlEngine.CreateDB(dbName); err != nil {
 			return bindingResponse, err
 		}
 	}
 
-	if err = db.CreateUser(dbUsername, dbPassword); err != nil {
+	if err = sqlEngine.CreateUser(dbUsername, dbPassword); err != nil {
 		return bindingResponse, err
 	}
 
-	if err = db.GrantPrivileges(dbName, dbUsername); err != nil {
+	if err = sqlEngine.GrantPrivileges(dbName, dbUsername); err != nil {
 		return bindingResponse, err
 	}
 
-	bindingResponse.Credentials = &CredentialsHash{
-		Host:     aws.StringValue(dbInstance.Endpoint.Address),
-		Port:     aws.Int64Value(dbInstance.Endpoint.Port),
+	bindingResponse.Credentials = &brokerapi.CredentialsHash{
+		Host:     dbInstanceDetails.Address,
+		Port:     dbInstanceDetails.Port,
 		Name:     dbName,
 		Username: dbUsername,
 		Password: dbPassword,
-		URI:      db.URI(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName, dbUsername, dbPassword),
-		JDBCURI:  db.JDBCURI(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), dbName, dbUsername, dbPassword),
+		URI:      sqlEngine.URI(dbInstanceDetails.Address, dbInstanceDetails.Port, dbName, dbUsername, dbPassword),
+		JDBCURI:  sqlEngine.JDBCURI(dbInstanceDetails.Address, dbInstanceDetails.Port, dbName, dbUsername, dbPassword),
 	}
 
 	return bindingResponse, nil
 }
 
 func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.UnbindDetails) error {
-	logger := b.logger.Session("broker.unbind", lager.Data{
+	b.logger.Debug("unbind", lager.Data{
 		instanceIDLogKey: instanceID,
 		bindingIDLogKey:  bindingID,
 		detailsLogKey:    details,
 	})
 
-	dbInstance, err := b.describeDBInstance(instanceID, logger)
+	_, ok := b.catalog.FindServicePlan(details.PlanID)
+	if !ok {
+		return fmt.Errorf("Service Plan '%s' not found", details.PlanID)
+	}
+
+	dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
+	if err != nil {
+		if err == awsrds.ErrDBInstanceDoesNotExist {
+			return brokerapi.ErrInstanceDoesNotExist
+		}
+		return err
+	}
+
+	sqlEngine, err := b.sqlProvider.GetSQLEngine(dbInstanceDetails.Engine)
 	if err != nil {
 		return err
 	}
 
-	db, err := b.dbProvider.GetDatabase(*dbInstance.Engine, logger)
-	if err != nil {
+	if err = sqlEngine.Open(dbInstanceDetails.Address, dbInstanceDetails.Port, dbInstanceDetails.DBName, dbInstanceDetails.MasterUsername, b.masterPassword(instanceID)); err != nil {
 		return err
 	}
+	defer sqlEngine.Close()
 
-	if err = db.Open(aws.StringValue(dbInstance.Endpoint.Address), aws.Int64Value(dbInstance.Endpoint.Port), aws.StringValue(dbInstance.DBName), aws.StringValue(dbInstance.MasterUsername), b.masterPassword(instanceID)); err != nil {
-		return err
-	}
-	defer db.Close()
-
-	privileges, err := db.Privileges()
+	privileges, err := sqlEngine.Privileges()
 	if err != nil {
 		return err
 	}
@@ -368,21 +314,21 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 	}
 
 	if userDB != "" {
-		if err = db.RevokePrivileges(userDB, dbUsername); err != nil {
+		if err = sqlEngine.RevokePrivileges(userDB, dbUsername); err != nil {
 			return err
 		}
 
-		if userDB != aws.StringValue(dbInstance.DBName) {
+		if userDB != dbInstanceDetails.DBName {
 			users := privileges[userDB]
 			if len(users) == 1 {
-				if err = db.Drop(userDB); err != nil {
+				if err = sqlEngine.DropDB(userDB); err != nil {
 					return err
 				}
 			}
 		}
 	}
 
-	if err = db.DropUser(dbUsername); err != nil {
+	if err = sqlEngine.DropUser(dbUsername); err != nil {
 		return err
 	}
 
@@ -390,25 +336,27 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 }
 
 func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationResponse, error) {
-	logger := b.logger.Session("broker.last-operation", lager.Data{
+	b.logger.Debug("last-operation", lager.Data{
 		instanceIDLogKey: instanceID,
 	})
 
 	lastOperationResponse := brokerapi.LastOperationResponse{State: brokerapi.LastOperationFailed}
 
-	dbInstance, err := b.describeDBInstance(instanceID, logger)
+	dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
 	if err != nil {
+		if err == awsrds.ErrDBInstanceDoesNotExist {
+			return lastOperationResponse, brokerapi.ErrInstanceDoesNotExist
+		}
 		return lastOperationResponse, err
 	}
 
-	lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' status is '%s'", b.dbInstanceIdentifier(instanceID), aws.StringValue(dbInstance.DBInstanceStatus))
+	lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' status is '%s'", b.dbInstanceIdentifier(instanceID), dbInstanceDetails.Status)
 
-	if state, ok := rdsStatus2State[aws.StringValue(dbInstance.DBInstanceStatus)]; ok {
+	if state, ok := rdsStatus2State[dbInstanceDetails.Status]; ok {
 		lastOperationResponse.State = state
 	}
 
-	emptyPendingModifiedValues := &rds.PendingModifiedValues{}
-	if lastOperationResponse.State == brokerapi.LastOperationSucceeded && *dbInstance.PendingModifiedValues != *emptyPendingModifiedValues {
+	if lastOperationResponse.State == brokerapi.LastOperationSucceeded && dbInstanceDetails.PendingModifications {
 		lastOperationResponse.State = brokerapi.LastOperationInProgress
 		lastOperationResponse.Description = fmt.Sprintf("DB Instance '%s' has pending modifications", b.dbInstanceIdentifier(instanceID))
 	}
@@ -428,14 +376,6 @@ func (b *RDSBroker) masterPassword(instanceID string) string {
 	return utils.GetMD5B64(instanceID, defaultPasswordLength)
 }
 
-func (b *RDSBroker) dbName(instanceID string) string {
-	return fmt.Sprintf("%s_%s", b.dbPrefix, strings.Replace(instanceID, "-", "_", -1))
-}
-
-func (b *RDSBroker) dbSnapshotName(instanceID string) string {
-	return fmt.Sprintf("rds-broker-%s-%s", strings.Replace(b.dbName(instanceID), "_", "-", -1), time.Now().Format("2006-01-02-15-04-05"))
-}
-
 func (b *RDSBroker) dbUsername(bindingID string) string {
 	return utils.GetMD5B64(bindingID, defaultUsernameLength)
 }
@@ -444,408 +384,172 @@ func (b *RDSBroker) dbPassword() string {
 	return utils.RandomAlphaNum(defaultPasswordLength)
 }
 
-func (b *RDSBroker) instanceARN(instanceID string, logger lager.Logger) (string, error) {
-	userARN, err := b.userARN(logger)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("arn:aws:rds:%s:%s:db:%s", b.region, userARN, b.dbInstanceIdentifier(instanceID)), nil
+func (b *RDSBroker) dbName(instanceID string) string {
+	return fmt.Sprintf("%s_%s", b.dbPrefix, strings.Replace(instanceID, "-", "_", -1))
 }
 
-func (b *RDSBroker) userARN(logger lager.Logger) (string, error) {
-	getUserInput := &iam.GetUserInput{}
-	getUserOutput, err := b.iamsvc.GetUser(getUserInput)
-	if err != nil {
-		logger.Error("aws-iam-error", err)
-		return "", err
-	}
-
-	userARN := strings.Split(*getUserOutput.User.Arn, ":")
-
-	return userARN[4], nil
-}
-
-func (b *RDSBroker) describeDBInstance(instanceID string, logger lager.Logger) (*rds.DBInstance, error) {
-	describeDBInstancesInput := &rds.DescribeDBInstancesInput{
-		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
-	}
-
-	logger.Debug("describe-db-instances", lager.Data{"input": describeDBInstancesInput})
-
-	dbInstances, err := b.rdssvc.DescribeDBInstances(describeDBInstancesInput)
-	if err != nil {
-		logger.Error("aws-rds-error", err)
-		if awsErr, ok := err.(awserr.Error); ok {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 404 {
-					return nil, brokerapi.ErrInstanceDoesNotExist
-				}
-			}
-			return nil, errors.New(awsErr.Code() + ": " + awsErr.Message())
-		}
-		return nil, err
-	}
-
-	for _, dbInstance := range dbInstances.DBInstances {
-		if b.dbInstanceIdentifier(instanceID) == aws.StringValue(dbInstance.DBInstanceIdentifier) {
-			logger.Debug("describe-db-instances", lager.Data{"db-instance": dbInstance})
-			return dbInstance, nil
-		}
-	}
-
-	return nil, brokerapi.ErrInstanceDoesNotExist
-}
-
-func (b *RDSBroker) addTagsToResource(instanceID string, tags []*rds.Tag, logger lager.Logger) error {
-	instanceARN, err := b.instanceARN(instanceID, logger)
-	if err != nil {
-		return err
-	}
-
-	addTagsToResourceInput := &rds.AddTagsToResourceInput{
-		ResourceName: aws.String(instanceARN),
-		Tags:         tags,
-	}
-
-	logger.Debug("add-tags-to-resource", lager.Data{"input": addTagsToResourceInput})
-
-	addTagsToResourceOutput, err := b.rdssvc.AddTagsToResource(addTagsToResourceInput)
-	if err != nil {
-		logger.Error("aws-rds-error", err)
-		if awsErr, ok := err.(awserr.Error); ok {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 404 {
-					return brokerapi.ErrInstanceDoesNotExist
-				}
-			}
-			return errors.New(awsErr.Code() + ": " + awsErr.Message())
-		}
-		return err
-	}
-
-	logger.Debug("add-tags-to-resource", lager.Data{"output": addTagsToResourceOutput})
-
-	return nil
-}
-
-func (b *RDSBroker) buildInstanceTags(action, serviceID, planID, organizationID, spaceID string) []*rds.Tag {
-	var tags []*rds.Tag
-
-	tags = append(tags, &rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")})
-
-	tags = append(tags, &rds.Tag{Key: aws.String(action + " by"), Value: aws.String("RDS Service Broker")})
-
-	tags = append(tags, &rds.Tag{Key: aws.String(action + " at"), Value: aws.String(time.Now().Format(time.RFC822Z))})
-
-	if serviceID != "" {
-		tags = append(tags, &rds.Tag{Key: aws.String("Service ID"), Value: aws.String(serviceID)})
-	}
-
-	if planID != "" {
-		tags = append(tags, &rds.Tag{Key: aws.String("Plan ID"), Value: aws.String(planID)})
-	}
-
-	if organizationID != "" {
-		tags = append(tags, &rds.Tag{Key: aws.String("Organization ID"), Value: aws.String(organizationID)})
-	}
-
-	if spaceID != "" {
-		tags = append(tags, &rds.Tag{Key: aws.String("Space ID"), Value: aws.String(spaceID)})
-	}
-
-	return tags
-}
-
-func (b *RDSBroker) buildCreateDBInstanceInput(
-	instanceID string,
-	details brokerapi.ProvisionDetails,
-	provisionParameters ProvisionParameters,
-	servicePlan ServicePlan,
-) *rds.CreateDBInstanceInput {
-	createDBInstanceInput := &rds.CreateDBInstanceInput{
-		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
-		DBInstanceClass:      aws.String(servicePlan.RDSProperties.DBInstanceClass),
-		Engine:               aws.String(servicePlan.RDSProperties.Engine),
-		EngineVersion:        aws.String(servicePlan.RDSProperties.EngineVersion),
-		AllocatedStorage:     aws.Int64(servicePlan.RDSProperties.AllocatedStorage),
-		DBName:               aws.String(b.dbName(instanceID)),
-	}
-
-	createDBInstanceInput.AutoMinorVersionUpgrade = aws.Bool(servicePlan.RDSProperties.AutoMinorVersionUpgrade)
-
-	if servicePlan.RDSProperties.AvailabilityZone != "" {
-		createDBInstanceInput.AvailabilityZone = aws.String(servicePlan.RDSProperties.AvailabilityZone)
-	}
-
-	if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
-		createDBInstanceInput.BackupRetentionPeriod = aws.Int64(servicePlan.RDSProperties.BackupRetentionPeriod)
-	}
+func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan, provisionParameters ProvisionParameters, details brokerapi.ProvisionDetails) *awsrds.DBInstanceDetails {
+	dbInstanceDetails := b.dbInstancefromPlan(servicePlan)
+	dbInstanceDetails.Identifier = b.dbInstanceIdentifier(instanceID)
+	dbInstanceDetails.DBName = b.dbName(instanceID)
+	dbInstanceDetails.MasterUsername = b.masterUsername()
+	dbInstanceDetails.MasterUserPassword = b.masterPassword(instanceID)
 
 	if provisionParameters.BackupRetentionPeriod > 0 {
-		createDBInstanceInput.BackupRetentionPeriod = aws.Int64(provisionParameters.BackupRetentionPeriod)
-	}
-
-	if servicePlan.RDSProperties.CharacterSetName != "" {
-		createDBInstanceInput.CharacterSetName = aws.String(servicePlan.RDSProperties.CharacterSetName)
+		dbInstanceDetails.BackupRetentionPeriod = provisionParameters.BackupRetentionPeriod
 	}
 
 	if provisionParameters.CharacterSetName != "" {
-		createDBInstanceInput.CharacterSetName = aws.String(provisionParameters.CharacterSetName)
-	}
-
-	if servicePlan.RDSProperties.DBName != "" {
-		createDBInstanceInput.DBName = aws.String(servicePlan.RDSProperties.DBName)
+		dbInstanceDetails.CharacterSetName = provisionParameters.CharacterSetName
 	}
 
 	if provisionParameters.DBName != "" {
-		createDBInstanceInput.DBName = aws.String(provisionParameters.DBName)
-	}
-
-	if servicePlan.RDSProperties.DBParameterGroupName != "" {
-		createDBInstanceInput.DBParameterGroupName = aws.String(servicePlan.RDSProperties.DBParameterGroupName)
-	}
-
-	if len(servicePlan.RDSProperties.DBSecurityGroups) > 0 {
-		createDBInstanceInput.DBSecurityGroups = aws.StringSlice(servicePlan.RDSProperties.DBSecurityGroups)
-	}
-
-	if servicePlan.RDSProperties.DBSubnetGroupName != "" {
-		createDBInstanceInput.DBSubnetGroupName = aws.String(servicePlan.RDSProperties.DBSubnetGroupName)
-	}
-
-	if servicePlan.RDSProperties.LicenseModel != "" {
-		createDBInstanceInput.LicenseModel = aws.String(servicePlan.RDSProperties.LicenseModel)
-	}
-
-	createDBInstanceInput.MultiAZ = aws.Bool(servicePlan.RDSProperties.MultiAZ)
-
-	if servicePlan.RDSProperties.OptionGroupName != "" {
-		createDBInstanceInput.OptionGroupName = aws.String(servicePlan.RDSProperties.OptionGroupName)
-	}
-
-	if servicePlan.RDSProperties.Port > 0 {
-		createDBInstanceInput.Port = aws.Int64(servicePlan.RDSProperties.Port)
-	}
-
-	if servicePlan.RDSProperties.PreferredBackupWindow != "" {
-		createDBInstanceInput.PreferredBackupWindow = aws.String(servicePlan.RDSProperties.PreferredBackupWindow)
+		dbInstanceDetails.DBName = provisionParameters.DBName
 	}
 
 	if provisionParameters.PreferredBackupWindow != "" {
-		createDBInstanceInput.PreferredBackupWindow = aws.String(provisionParameters.PreferredBackupWindow)
-	}
-
-	if servicePlan.RDSProperties.PreferredMaintenanceWindow != "" {
-		createDBInstanceInput.PreferredMaintenanceWindow = aws.String(servicePlan.RDSProperties.PreferredMaintenanceWindow)
+		dbInstanceDetails.PreferredBackupWindow = provisionParameters.PreferredBackupWindow
 	}
 
 	if provisionParameters.PreferredMaintenanceWindow != "" {
-		createDBInstanceInput.PreferredMaintenanceWindow = aws.String(provisionParameters.PreferredMaintenanceWindow)
+		dbInstanceDetails.PreferredMaintenanceWindow = provisionParameters.PreferredMaintenanceWindow
 	}
 
-	createDBInstanceInput.PubliclyAccessible = aws.Bool(servicePlan.RDSProperties.PubliclyAccessible)
+	dbInstanceDetails.Tags = b.dbInstanceTags("Created", details.ServiceID, details.PlanID, details.OrganizationGUID, details.SpaceGUID)
 
-	createDBInstanceInput.StorageEncrypted = aws.Bool(servicePlan.RDSProperties.StorageEncrypted)
-
-	if servicePlan.RDSProperties.KmsKeyID != "" {
-		createDBInstanceInput.KmsKeyId = aws.String(servicePlan.RDSProperties.KmsKeyID)
-	}
-
-	if servicePlan.RDSProperties.StorageType != "" {
-		createDBInstanceInput.StorageType = aws.String(servicePlan.RDSProperties.StorageType)
-	}
-
-	if servicePlan.RDSProperties.Iops > 0 {
-		createDBInstanceInput.Iops = aws.Int64(servicePlan.RDSProperties.Iops)
-	}
-
-	createDBInstanceInput.Tags = b.buildInstanceTags("Created", details.ServiceID, details.PlanID, details.OrganizationGUID, details.SpaceGUID)
-
-	if len(servicePlan.RDSProperties.VpcSecurityGroupIds) > 0 {
-		createDBInstanceInput.VpcSecurityGroupIds = aws.StringSlice(servicePlan.RDSProperties.VpcSecurityGroupIds)
-	}
-
-	createDBInstanceInput.CopyTagsToSnapshot = aws.Bool(servicePlan.RDSProperties.CopyTagsToSnapshot)
-
-	return createDBInstanceInput
+	return dbInstanceDetails
 }
 
-func (b *RDSBroker) buildModifyDBInstanceInput(
-	instanceID string,
-	details brokerapi.UpdateDetails,
-	updateParameters UpdateParameters,
-	servicePlan ServicePlan,
-	dbInstance *rds.DBInstance,
-) (*rds.ModifyDBInstanceInput, error) {
-	modifyDBInstanceInput := &rds.ModifyDBInstanceInput{
-		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
-		ApplyImmediately:     aws.Bool(updateParameters.ApplyImmediately),
-	}
-
-	if aws.StringValue(dbInstance.DBInstanceClass) != servicePlan.RDSProperties.DBInstanceClass {
-		modifyDBInstanceInput.DBInstanceClass = aws.String(servicePlan.RDSProperties.DBInstanceClass)
-	}
-
-	if strings.ToLower(aws.StringValue(dbInstance.Engine)) != strings.ToLower(servicePlan.RDSProperties.Engine) {
-		return modifyDBInstanceInput, fmt.Errorf("This broker does not support updating the RDS engine from '%s' to '%s'", aws.StringValue(dbInstance.Engine), servicePlan.RDSProperties.Engine)
-	}
-
-	if aws.StringValue(dbInstance.EngineVersion) != servicePlan.RDSProperties.EngineVersion {
-		modifyDBInstanceInput.EngineVersion = aws.String(servicePlan.RDSProperties.EngineVersion)
-		modifyDBInstanceInput.AllowMajorVersionUpgrade = aws.Bool(b.allowMajorVersionUpgrade(servicePlan.RDSProperties.EngineVersion, aws.StringValue(dbInstance.EngineVersion)))
-	}
-
-	if aws.Int64Value(dbInstance.AllocatedStorage) < servicePlan.RDSProperties.AllocatedStorage {
-		modifyDBInstanceInput.AllocatedStorage = aws.Int64(servicePlan.RDSProperties.AllocatedStorage)
-	}
-
-	if aws.BoolValue(dbInstance.AutoMinorVersionUpgrade) != servicePlan.RDSProperties.AutoMinorVersionUpgrade {
-		modifyDBInstanceInput.AutoMinorVersionUpgrade = aws.Bool(servicePlan.RDSProperties.AutoMinorVersionUpgrade)
-	}
+func (b *RDSBroker) modifyDBInstance(instanceID string, servicePlan ServicePlan, updateParameters UpdateParameters, details brokerapi.UpdateDetails) *awsrds.DBInstanceDetails {
+	dbInstanceDetails := b.dbInstancefromPlan(servicePlan)
+	dbInstanceDetails.Identifier = b.dbInstanceIdentifier(instanceID)
 
 	if updateParameters.BackupRetentionPeriod > 0 {
-		if aws.Int64Value(dbInstance.BackupRetentionPeriod) != updateParameters.BackupRetentionPeriod {
-			modifyDBInstanceInput.BackupRetentionPeriod = aws.Int64(updateParameters.BackupRetentionPeriod)
-		}
-	} else {
-		if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
-			if aws.Int64Value(dbInstance.BackupRetentionPeriod) != servicePlan.RDSProperties.BackupRetentionPeriod {
-				modifyDBInstanceInput.BackupRetentionPeriod = aws.Int64(servicePlan.RDSProperties.BackupRetentionPeriod)
-			}
-		}
-	}
-
-	if servicePlan.RDSProperties.DBParameterGroupName != "" {
-		for _, dbParameterGroup := range dbInstance.DBParameterGroups {
-			if *dbParameterGroup.DBParameterGroupName != servicePlan.RDSProperties.DBParameterGroupName {
-				modifyDBInstanceInput.DBParameterGroupName = aws.String(servicePlan.RDSProperties.DBParameterGroupName)
-				break
-			}
-		}
-	}
-
-	modifyDBSecurityGroups := false
-	if len(dbInstance.DBSecurityGroups) != len(servicePlan.RDSProperties.DBSecurityGroups) {
-		modifyDBSecurityGroups = true
-	} else {
-		dbSecurityGroupNames := map[string]struct{}{}
-
-		for _, dbSecurityGroup := range dbInstance.DBSecurityGroups {
-			dbSecurityGroupNames[*dbSecurityGroup.DBSecurityGroupName] = struct{}{}
-		}
-
-		for _, dbSecurityGroupName := range servicePlan.RDSProperties.DBSecurityGroups {
-			if _, ok := dbSecurityGroupNames[dbSecurityGroupName]; !ok {
-				modifyDBSecurityGroups = true
-				break
-			}
-		}
-	}
-	if modifyDBSecurityGroups {
-		modifyDBInstanceInput.DBSecurityGroups = aws.StringSlice(servicePlan.RDSProperties.DBSecurityGroups)
-	}
-
-	if aws.BoolValue(dbInstance.MultiAZ) != servicePlan.RDSProperties.MultiAZ {
-		modifyDBInstanceInput.MultiAZ = aws.Bool(servicePlan.RDSProperties.MultiAZ)
-	}
-
-	if servicePlan.RDSProperties.OptionGroupName != "" {
-		for _, optionGroupMembership := range dbInstance.OptionGroupMemberships {
-			if *optionGroupMembership.OptionGroupName != servicePlan.RDSProperties.OptionGroupName {
-				modifyDBInstanceInput.OptionGroupName = aws.String(servicePlan.RDSProperties.OptionGroupName)
-				break
-			}
-		}
+		dbInstanceDetails.BackupRetentionPeriod = updateParameters.BackupRetentionPeriod
 	}
 
 	if updateParameters.PreferredBackupWindow != "" {
-		if aws.StringValue(dbInstance.PreferredBackupWindow) != updateParameters.PreferredBackupWindow {
-			modifyDBInstanceInput.PreferredBackupWindow = aws.String(updateParameters.PreferredBackupWindow)
-		}
-	} else {
-		if servicePlan.RDSProperties.PreferredBackupWindow != "" {
-			if aws.StringValue(dbInstance.PreferredBackupWindow) != servicePlan.RDSProperties.PreferredBackupWindow {
-				modifyDBInstanceInput.PreferredBackupWindow = aws.String(servicePlan.RDSProperties.PreferredBackupWindow)
-			}
-		}
+		dbInstanceDetails.PreferredBackupWindow = updateParameters.PreferredBackupWindow
 	}
 
 	if updateParameters.PreferredMaintenanceWindow != "" {
-		if aws.StringValue(dbInstance.PreferredMaintenanceWindow) != updateParameters.PreferredMaintenanceWindow {
-			modifyDBInstanceInput.PreferredMaintenanceWindow = aws.String(updateParameters.PreferredMaintenanceWindow)
-		}
-	} else {
-		if servicePlan.RDSProperties.PreferredMaintenanceWindow != "" {
-			if aws.StringValue(dbInstance.PreferredMaintenanceWindow) != servicePlan.RDSProperties.PreferredMaintenanceWindow {
-				modifyDBInstanceInput.PreferredMaintenanceWindow = aws.String(servicePlan.RDSProperties.PreferredMaintenanceWindow)
-			}
-		}
+		dbInstanceDetails.PreferredMaintenanceWindow = updateParameters.PreferredMaintenanceWindow
+	}
+
+	dbInstanceDetails.Tags = b.dbInstanceTags("Updated", details.ServiceID, details.PlanID, "", "")
+
+	return dbInstanceDetails
+}
+
+func (b *RDSBroker) dbInstancefromPlan(servicePlan ServicePlan) *awsrds.DBInstanceDetails {
+	dbInstanceDetails := &awsrds.DBInstanceDetails{
+		DBInstanceClass:  servicePlan.RDSProperties.DBInstanceClass,
+		Engine:           servicePlan.RDSProperties.Engine,
+		EngineVersion:    servicePlan.RDSProperties.EngineVersion,
+		AllocatedStorage: servicePlan.RDSProperties.AllocatedStorage,
+	}
+
+	dbInstanceDetails.AutoMinorVersionUpgrade = servicePlan.RDSProperties.AutoMinorVersionUpgrade
+
+	if servicePlan.RDSProperties.AvailabilityZone != "" {
+		dbInstanceDetails.AvailabilityZone = servicePlan.RDSProperties.AvailabilityZone
+	}
+
+	if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
+		dbInstanceDetails.BackupRetentionPeriod = servicePlan.RDSProperties.BackupRetentionPeriod
+	}
+
+	if servicePlan.RDSProperties.CharacterSetName != "" {
+		dbInstanceDetails.CharacterSetName = servicePlan.RDSProperties.CharacterSetName
+	}
+
+	dbInstanceDetails.CopyTagsToSnapshot = servicePlan.RDSProperties.CopyTagsToSnapshot
+
+	if servicePlan.RDSProperties.DBName != "" {
+		dbInstanceDetails.DBName = servicePlan.RDSProperties.DBName
+	}
+
+	if servicePlan.RDSProperties.DBParameterGroupName != "" {
+		dbInstanceDetails.DBParameterGroupName = servicePlan.RDSProperties.DBParameterGroupName
+	}
+
+	if len(servicePlan.RDSProperties.DBSecurityGroups) > 0 {
+		dbInstanceDetails.DBSecurityGroups = servicePlan.RDSProperties.DBSecurityGroups
+	}
+
+	if servicePlan.RDSProperties.DBSubnetGroupName != "" {
+		dbInstanceDetails.DBSubnetGroupName = servicePlan.RDSProperties.DBSubnetGroupName
+	}
+
+	if servicePlan.RDSProperties.LicenseModel != "" {
+		dbInstanceDetails.LicenseModel = servicePlan.RDSProperties.LicenseModel
+	}
+
+	dbInstanceDetails.MultiAZ = servicePlan.RDSProperties.MultiAZ
+
+	if servicePlan.RDSProperties.OptionGroupName != "" {
+		dbInstanceDetails.OptionGroupName = servicePlan.RDSProperties.OptionGroupName
+	}
+
+	if servicePlan.RDSProperties.Port > 0 {
+		dbInstanceDetails.Port = servicePlan.RDSProperties.Port
+	}
+
+	if servicePlan.RDSProperties.PreferredBackupWindow != "" {
+		dbInstanceDetails.PreferredBackupWindow = servicePlan.RDSProperties.PreferredBackupWindow
+	}
+
+	if servicePlan.RDSProperties.PreferredMaintenanceWindow != "" {
+		dbInstanceDetails.PreferredMaintenanceWindow = servicePlan.RDSProperties.PreferredMaintenanceWindow
+	}
+
+	dbInstanceDetails.PubliclyAccessible = servicePlan.RDSProperties.PubliclyAccessible
+
+	dbInstanceDetails.StorageEncrypted = servicePlan.RDSProperties.StorageEncrypted
+
+	if servicePlan.RDSProperties.KmsKeyID != "" {
+		dbInstanceDetails.KmsKeyID = servicePlan.RDSProperties.KmsKeyID
 	}
 
 	if servicePlan.RDSProperties.StorageType != "" {
-		if aws.StringValue(dbInstance.StorageType) != servicePlan.RDSProperties.StorageType {
-			modifyDBInstanceInput.StorageType = aws.String(servicePlan.RDSProperties.StorageType)
-		}
+		dbInstanceDetails.StorageType = servicePlan.RDSProperties.StorageType
 	}
 
 	if servicePlan.RDSProperties.Iops > 0 {
-		if aws.Int64Value(dbInstance.Iops) != servicePlan.RDSProperties.Iops {
-			modifyDBInstanceInput.Iops = aws.Int64(servicePlan.RDSProperties.Iops)
-		}
+		dbInstanceDetails.Iops = servicePlan.RDSProperties.Iops
 	}
 
-	modifyVpcSecurityGroupIds := false
-	if len(dbInstance.VpcSecurityGroups) != len(servicePlan.RDSProperties.VpcSecurityGroupIds) {
-		modifyVpcSecurityGroupIds = true
-	} else {
-		vpcSecurityGroupIds := map[string]struct{}{}
-
-		for _, vpcSecurityGroup := range dbInstance.VpcSecurityGroups {
-			vpcSecurityGroupIds[*vpcSecurityGroup.VpcSecurityGroupId] = struct{}{}
-		}
-
-		for _, vpcSecurityGroupID := range servicePlan.RDSProperties.VpcSecurityGroupIds {
-			if _, ok := vpcSecurityGroupIds[vpcSecurityGroupID]; !ok {
-				modifyVpcSecurityGroupIds = true
-				break
-			}
-		}
-	}
-	if modifyVpcSecurityGroupIds {
-		modifyDBInstanceInput.VpcSecurityGroupIds = aws.StringSlice(servicePlan.RDSProperties.VpcSecurityGroupIds)
+	if len(servicePlan.RDSProperties.VpcSecurityGroupIds) > 0 {
+		dbInstanceDetails.VpcSecurityGroupIds = servicePlan.RDSProperties.VpcSecurityGroupIds
 	}
 
-	if aws.BoolValue(dbInstance.CopyTagsToSnapshot) != servicePlan.RDSProperties.CopyTagsToSnapshot {
-		modifyDBInstanceInput.CopyTagsToSnapshot = aws.Bool(servicePlan.RDSProperties.CopyTagsToSnapshot)
-	}
-
-	return modifyDBInstanceInput, nil
+	return dbInstanceDetails
 }
 
-func (b *RDSBroker) allowMajorVersionUpgrade(newEngineVersion, oldEngineVersion string) bool {
-	newSplittedEngineVersion := strings.Split(newEngineVersion, ".")
-	newMajorEngineVersion := fmt.Sprintf("%s:%s", newSplittedEngineVersion[0], newSplittedEngineVersion[1])
+func (b *RDSBroker) dbInstanceTags(action, serviceID, planID, organizationID, spaceID string) map[string]string {
+	tags := make(map[string]string)
 
-	oldSplittedEngineVersion := strings.Split(oldEngineVersion, ".")
-	oldMajorEngineVersion := fmt.Sprintf("%s:%s", oldSplittedEngineVersion[0], oldSplittedEngineVersion[1])
+	tags["Owner"] = "Cloud Foundry"
 
-	if newMajorEngineVersion > oldMajorEngineVersion {
-		return true
+	tags[action+" by"] = "AWS RDS Service Broker"
+
+	tags[action+" at"] = time.Now().Format(time.RFC822Z)
+
+	if serviceID != "" {
+		tags["Service ID"] = serviceID
 	}
 
-	return false
-}
-
-func (b *RDSBroker) buildDeleteDBInstanceInput(instanceID string, servicePlan ServicePlan) *rds.DeleteDBInstanceInput {
-	deleteDBInstanceInput := &rds.DeleteDBInstanceInput{
-		DBInstanceIdentifier: aws.String(b.dbInstanceIdentifier(instanceID)),
-		SkipFinalSnapshot:    aws.Bool(servicePlan.RDSProperties.SkipFinalSnapshot),
+	if planID != "" {
+		tags["Plan ID"] = planID
 	}
 
-	if !servicePlan.RDSProperties.SkipFinalSnapshot {
-		deleteDBInstanceInput.FinalDBSnapshotIdentifier = aws.String(b.dbSnapshotName(instanceID))
+	if organizationID != "" {
+		tags["Organization ID"] = organizationID
 	}
 
-	return deleteDBInstanceInput
+	if spaceID != "" {
+		tags["Space ID"] = spaceID
+	}
+
+	return tags
 }

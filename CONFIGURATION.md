@@ -16,8 +16,7 @@ A sample configuration can be found at [config-sample.json](https://github.com/c
 | Option                         | Required | Type    | Description
 |:-------------------------------|:--------:|:------- |:-----------
 | region                         | Y        | String  | RDS Region
-| db_prefix                      | Y        | String  | Prefix to add to DB Indentifiers
-| max_db_instances               | N        | Integer | Maximum number of RDS DB Instances that can be provisioned by this broker. `0` means `unlimited` (defaults to `0`). NOT YET IMPLEMENTED.
+| db_prefix                      | Y        | String  | Prefix to add to RDS DB Identifiers
 | allow_user_provision_parameters| N        | Boolean | Allow users to send arbitrary parameters on provision calls (defaults to `false`)
 | allow_user_update_parameters   | N        | Boolean | Allow users to send arbitrary parameters on update calls (defaults to `false`)
 | allow_user_bind_parameters     | N        | Boolean | Allow users to send arbitrary parameters on bind calls (defaults to `false`)
@@ -75,7 +74,7 @@ Please refer to the [Amazon Relational Database Service Documentation](https://a
 | Option                       | Required | Type      | Description
 |:-----------------------------|:--------:|:--------- |:-----------
 | db_instance_class            | Y        | String    | The name of the DB Instance Class
-| engine                       | Y        | String    | The name of the Database Engine (only `aurora`, `mariadb`, `mysql` and `postgres` are supported)
+| engine                       | Y        | String    | The name of the Database Engine (only `mariadb`, `mysql` and `postgres` are supported)
 | engine_version               | Y        | String    | The version number of the Database Engine
 | allocated_storage            | Y        | Integer   | The amount of storage (in gigabytes) to be initially allocated for the database instances (between `5` and `6144`)
 | auto_minor_version_upgrade   | N        | Boolean   | Enable or disable automatic upgrades to new minor versions as they are released (defaults to `false`)

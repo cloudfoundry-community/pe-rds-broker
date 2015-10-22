@@ -8,7 +8,6 @@ import (
 type Config struct {
 	Region                       string  `json:"region"`
 	DBPrefix                     string  `json:"db_prefix"`
-	MaxDBInstances               int     `json:"max_db_instances"`
 	AllowUserProvisionParameters bool    `json:"allow_user_provision_parameters"`
 	AllowUserUpdateParameters    bool    `json:"allow_user_update_parameters"`
 	AllowUserBindParameters      bool    `json:"allow_user_bind_parameters"`

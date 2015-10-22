@@ -8,37 +8,31 @@ import (
 
 	. "github.com/cf-platform-eng/rds-broker/rdsbroker"
 
-	"github.com/cf-platform-eng/rds-broker/database/fakes"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/frodenas/brokerapi"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
+
+	"github.com/cf-platform-eng/rds-broker/awsrds"
+	rdsfake "github.com/cf-platform-eng/rds-broker/awsrds/fakes"
+	sqlfake "github.com/cf-platform-eng/rds-broker/sqlengine/fakes"
 )
 
 var _ = Describe("RDS Broker", func() {
 	var (
-		rdsProperties RDSProperties
-		plan1         ServicePlan
-		plan2         ServicePlan
-		service1      Service
-		service2      Service
-		catalog       Catalog
+		rdsProperties1 RDSProperties
+		rdsProperties2 RDSProperties
+		plan1          ServicePlan
+		plan2          ServicePlan
+		service1       Service
+		service2       Service
+		catalog        Catalog
 
 		config Config
 
-		iamsvc  *iam.IAM
-		iamCall func(r *request.Request)
+		dbInstance *rdsfake.FakeDBInstance
 
-		rdssvc  *rds.RDS
-		rdsCall func(r *request.Request)
-
-		dbProvider *fakes.FakeProvider
-		database   *fakes.FakeDatabase
+		sqlProvider *sqlfake.FakeProvider
+		sqlEngine   *sqlfake.FakeSQLEngine
 
 		testSink *lagertest.TestSink
 		logger   lager.Logger
@@ -55,7 +49,9 @@ var _ = Describe("RDS Broker", func() {
 		instanceID           = "instance-id"
 		bindingID            = "binding-id"
 		dbInstanceIdentifier = "cf-instance-id"
+		dbName               = "cf_instance_id"
 		dbUsername           = "YmluZGluZy1pZNQd"
+		masterUserPassword   = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
 	)
 
 	BeforeEach(func() {
@@ -66,17 +62,27 @@ var _ = Describe("RDS Broker", func() {
 		planUpdateable = true
 		skipFinalSnapshot = true
 
-		dbProvider = &fakes.FakeProvider{}
-		database = &fakes.FakeDatabase{}
-		dbProvider.GetDatabaseDatabase = database
+		dbInstance = &rdsfake.FakeDBInstance{}
+
+		sqlProvider = &sqlfake.FakeProvider{}
+		sqlEngine = &sqlfake.FakeSQLEngine{}
+		sqlProvider.GetSQLEngineSQLEngine = sqlEngine
 	})
 
 	JustBeforeEach(func() {
-		rdsProperties = RDSProperties{
-			DBInstanceClass:   "db.m3.medium",
-			Engine:            "mysql",
-			EngineVersion:     "5.6.23",
+		rdsProperties1 = RDSProperties{
+			DBInstanceClass:   "db.m1.test",
+			Engine:            "test-engine-1",
+			EngineVersion:     "1.2.3",
 			AllocatedStorage:  100,
+			SkipFinalSnapshot: skipFinalSnapshot,
+		}
+
+		rdsProperties2 = RDSProperties{
+			DBInstanceClass:   "db.m2.test",
+			Engine:            "test-engine-2",
+			EngineVersion:     "4.5.6",
+			AllocatedStorage:  200,
 			SkipFinalSnapshot: skipFinalSnapshot,
 		}
 
@@ -84,13 +90,13 @@ var _ = Describe("RDS Broker", func() {
 			ID:            "Plan-1",
 			Name:          "Plan 1",
 			Description:   "This is the Plan 1",
-			RDSProperties: rdsProperties,
+			RDSProperties: rdsProperties1,
 		}
 		plan2 = ServicePlan{
 			ID:            "Plan-2",
 			Name:          "Plan 2",
 			Description:   "This is the Plan 2",
-			RDSProperties: rdsProperties,
+			RDSProperties: rdsProperties2,
 		}
 
 		service1 = Service{
@@ -123,14 +129,11 @@ var _ = Describe("RDS Broker", func() {
 			Catalog:                      catalog,
 		}
 
-		iamsvc = iam.New(nil)
-		rdssvc = rds.New(nil)
-
 		logger = lager.NewLogger("rdsbroker_test")
 		testSink = lagertest.NewTestSink()
 		logger.RegisterSink(testSink)
 
-		rdsBroker = New(config, iamsvc, rdssvc, dbProvider, logger)
+		rdsBroker = New(config, dbInstance, sqlProvider, logger)
 	})
 
 	var _ = Describe("Services", func() {
@@ -186,15 +189,9 @@ var _ = Describe("RDS Broker", func() {
 			acceptsIncomplete bool
 
 			properProvisioningResponse brokerapi.ProvisioningResponse
-
-			createDBInstancesInput *rds.CreateDBInstanceInput
-			createDBInstanceCall   func(r *request.Request)
-			createDBInstanceError  error
 		)
 
 		BeforeEach(func() {
-			createDBInstanceError = nil
-
 			provisionDetails = brokerapi.ProvisionDetails{
 				OrganizationGUID: "organization-id",
 				PlanID:           "Plan-1",
@@ -207,23 +204,32 @@ var _ = Describe("RDS Broker", func() {
 			properProvisioningResponse = brokerapi.ProvisioningResponse{}
 		})
 
-		JustBeforeEach(func() {
-			rdssvc.Handlers.Clear()
-
-			createDBInstancesInput = &rds.CreateDBInstanceInput{}
-
-			createDBInstanceCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("CreateDBInstance"))
-				// TODO: Expect(r.Params).To(Equal(createDBInstancesInput))
-				r.Error = createDBInstanceError
-			}
-			rdssvc.Handlers.Send.PushBack(createDBInstanceCall)
-		})
-
 		It("returns the proper response", func() {
 			provisioningResponse, asynch, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
 			Expect(provisioningResponse).To(Equal(properProvisioningResponse))
 			Expect(asynch).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("makes the proper calls", func() {
+			_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+			Expect(dbInstance.CreateCalled).To(BeTrue())
+			Expect(dbInstance.CreateID).To(Equal(dbInstanceIdentifier))
+			Expect(dbInstance.CreateDBInstanceDetails.Identifier).To(Equal(dbInstanceIdentifier))
+			Expect(dbInstance.CreateDBInstanceDetails.DBInstanceClass).To(Equal("db.m1.test"))
+			Expect(dbInstance.CreateDBInstanceDetails.Engine).To(Equal("test-engine-1"))
+			Expect(dbInstance.CreateDBInstanceDetails.EngineVersion).To(Equal("1.2.3"))
+			Expect(dbInstance.CreateDBInstanceDetails.AllocatedStorage).To(Equal(int64(100)))
+			Expect(dbInstance.CreateDBInstanceDetails.DBName).To(Equal(dbName))
+			Expect(dbInstance.CreateDBInstanceDetails.MasterUsername).ToNot(BeEmpty())
+			Expect(dbInstance.CreateDBInstanceDetails.MasterUserPassword).To(Equal(masterUserPassword))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags["Owner"]).To(Equal("Cloud Foundry"))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags["Created by"]).To(Equal("AWS RDS Service Broker"))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags).To(HaveKey("Created at"))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags["Service ID"]).To(Equal("Service-1"))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags["Plan ID"]).To(Equal("Plan-1"))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags["Organization ID"]).To(Equal("organization-id"))
+			Expect(dbInstance.CreateDBInstanceDetails.Tags["Space ID"]).To(Equal("space-id"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -276,25 +282,13 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when creating the DB instance fails", func() {
 			BeforeEach(func() {
-				createDBInstanceError = errors.New("operation failed")
+				dbInstance.CreateError = errors.New("operation failed")
 			})
 
 			It("returns the proper error", func() {
 				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
-			})
-
-			Context("and it is an AWS error", func() {
-				BeforeEach(func() {
-					createDBInstanceError = awserr.New("code", "message", errors.New("operation failed"))
-				})
-
-				It("returns the proper error", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
-					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("code: message"))
-				})
 			})
 		})
 	})
@@ -303,33 +297,12 @@ var _ = Describe("RDS Broker", func() {
 		var (
 			updateDetails     brokerapi.UpdateDetails
 			acceptsIncomplete bool
-
-			dbInstances []*rds.DBInstance
-			dbInstance  *rds.DBInstance
-
-			describeDBInstancesInput *rds.DescribeDBInstancesInput
-			describeDBInstanceError  error
-
-			modifyDBInstancesInput *rds.ModifyDBInstanceInput
-			modifyDBInstanceError  error
-
-			addTagsToResourceInput *rds.AddTagsToResourceInput
-			addTagsToResourceError error
-
-			user         *iam.User
-			getUserInput *iam.GetUserInput
-			getUserError error
 		)
 
 		BeforeEach(func() {
-			describeDBInstanceError = nil
-			modifyDBInstanceError = nil
-			addTagsToResourceError = nil
-			getUserError = nil
-
 			updateDetails = brokerapi.UpdateDetails{
-				ServiceID:  "Service-1",
-				PlanID:     "Plan-1",
+				ServiceID:  "Service-2",
+				PlanID:     "Plan-2",
 				Parameters: map[string]interface{}{},
 				PreviousValues: brokerapi.PreviousValues{
 					PlanID:         "Plan-1",
@@ -341,81 +314,26 @@ var _ = Describe("RDS Broker", func() {
 			acceptsIncomplete = true
 		})
 
-		JustBeforeEach(func() {
-			rdssvc.Handlers.Clear()
-			iamsvc.Handlers.Clear()
-
-			dbInstance = &rds.DBInstance{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
-				Engine:               aws.String("mysql"),
-				EngineVersion:        aws.String("5.6.23"),
-			}
-			dbInstances = []*rds.DBInstance{dbInstance}
-
-			describeDBInstancesInput = &rds.DescribeDBInstancesInput{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
-			}
-
-			modifyDBInstancesInput = &rds.ModifyDBInstanceInput{}
-
-			addTagsToResourceInput = &rds.AddTagsToResourceInput{
-				ResourceName: aws.String("arn:aws:rds:rds-region:account:db:" + dbInstanceIdentifier),
-				Tags: []*rds.Tag{
-					&rds.Tag{
-						Key:   aws.String("Owner"),
-						Value: aws.String("Cloud Foundry"),
-					},
-					&rds.Tag{
-						Key:   aws.String("Updated by"),
-						Value: aws.String("RDS Service Broker"),
-					},
-					&rds.Tag{
-						Key:   aws.String("Service ID"),
-						Value: aws.String("Service-1"),
-					},
-					&rds.Tag{
-						Key:   aws.String("Plan ID"),
-						Value: aws.String("Plan-1"),
-					},
-				},
-			}
-
-			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(MatchRegexp("DescribeDBInstances|ModifyDBInstance|AddTagsToResource"))
-				switch r.Operation.Name {
-				case "DescribeDBInstances":
-					Expect(r.Params).To(Equal(describeDBInstancesInput))
-					data := r.Data.(*rds.DescribeDBInstancesOutput)
-					data.DBInstances = dbInstances
-					r.Error = describeDBInstanceError
-				case "ModifyDBInstance":
-					// TODO: Expect(r.Params).To(Equal(modifyDBInstancesInput))
-					r.Error = modifyDBInstanceError
-				case "AddTagsToResource":
-					// TODO: Expect(r.Params).To(Equal(addTagsToResourceInput))
-					r.Error = addTagsToResourceError
-				}
-			}
-			rdssvc.Handlers.Send.PushBack(rdsCall)
-
-			user = &iam.User{
-				Arn: aws.String("arn:aws:service:region:account:resource"),
-			}
-			getUserInput = &iam.GetUserInput{}
-
-			iamCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("GetUser"))
-				Expect(r.Params).To(Equal(getUserInput))
-				data := r.Data.(*iam.GetUserOutput)
-				data.User = user
-				r.Error = getUserError
-			}
-			iamsvc.Handlers.Send.PushBack(iamCall)
-		})
-
 		It("returns the proper response", func() {
 			asynch, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
 			Expect(asynch).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("makes the proper calls", func() {
+			_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+			Expect(dbInstance.ModifyCalled).To(BeTrue())
+			Expect(dbInstance.ModifyID).To(Equal(dbInstanceIdentifier))
+			Expect(dbInstance.ModifyDBInstanceDetails.Identifier).To(Equal(dbInstanceIdentifier))
+			Expect(dbInstance.ModifyDBInstanceDetails.DBInstanceClass).To(Equal("db.m2.test"))
+			Expect(dbInstance.ModifyDBInstanceDetails.Engine).To(Equal("test-engine-2"))
+			Expect(dbInstance.ModifyDBInstanceDetails.EngineVersion).To(Equal("4.5.6"))
+			Expect(dbInstance.ModifyDBInstanceDetails.AllocatedStorage).To(Equal(int64(200)))
+			Expect(dbInstance.ModifyDBInstanceDetails.Tags["Owner"]).To(Equal("Cloud Foundry"))
+			Expect(dbInstance.ModifyDBInstanceDetails.Tags["Updated by"]).To(Equal("AWS RDS Service Broker"))
+			Expect(dbInstance.ModifyDBInstanceDetails.Tags).To(HaveKey("Updated at"))
+			Expect(dbInstance.ModifyDBInstanceDetails.Tags["Service ID"]).To(Equal("Service-2"))
+			Expect(dbInstance.ModifyDBInstanceDetails.Tags["Plan ID"]).To(Equal("Plan-2"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -490,9 +408,9 @@ var _ = Describe("RDS Broker", func() {
 			})
 		})
 
-		Context("when describing the DB instance fails", func() {
+		Context("when modifying the DB instance fails", func() {
 			BeforeEach(func() {
-				describeDBInstanceError = errors.New("operation failed")
+				dbInstance.ModifyError = errors.New("operation failed")
 			})
 
 			It("returns the proper error", func() {
@@ -501,22 +419,9 @@ var _ = Describe("RDS Broker", func() {
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
 
-			Context("and it is an AWS error", func() {
+			Context("when the DB instance does not exists", func() {
 				BeforeEach(func() {
-					describeDBInstanceError = awserr.New("code", "message", errors.New("operation failed"))
-				})
-
-				It("returns the proper error", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("code: message"))
-				})
-			})
-
-			Context("and it is a 404 error", func() {
-				BeforeEach(func() {
-					awsError := awserr.New("code", "message", errors.New("operation failed"))
-					describeDBInstanceError = awserr.NewRequestFailure(awsError, 404, "request-id")
+					dbInstance.ModifyError = awsrds.ErrDBInstanceDoesNotExist
 				})
 
 				It("returns the proper error", func() {
@@ -526,88 +431,20 @@ var _ = Describe("RDS Broker", func() {
 				})
 			})
 		})
-
-		Context("when modifying the DB instance fails", func() {
-			BeforeEach(func() {
-				modifyDBInstanceError = errors.New("operation failed")
-			})
-
-			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("operation failed"))
-			})
-
-			Context("and it is an AWS error", func() {
-				BeforeEach(func() {
-					modifyDBInstanceError = awserr.New("code", "message", errors.New("operation failed"))
-				})
-
-				It("returns the proper error", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("code: message"))
-				})
-			})
-		})
-
-		Context("when adding tags to the DB instance fails", func() {
-			BeforeEach(func() {
-				addTagsToResourceError = errors.New("operation failed")
-			})
-
-			It("does not return an error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		Context("when getting the IAM user fails", func() {
-			BeforeEach(func() {
-				getUserError = errors.New("operation failed")
-			})
-
-			It("does not return an error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
 	})
 
 	var _ = Describe("Deprovision", func() {
 		var (
 			deprovisionDetails brokerapi.DeprovisionDetails
 			acceptsIncomplete  bool
-
-			deleteDBInstanceInput *rds.DeleteDBInstanceInput
-			deleteDBInstanceError error
 		)
 
 		BeforeEach(func() {
-			deleteDBInstanceError = nil
-
 			deprovisionDetails = brokerapi.DeprovisionDetails{
 				ServiceID: "Service-1",
 				PlanID:    "Plan-1",
 			}
 			acceptsIncomplete = true
-		})
-
-		JustBeforeEach(func() {
-			rdssvc.Handlers.Clear()
-
-			deleteDBInstanceInput = &rds.DeleteDBInstanceInput{
-				DBInstanceIdentifier:      aws.String(dbInstanceIdentifier),
-				FinalDBSnapshotIdentifier: nil,
-				SkipFinalSnapshot:         aws.Bool(skipFinalSnapshot),
-			}
-
-			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("DeleteDBInstance"))
-				// TODO: Expect(r.Params).To(Equal(deleteDBInstanceInput))
-				r.Error = deleteDBInstanceError
-			}
-			rdssvc.Handlers.Send.PushBack(rdsCall)
 		})
 
 		It("returns the proper response", func() {
@@ -616,14 +453,24 @@ var _ = Describe("RDS Broker", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
+		It("makes the proper calls", func() {
+			_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+			Expect(dbInstance.DeleteCalled).To(BeTrue())
+			Expect(dbInstance.DeleteID).To(Equal(dbInstanceIdentifier))
+			Expect(dbInstance.DeleteSkipFinalSnapshot).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+		})
+
 		Context("when it does not skip final snaphot", func() {
 			BeforeEach(func() {
 				skipFinalSnapshot = false
 			})
 
-			It("returns the proper response", func() {
-				asynch, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
-				Expect(asynch).To(BeTrue())
+			It("makes the proper calls", func() {
+				_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+				Expect(dbInstance.DeleteCalled).To(BeTrue())
+				Expect(dbInstance.DeleteID).To(Equal(dbInstanceIdentifier))
+				Expect(dbInstance.DeleteSkipFinalSnapshot).To(BeFalse())
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
@@ -654,7 +501,7 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when deleting the DB instance fails", func() {
 			BeforeEach(func() {
-				deleteDBInstanceError = errors.New("operation failed")
+				dbInstance.DeleteError = errors.New("operation failed")
 			})
 
 			It("returns the proper error", func() {
@@ -663,22 +510,9 @@ var _ = Describe("RDS Broker", func() {
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
 
-			Context("and it is an AWS error", func() {
+			Context("when the DB instance does not exists", func() {
 				BeforeEach(func() {
-					deleteDBInstanceError = awserr.New("code", "message", errors.New("operation failed"))
-				})
-
-				It("returns the proper error", func() {
-					_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
-					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("code: message"))
-				})
-			})
-
-			Context("and it is a 404 error", func() {
-				BeforeEach(func() {
-					awsError := awserr.New("code", "message", errors.New("operation failed"))
-					deleteDBInstanceError = awserr.NewRequestFailure(awsError, 404, "request-id")
+					dbInstance.DeleteError = awsrds.ErrDBInstanceDoesNotExist
 				})
 
 				It("returns the proper error", func() {
@@ -693,12 +527,6 @@ var _ = Describe("RDS Broker", func() {
 	var _ = Describe("Bind", func() {
 		var (
 			bindDetails brokerapi.BindDetails
-
-			dbInstances []*rds.DBInstance
-			dbInstance  *rds.DBInstance
-
-			describeDBInstancesInput *rds.DescribeDBInstancesInput
-			describeDBInstanceError  error
 		)
 
 		BeforeEach(func() {
@@ -709,41 +537,19 @@ var _ = Describe("RDS Broker", func() {
 				Parameters: map[string]interface{}{},
 			}
 
-			describeDBInstancesInput = &rds.DescribeDBInstancesInput{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+			dbInstance.DescribeDBInstanceDetails = awsrds.DBInstanceDetails{
+				Identifier:     dbInstanceIdentifier,
+				Engine:         "test-engine",
+				Address:        "endpoint-address",
+				Port:           3306,
+				DBName:         "test-db",
+				MasterUsername: "master-username",
 			}
-
-			describeDBInstanceError = nil
-		})
-
-		JustBeforeEach(func() {
-			rdssvc.Handlers.Clear()
-
-			dbInstance = &rds.DBInstance{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
-				Engine:               aws.String("test-engine"),
-				Endpoint: &rds.Endpoint{
-					Address: aws.String("endpoint-address"),
-					Port:    aws.Int64(3306),
-				},
-				DBName:         aws.String("test-db"),
-				MasterUsername: aws.String("master-username"),
-			}
-			dbInstances = []*rds.DBInstance{dbInstance}
-
-			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
-				Expect(r.Params).To(Equal(describeDBInstancesInput))
-				data := r.Data.(*rds.DescribeDBInstancesOutput)
-				data.DBInstances = dbInstances
-				r.Error = describeDBInstanceError
-			}
-			rdssvc.Handlers.Send.PushBack(rdsCall)
 		})
 
 		It("returns the proper response", func() {
 			bindingResponse, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
-			credentials := bindingResponse.Credentials.(*CredentialsHash)
+			credentials := bindingResponse.Credentials.(*brokerapi.CredentialsHash)
 			Expect(bindingResponse.SyslogDrainURL).To(BeEmpty())
 			Expect(credentials.Host).To(Equal("endpoint-address"))
 			Expect(credentials.Port).To(Equal(int64(3306)))
@@ -757,22 +563,24 @@ var _ = Describe("RDS Broker", func() {
 
 		It("makes the proper calls", func() {
 			_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
-			Expect(dbProvider.GetDatabaseCalled).To(BeTrue())
-			Expect(dbProvider.GetDatabaseEngine).To(Equal("test-engine"))
-			Expect(database.OpenCalled).To(BeTrue())
-			Expect(database.OpenAddress).To(Equal("endpoint-address"))
-			Expect(database.OpenPort).To(Equal(int64(3306)))
-			Expect(database.OpenName).To(Equal("test-db"))
-			Expect(database.OpenUsername).To(Equal("master-username"))
-			Expect(database.OpenPassword).ToNot(BeEmpty())
-			Expect(database.CreateCalled).To(BeFalse())
-			Expect(database.CreateUserCalled).To(BeTrue())
-			Expect(database.CreateUserUsername).To(Equal(dbUsername))
-			Expect(database.CreateUserPassword).ToNot(BeEmpty())
-			Expect(database.GrantPrivilegesCalled).To(BeTrue())
-			Expect(database.GrantPrivilegesName).To(Equal("test-db"))
-			Expect(database.GrantPrivilegesUsername).To(Equal(dbUsername))
-			Expect(database.CloseCalled).To(BeTrue())
+			Expect(dbInstance.DescribeCalled).To(BeTrue())
+			Expect(dbInstance.DescribeID).To(Equal(dbInstanceIdentifier))
+			Expect(sqlProvider.GetSQLEngineCalled).To(BeTrue())
+			Expect(sqlProvider.GetSQLEngineEngine).To(Equal("test-engine"))
+			Expect(sqlEngine.OpenCalled).To(BeTrue())
+			Expect(sqlEngine.OpenAddress).To(Equal("endpoint-address"))
+			Expect(sqlEngine.OpenPort).To(Equal(int64(3306)))
+			Expect(sqlEngine.OpenDBName).To(Equal("test-db"))
+			Expect(sqlEngine.OpenUsername).To(Equal("master-username"))
+			Expect(sqlEngine.OpenPassword).ToNot(BeEmpty())
+			Expect(sqlEngine.CreateDBCalled).To(BeFalse())
+			Expect(sqlEngine.CreateUserCalled).To(BeTrue())
+			Expect(sqlEngine.CreateUserUsername).To(Equal(dbUsername))
+			Expect(sqlEngine.CreateUserPassword).ToNot(BeEmpty())
+			Expect(sqlEngine.GrantPrivilegesCalled).To(BeTrue())
+			Expect(sqlEngine.GrantPrivilegesDBName).To(Equal("test-db"))
+			Expect(sqlEngine.GrantPrivilegesUsername).To(Equal(dbUsername))
+			Expect(sqlEngine.CloseCalled).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -837,7 +645,7 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when describing the DB instance fails", func() {
 			BeforeEach(func() {
-				describeDBInstanceError = errors.New("operation failed")
+				dbInstance.DescribeError = errors.New("operation failed")
 			})
 
 			It("returns the proper error", func() {
@@ -845,29 +653,41 @@ var _ = Describe("RDS Broker", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
+
+			Context("when the DB instance does not exists", func() {
+				BeforeEach(func() {
+					dbInstance.DescribeError = awsrds.ErrDBInstanceDoesNotExist
+				})
+
+				It("returns the proper error", func() {
+					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
+				})
+			})
 		})
 
-		Context("when getting the database fails", func() {
+		Context("when getting the SQL Engine fails", func() {
 			BeforeEach(func() {
-				dbProvider.GetDatabaseError = errors.New("Database 'unknown' not supported")
+				sqlProvider.GetSQLEngineError = errors.New("Engine 'unknown' not supported")
 			})
 
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("Database 'unknown' not supported"))
+				Expect(err.Error()).To(Equal("Engine 'unknown' not supported"))
 			})
 		})
 
-		Context("when opening a database fails", func() {
+		Context("when opening a DB connection fails", func() {
 			BeforeEach(func() {
-				database.OpenError = errors.New("Failed to open database")
+				sqlEngine.OpenError = errors.New("Failed to open sqlEngine")
 			})
 
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("Failed to open database"))
+				Expect(err.Error()).To(Equal("Failed to open sqlEngine"))
 			})
 		})
 
@@ -878,55 +698,55 @@ var _ = Describe("RDS Broker", func() {
 
 			It("returns the proper response", func() {
 				bindingResponse, _ := rdsBroker.Bind(instanceID, bindingID, bindDetails)
-				credentials := bindingResponse.Credentials.(*CredentialsHash)
+				credentials := bindingResponse.Credentials.(*brokerapi.CredentialsHash)
 				Expect(bindingResponse.SyslogDrainURL).To(BeEmpty())
 				Expect(credentials.Name).To(Equal("my-test-db"))
 			})
 
-			It("creates the database with the proper name", func() {
+			It("creates the DB with the proper name", func() {
 				rdsBroker.Bind(instanceID, bindingID, bindDetails)
-				Expect(database.CreateCalled).To(BeTrue())
-				Expect(database.CreateName).To(Equal("my-test-db"))
-				Expect(database.GrantPrivilegesName).To(Equal("my-test-db"))
+				Expect(sqlEngine.CreateDBCalled).To(BeTrue())
+				Expect(sqlEngine.CreateDBDBName).To(Equal("my-test-db"))
+				Expect(sqlEngine.GrantPrivilegesDBName).To(Equal("my-test-db"))
 			})
 
-			Context("when creating the database fails", func() {
+			Context("when creating the DB fails", func() {
 				BeforeEach(func() {
-					database.CreateError = errors.New("Failed to create database")
+					sqlEngine.CreateDBError = errors.New("Failed to create sqlEngine")
 				})
 
 				It("returns the proper error", func() {
 					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
 					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("Failed to create database"))
-					Expect(database.CloseCalled).To(BeTrue())
+					Expect(err.Error()).To(Equal("Failed to create sqlEngine"))
+					Expect(sqlEngine.CloseCalled).To(BeTrue())
 				})
 			})
 		})
 
-		Context("when creating a user fails", func() {
+		Context("when creating a DB user fails", func() {
 			BeforeEach(func() {
-				database.CreateUserError = errors.New("Failed to create user")
+				sqlEngine.CreateUserError = errors.New("Failed to create user")
 			})
 
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to create user"))
-				Expect(database.CloseCalled).To(BeTrue())
+				Expect(sqlEngine.CloseCalled).To(BeTrue())
 			})
 		})
 
 		Context("when granting privileges fails", func() {
 			BeforeEach(func() {
-				database.GrantPrivilegesError = errors.New("Failed to grant privileges")
+				sqlEngine.GrantPrivilegesError = errors.New("Failed to grant privileges")
 			})
 
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to grant privileges"))
-				Expect(database.CloseCalled).To(BeTrue())
+				Expect(sqlEngine.CloseCalled).To(BeTrue())
 			})
 		})
 	})
@@ -934,12 +754,6 @@ var _ = Describe("RDS Broker", func() {
 	var _ = Describe("Unbind", func() {
 		var (
 			unbindDetails brokerapi.UnbindDetails
-
-			dbInstances []*rds.DBInstance
-			dbInstance  *rds.DBInstance
-
-			describeDBInstancesInput *rds.DescribeDBInstancesInput
-			describeDBInstanceError  error
 		)
 
 		BeforeEach(func() {
@@ -948,60 +762,50 @@ var _ = Describe("RDS Broker", func() {
 				PlanID:    "Plan-1",
 			}
 
-			describeDBInstancesInput = &rds.DescribeDBInstancesInput{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+			dbInstance.DescribeDBInstanceDetails = awsrds.DBInstanceDetails{
+				Identifier:     dbInstanceIdentifier,
+				Engine:         "test-engine",
+				Address:        "endpoint-address",
+				Port:           3306,
+				DBName:         "test-db",
+				MasterUsername: "master-username",
 			}
-
-			describeDBInstanceError = nil
-		})
-
-		JustBeforeEach(func() {
-			rdssvc.Handlers.Clear()
-
-			dbInstance = &rds.DBInstance{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
-				Engine:               aws.String("test-engine"),
-				Endpoint: &rds.Endpoint{
-					Address: aws.String("endpoint-address"),
-					Port:    aws.Int64(3306),
-				},
-				DBName:         aws.String("test-db"),
-				MasterUsername: aws.String("master-username"),
-			}
-			dbInstances = []*rds.DBInstance{dbInstance}
-
-			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
-				Expect(r.Params).To(Equal(describeDBInstancesInput))
-				data := r.Data.(*rds.DescribeDBInstancesOutput)
-				data.DBInstances = dbInstances
-				r.Error = describeDBInstanceError
-			}
-			rdssvc.Handlers.Send.PushBack(rdsCall)
 		})
 
 		It("makes the proper calls", func() {
 			err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
-			Expect(dbProvider.GetDatabaseCalled).To(BeTrue())
-			Expect(dbProvider.GetDatabaseEngine).To(Equal("test-engine"))
-			Expect(database.OpenCalled).To(BeTrue())
-			Expect(database.OpenAddress).To(Equal("endpoint-address"))
-			Expect(database.OpenPort).To(Equal(int64(3306)))
-			Expect(database.OpenName).To(Equal("test-db"))
-			Expect(database.OpenUsername).To(Equal("master-username"))
-			Expect(database.OpenPassword).ToNot(BeEmpty())
-			Expect(database.PrivilegesCalled).To(BeTrue())
-			Expect(database.RevokePrivilegesCalled).To(BeFalse())
-			Expect(database.DropCalled).To(BeFalse())
-			Expect(database.DropUserCalled).To(BeTrue())
-			Expect(database.DropUserUsername).To(Equal(dbUsername))
-			Expect(database.CloseCalled).To(BeTrue())
+			Expect(sqlProvider.GetSQLEngineCalled).To(BeTrue())
+			Expect(sqlProvider.GetSQLEngineEngine).To(Equal("test-engine"))
+			Expect(sqlEngine.OpenCalled).To(BeTrue())
+			Expect(sqlEngine.OpenAddress).To(Equal("endpoint-address"))
+			Expect(sqlEngine.OpenPort).To(Equal(int64(3306)))
+			Expect(sqlEngine.OpenDBName).To(Equal("test-db"))
+			Expect(sqlEngine.OpenUsername).To(Equal("master-username"))
+			Expect(sqlEngine.OpenPassword).ToNot(BeEmpty())
+			Expect(sqlEngine.PrivilegesCalled).To(BeTrue())
+			Expect(sqlEngine.RevokePrivilegesCalled).To(BeFalse())
+			Expect(sqlEngine.DropDBCalled).To(BeFalse())
+			Expect(sqlEngine.DropUserCalled).To(BeTrue())
+			Expect(sqlEngine.DropUserUsername).To(Equal(dbUsername))
+			Expect(sqlEngine.CloseCalled).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("when Service Plan is not found", func() {
+			BeforeEach(func() {
+				unbindDetails.PlanID = "unknown"
+			})
+
+			It("returns the proper error", func() {
+				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
+			})
 		})
 
 		Context("when describing the DB instance fails", func() {
 			BeforeEach(func() {
-				describeDBInstanceError = errors.New("operation failed")
+				dbInstance.DescribeError = errors.New("operation failed")
 			})
 
 			It("returns the proper error", func() {
@@ -1009,114 +813,126 @@ var _ = Describe("RDS Broker", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
+
+			Context("when the DB instance does not exists", func() {
+				BeforeEach(func() {
+					dbInstance.DescribeError = awsrds.ErrDBInstanceDoesNotExist
+				})
+
+				It("returns the proper error", func() {
+					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
+				})
+			})
 		})
 
-		Context("when getting the database fails", func() {
+		Context("when getting the SQL Engine fails", func() {
 			BeforeEach(func() {
-				dbProvider.GetDatabaseError = errors.New("Database 'unknown' not supported")
+				sqlProvider.GetSQLEngineError = errors.New("SQL Engine 'unknown' not supported")
 			})
 
 			It("returns the proper error", func() {
 				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("Database 'unknown' not supported"))
+				Expect(err.Error()).To(Equal("SQL Engine 'unknown' not supported"))
 			})
 		})
 
-		Context("when opening a database fails", func() {
+		Context("when opening a DB connection fails", func() {
 			BeforeEach(func() {
-				database.OpenError = errors.New("Failed to open database")
+				sqlEngine.OpenError = errors.New("Failed to open sqlEngine")
 			})
 
 			It("returns the proper error", func() {
 				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("Failed to open database"))
+				Expect(err.Error()).To(Equal("Failed to open sqlEngine"))
 			})
 		})
 
 		Context("when getting privileges fails", func() {
 			BeforeEach(func() {
-				database.PrivilegesError = errors.New("Failed to get privileges")
+				sqlEngine.PrivilegesError = errors.New("Failed to get privileges")
 			})
 
 			It("returns the proper error", func() {
 				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to get privileges"))
-				Expect(database.CloseCalled).To(BeTrue())
+				Expect(sqlEngine.CloseCalled).To(BeTrue())
 			})
 		})
 
-		Context("when user has privileges over a db", func() {
+		Context("when user has privileges over a DB", func() {
 			BeforeEach(func() {
-				database.PrivilegesPrivileges = map[string][]string{"test-db": []string{dbUsername}}
+				sqlEngine.PrivilegesPrivileges = map[string][]string{"test-db": []string{dbUsername}}
 			})
 
 			It("makes the proper calls", func() {
 				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
-				Expect(database.RevokePrivilegesCalled).To(BeTrue())
-				Expect(database.RevokePrivilegesName).To(Equal("test-db"))
-				Expect(database.RevokePrivilegesUsername).To(Equal(dbUsername))
-				Expect(database.DropCalled).To(BeFalse())
-				Expect(database.CloseCalled).To(BeTrue())
+				Expect(sqlEngine.RevokePrivilegesCalled).To(BeTrue())
+				Expect(sqlEngine.RevokePrivilegesDBName).To(Equal("test-db"))
+				Expect(sqlEngine.RevokePrivilegesUsername).To(Equal(dbUsername))
+				Expect(sqlEngine.DropDBCalled).To(BeFalse())
+				Expect(sqlEngine.CloseCalled).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
 
 			Context("when revoking privileges fails", func() {
 				BeforeEach(func() {
-					database.RevokePrivilegesError = errors.New("Failed to revoke privileges")
+					sqlEngine.RevokePrivilegesError = errors.New("Failed to revoke privileges")
 				})
 
 				It("returns the proper error", func() {
 					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(Equal("Failed to revoke privileges"))
-					Expect(database.CloseCalled).To(BeTrue())
+					Expect(sqlEngine.CloseCalled).To(BeTrue())
 				})
 			})
 
 			Context("and the db is not the master db", func() {
 				BeforeEach(func() {
-					database.PrivilegesPrivileges = map[string][]string{"another-test-db": []string{dbUsername}}
+					sqlEngine.PrivilegesPrivileges = map[string][]string{"another-test-db": []string{dbUsername}}
 				})
 
 				It("makes the proper calls", func() {
 					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
-					Expect(database.RevokePrivilegesCalled).To(BeTrue())
-					Expect(database.RevokePrivilegesName).To(Equal("another-test-db"))
-					Expect(database.RevokePrivilegesUsername).To(Equal(dbUsername))
-					Expect(database.DropCalled).To(BeTrue())
-					Expect(database.DropName).To(Equal("another-test-db"))
-					Expect(database.CloseCalled).To(BeTrue())
+					Expect(sqlEngine.RevokePrivilegesCalled).To(BeTrue())
+					Expect(sqlEngine.RevokePrivilegesDBName).To(Equal("another-test-db"))
+					Expect(sqlEngine.RevokePrivilegesUsername).To(Equal(dbUsername))
+					Expect(sqlEngine.DropDBCalled).To(BeTrue())
+					Expect(sqlEngine.DropDBDBName).To(Equal("another-test-db"))
+					Expect(sqlEngine.CloseCalled).To(BeTrue())
 					Expect(err).ToNot(HaveOccurred())
 				})
 
-				Context("when droping the db fails", func() {
+				Context("when droping the DB fails", func() {
 					BeforeEach(func() {
-						database.DropError = errors.New("Failed to drop db")
+						sqlEngine.DropDBError = errors.New("Failed to drop db")
 					})
 
 					It("returns the proper error", func() {
 						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
 						Expect(err).To(HaveOccurred())
 						Expect(err.Error()).To(Equal("Failed to drop db"))
-						Expect(database.CloseCalled).To(BeTrue())
+						Expect(sqlEngine.CloseCalled).To(BeTrue())
 					})
 				})
 
 				Context("but there are other users with grants over the db", func() {
 					BeforeEach(func() {
-						database.PrivilegesPrivileges = map[string][]string{"another-test-db": []string{dbUsername, "another-user"}}
+						sqlEngine.PrivilegesPrivileges = map[string][]string{"another-test-db": []string{dbUsername, "another-user"}}
 					})
 
 					It("makes the proper calls", func() {
 						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
-						Expect(database.RevokePrivilegesCalled).To(BeTrue())
-						Expect(database.RevokePrivilegesName).To(Equal("another-test-db"))
-						Expect(database.RevokePrivilegesUsername).To(Equal(dbUsername))
-						Expect(database.DropCalled).To(BeFalse())
-						Expect(database.CloseCalled).To(BeTrue())
+						Expect(sqlEngine.RevokePrivilegesCalled).To(BeTrue())
+						Expect(sqlEngine.RevokePrivilegesDBName).To(Equal("another-test-db"))
+						Expect(sqlEngine.RevokePrivilegesUsername).To(Equal(dbUsername))
+						Expect(sqlEngine.DropDBCalled).To(BeFalse())
+						Expect(sqlEngine.CloseCalled).To(BeTrue())
 						Expect(err).ToNot(HaveOccurred())
 					})
 				})
@@ -1125,59 +941,35 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when deleting a user fails", func() {
 			BeforeEach(func() {
-				database.DropUserError = errors.New("Failed to delete user")
+				sqlEngine.DropUserError = errors.New("Failed to delete user")
 			})
 
 			It("returns the proper error", func() {
 				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to delete user"))
-				Expect(database.CloseCalled).To(BeTrue())
+				Expect(sqlEngine.CloseCalled).To(BeTrue())
 			})
 		})
 	})
 
 	var _ = Describe("LastOperation", func() {
 		var (
-			dbInstances                 []*rds.DBInstance
-			dbInstance                  *rds.DBInstance
 			dbInstanceStatus            string
-			pendingModifiedValues       *rds.PendingModifiedValues
-			properLastOperationResponse brokerapi.LastOperationResponse
 			lastOperationState          string
-
-			describeDBInstancesInput *rds.DescribeDBInstancesInput
-			describeDBInstanceError  error
+			properLastOperationResponse brokerapi.LastOperationResponse
 		)
 
-		BeforeEach(func() {
-			pendingModifiedValues = &rds.PendingModifiedValues{}
-
-			describeDBInstancesInput = &rds.DescribeDBInstancesInput{
-				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
-			}
-
-			describeDBInstanceError = nil
-		})
-
 		JustBeforeEach(func() {
-			rdssvc.Handlers.Clear()
-
-			dbInstance = &rds.DBInstance{
-				DBInstanceIdentifier:  aws.String(dbInstanceIdentifier),
-				DBInstanceStatus:      aws.String(dbInstanceStatus),
-				PendingModifiedValues: pendingModifiedValues,
+			dbInstance.DescribeDBInstanceDetails = awsrds.DBInstanceDetails{
+				Identifier:     dbInstanceIdentifier,
+				Engine:         "test-engine",
+				Address:        "endpoint-address",
+				Port:           3306,
+				DBName:         "test-db",
+				MasterUsername: "master-username",
+				Status:         dbInstanceStatus,
 			}
-			dbInstances = []*rds.DBInstance{dbInstance}
-
-			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
-				Expect(r.Params).To(Equal(describeDBInstancesInput))
-				data := r.Data.(*rds.DescribeDBInstancesOutput)
-				data.DBInstances = dbInstances
-				r.Error = describeDBInstanceError
-			}
-			rdssvc.Handlers.Send.PushBack(rdsCall)
 
 			properLastOperationResponse = brokerapi.LastOperationResponse{
 				State:       lastOperationState,
@@ -1185,21 +977,9 @@ var _ = Describe("RDS Broker", func() {
 			}
 		})
 
-		Context("when instance is not found", func() {
-			JustBeforeEach(func() {
-				dbInstances = []*rds.DBInstance{}
-			})
-
-			It("returns the proper error", func() {
-				_, err := rdsBroker.LastOperation(instanceID)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
-			})
-		})
-
 		Context("when describing the DB instance fails", func() {
 			BeforeEach(func() {
-				describeDBInstanceError = errors.New("operation failed")
+				dbInstance.DescribeError = errors.New("operation failed")
 			})
 
 			It("returns the proper error", func() {
@@ -1208,22 +988,9 @@ var _ = Describe("RDS Broker", func() {
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
 
-			Context("and it is an AWS error", func() {
+			Context("when the DB instance does not exists", func() {
 				BeforeEach(func() {
-					describeDBInstanceError = awserr.New("code", "message", errors.New("operation failed"))
-				})
-
-				It("returns the proper error", func() {
-					_, err := rdsBroker.LastOperation(instanceID)
-					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("code: message"))
-				})
-			})
-
-			Context("and it is a 404 error", func() {
-				BeforeEach(func() {
-					awsError := awserr.New("code", "message", errors.New("operation failed"))
-					describeDBInstanceError = awserr.NewRequestFailure(awsError, 404, "request-id")
+					dbInstance.DescribeError = awsrds.ErrDBInstanceDoesNotExist
 				})
 
 				It("returns the proper error", func() {
@@ -1273,13 +1040,9 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			Context("but has pending modifications", func() {
-				BeforeEach(func() {
-					pendingModifiedValues = &rds.PendingModifiedValues{
-						AllocatedStorage: aws.Int64(100),
-					}
-				})
-
 				JustBeforeEach(func() {
+					dbInstance.DescribeDBInstanceDetails.PendingModifications = true
+
 					properLastOperationResponse = brokerapi.LastOperationResponse{
 						State:       brokerapi.LastOperationInProgress,
 						Description: "DB Instance '" + dbInstanceIdentifier + "' has pending modifications",

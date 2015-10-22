@@ -173,7 +173,6 @@ func (rp RDSProperties) Validate() error {
 	}
 
 	switch strings.ToLower(rp.Engine) {
-	case "aurora":
 	case "mariadb":
 	case "mysql":
 	case "postgres":
