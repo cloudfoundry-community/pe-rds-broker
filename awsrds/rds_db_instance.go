@@ -109,8 +109,13 @@ func (r *RDSDBInstance) Modify(ID string, dbInstanceDetails DBInstanceDetails, a
 	r.logger.Debug("modify-db-instance", lager.Data{"output": modifyDBInstanceOutput})
 
 	if len(dbInstanceDetails.Tags) > 0 {
-		tags := r.buildDBInstanceTags(dbInstanceDetails.Tags)
-		r.addTagsToDBInstance(ID, tags)
+		dbInstanceARN, err := r.dbInstanceARN(ID)
+		if err != nil {
+			return nil
+		}
+
+		tags := BuilRDSTags(dbInstanceDetails.Tags)
+		AddTagsToResource(dbInstanceARN, tags, r.rdssvc, r.logger)
 	}
 
 	return nil
@@ -135,38 +140,6 @@ func (r *RDSDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	}
 
 	r.logger.Debug("delete-db-instance", lager.Data{"output": deleteDBInstanceOutput})
-
-	return nil
-}
-
-func (r *RDSDBInstance) addTagsToDBInstance(ID string, tags []*rds.Tag) error {
-	dbInstanceARN, err := r.dbInstanceARN(ID)
-	if err != nil {
-		return err
-	}
-
-	addTagsToResourceInput := &rds.AddTagsToResourceInput{
-		ResourceName: aws.String(dbInstanceARN),
-		Tags:         tags,
-	}
-
-	r.logger.Debug("add-tags-to-resource", lager.Data{"input": addTagsToResourceInput})
-
-	addTagsToResourceOutput, err := r.rdssvc.AddTagsToResource(addTagsToResourceInput)
-	if err != nil {
-		r.logger.Error("aws-rds-error", err)
-		if awsErr, ok := err.(awserr.Error); ok {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 404 {
-					return ErrDBInstanceDoesNotExist
-				}
-			}
-			return errors.New(awsErr.Code() + ": " + awsErr.Message())
-		}
-		return err
-	}
-
-	r.logger.Debug("add-tags-to-resource", lager.Data{"output": addTagsToResourceOutput})
 
 	return nil
 }
@@ -280,7 +253,7 @@ func (r *RDSDBInstance) buildCreateDBInstanceInput(ID string, dbInstanceDetails 
 	}
 
 	if len(dbInstanceDetails.Tags) > 0 {
-		createDBInstanceInput.Tags = r.buildDBInstanceTags(dbInstanceDetails.Tags)
+		createDBInstanceInput.Tags = BuilRDSTags(dbInstanceDetails.Tags)
 	}
 
 	return createDBInstanceInput
@@ -367,40 +340,17 @@ func (r *RDSDBInstance) buildDeleteDBInstanceInput(ID string, skipFinalSnapshot 
 	return deleteDBInstanceInput
 }
 
-func (r *RDSDBInstance) buildDBInstanceTags(tags map[string]string) []*rds.Tag {
-	var dbInstanceTags []*rds.Tag
-
-	for key, value := range tags {
-		dbInstanceTags = append(dbInstanceTags, &rds.Tag{Key: aws.String(key), Value: aws.String(value)})
-	}
-
-	return dbInstanceTags
-}
-
 func (r *RDSDBInstance) dbSnapshotName(ID string) string {
 	return fmt.Sprintf("rds-broker-%s-%s", ID, time.Now().Format("2006-01-02-15-04-05"))
 }
 
 func (r *RDSDBInstance) dbInstanceARN(ID string) (string, error) {
-	userARN, err := r.userARN()
+	userAccount, err := UserAccount(r.iamsvc)
 	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprintf("arn:aws:rds:%s:%s:db:%s", r.region, userARN, ID), nil
-}
-
-func (r *RDSDBInstance) userARN() (string, error) {
-	getUserInput := &iam.GetUserInput{}
-	getUserOutput, err := r.iamsvc.GetUser(getUserInput)
-	if err != nil {
-		r.logger.Error("aws-iam-error", err)
-		return "", err
-	}
-
-	userARN := strings.Split(*getUserOutput.User.Arn, ":")
-
-	return userARN[4], nil
+	return fmt.Sprintf("arn:aws:rds:%s:%s:db:%s", r.region, userAccount, ID), nil
 }
 
 func (r *RDSDBInstance) allowMajorVersionUpgrade(newEngineVersion, oldEngineVersion string) bool {

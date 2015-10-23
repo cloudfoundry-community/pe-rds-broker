@@ -43,7 +43,7 @@ var _ = Describe("RDS DB Instance", func() {
 		iamsvc = iam.New(nil)
 		rdssvc = rds.New(nil)
 
-		logger = lager.NewLogger("rdsservice_test")
+		logger = lager.NewLogger("rdsdbinstance_test")
 		testSink = lagertest.NewTestSink()
 		logger.RegisterSink(testSink)
 
@@ -198,8 +198,8 @@ var _ = Describe("RDS DB Instance", func() {
 		var (
 			dbInstanceDetails DBInstanceDetails
 
-			createDBInstancesInput *rds.CreateDBInstanceInput
-			createDBInstanceError  error
+			createDBInstanceInput *rds.CreateDBInstanceInput
+			createDBInstanceError error
 		)
 
 		BeforeEach(func() {
@@ -213,7 +213,7 @@ var _ = Describe("RDS DB Instance", func() {
 				MasterUserPassword: "master-password",
 			}
 
-			createDBInstancesInput = &rds.CreateDBInstanceInput{
+			createDBInstanceInput = &rds.CreateDBInstanceInput{
 				DBInstanceIdentifier:    aws.String(dbInstanceIdentifier),
 				DBInstanceClass:         aws.String("db.m3.small"),
 				Engine:                  aws.String("test-engine"),
@@ -237,7 +237,7 @@ var _ = Describe("RDS DB Instance", func() {
 			rdsCall = func(r *request.Request) {
 				Expect(r.Operation.Name).To(Equal("CreateDBInstance"))
 				Expect(r.Params).To(BeAssignableToTypeOf(&rds.CreateDBInstanceInput{}))
-				Expect(r.Params).To(Equal(createDBInstancesInput))
+				Expect(r.Params).To(Equal(createDBInstanceInput))
 				r.Error = createDBInstanceError
 			}
 			rdssvc.Handlers.Send.PushBack(rdsCall)
@@ -251,7 +251,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has AutoMinorVersionUpgrade", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.AutoMinorVersionUpgrade = true
-				createDBInstancesInput.AutoMinorVersionUpgrade = aws.Bool(true)
+				createDBInstanceInput.AutoMinorVersionUpgrade = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -263,7 +263,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has AvailabilityZone", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.AvailabilityZone = "test-az"
-				createDBInstancesInput.AvailabilityZone = aws.String("test-az")
+				createDBInstanceInput.AvailabilityZone = aws.String("test-az")
 			})
 
 			It("does not return error", func() {
@@ -275,7 +275,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has BackupRetentionPeriod", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.BackupRetentionPeriod = 7
-				createDBInstancesInput.BackupRetentionPeriod = aws.Int64(7)
+				createDBInstanceInput.BackupRetentionPeriod = aws.Int64(7)
 			})
 
 			It("does not return error", func() {
@@ -287,7 +287,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has CharacterSetName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.CharacterSetName = "test-characterset-name"
-				createDBInstancesInput.CharacterSetName = aws.String("test-characterset-name")
+				createDBInstanceInput.CharacterSetName = aws.String("test-characterset-name")
 			})
 
 			It("does not return error", func() {
@@ -299,7 +299,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has CopyTagsToSnapshot", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.CopyTagsToSnapshot = true
-				createDBInstancesInput.CopyTagsToSnapshot = aws.Bool(true)
+				createDBInstanceInput.CopyTagsToSnapshot = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -311,7 +311,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has DBParameterGroupName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBParameterGroupName = "test-db-parameter-group-name"
-				createDBInstancesInput.DBParameterGroupName = aws.String("test-db-parameter-group-name")
+				createDBInstanceInput.DBParameterGroupName = aws.String("test-db-parameter-group-name")
 			})
 
 			It("does not return error", func() {
@@ -323,7 +323,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has DBSecurityGroups", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBSecurityGroups = []string{"test-db-security-group"}
-				createDBInstancesInput.DBSecurityGroups = aws.StringSlice([]string{"test-db-security-group"})
+				createDBInstanceInput.DBSecurityGroups = aws.StringSlice([]string{"test-db-security-group"})
 			})
 
 			It("does not return error", func() {
@@ -335,7 +335,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has DBSubnetGroupName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBSubnetGroupName = "test-db-subnet-group-name"
-				createDBInstancesInput.DBSubnetGroupName = aws.String("test-db-subnet-group-name")
+				createDBInstanceInput.DBSubnetGroupName = aws.String("test-db-subnet-group-name")
 			})
 
 			It("does not return error", func() {
@@ -347,7 +347,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has LicenseModel", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.LicenseModel = "test-license-model"
-				createDBInstancesInput.LicenseModel = aws.String("test-license-model")
+				createDBInstanceInput.LicenseModel = aws.String("test-license-model")
 			})
 
 			It("does not return error", func() {
@@ -359,7 +359,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has MultiAZ", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.MultiAZ = true
-				createDBInstancesInput.MultiAZ = aws.Bool(true)
+				createDBInstanceInput.MultiAZ = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -371,7 +371,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has OptionGroupName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.OptionGroupName = "test-option-group-name"
-				createDBInstancesInput.OptionGroupName = aws.String("test-option-group-name")
+				createDBInstanceInput.OptionGroupName = aws.String("test-option-group-name")
 			})
 
 			It("does not return error", func() {
@@ -383,7 +383,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has Port", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.Port = 666
-				createDBInstancesInput.Port = aws.Int64(666)
+				createDBInstanceInput.Port = aws.Int64(666)
 			})
 
 			It("does not return error", func() {
@@ -395,7 +395,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has PreferredBackupWindow", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.PreferredBackupWindow = "test-preferred-backup-window"
-				createDBInstancesInput.PreferredBackupWindow = aws.String("test-preferred-backup-window")
+				createDBInstanceInput.PreferredBackupWindow = aws.String("test-preferred-backup-window")
 			})
 
 			It("does not return error", func() {
@@ -407,7 +407,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has PreferredMaintenanceWindow", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.PreferredMaintenanceWindow = "test-preferred-maintenance-window"
-				createDBInstancesInput.PreferredMaintenanceWindow = aws.String("test-preferred-maintenance-window")
+				createDBInstanceInput.PreferredMaintenanceWindow = aws.String("test-preferred-maintenance-window")
 			})
 
 			It("does not return error", func() {
@@ -419,7 +419,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has PubliclyAccessible", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.PubliclyAccessible = true
-				createDBInstancesInput.PubliclyAccessible = aws.Bool(true)
+				createDBInstanceInput.PubliclyAccessible = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -431,7 +431,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has StorageEncrypted", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.StorageEncrypted = true
-				createDBInstancesInput.StorageEncrypted = aws.Bool(true)
+				createDBInstanceInput.StorageEncrypted = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -443,7 +443,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has KmsKeyID", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.KmsKeyID = "test-kms-key-id"
-				createDBInstancesInput.KmsKeyId = aws.String("test-kms-key-id")
+				createDBInstanceInput.KmsKeyId = aws.String("test-kms-key-id")
 			})
 
 			It("does not return error", func() {
@@ -455,7 +455,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has StorageType", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.StorageType = "test-storage-type"
-				createDBInstancesInput.StorageType = aws.String("test-storage-type")
+				createDBInstanceInput.StorageType = aws.String("test-storage-type")
 			})
 
 			It("does not return error", func() {
@@ -467,7 +467,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has Iops", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.Iops = 1000
-				createDBInstancesInput.Iops = aws.Int64(1000)
+				createDBInstanceInput.Iops = aws.Int64(1000)
 			})
 
 			It("does not return error", func() {
@@ -479,7 +479,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has VpcSecurityGroupIds", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.VpcSecurityGroupIds = []string{"test-vpc-security-group-ids"}
-				createDBInstancesInput.VpcSecurityGroupIds = aws.StringSlice([]string{"test-vpc-security-group-ids"})
+				createDBInstanceInput.VpcSecurityGroupIds = aws.StringSlice([]string{"test-vpc-security-group-ids"})
 			})
 
 			It("does not return error", func() {
@@ -491,7 +491,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has Tags", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.Tags = map[string]string{"Owner": "Cloud Foundry"}
-				createDBInstancesInput.Tags = []*rds.Tag{
+				createDBInstanceInput.Tags = []*rds.Tag{
 					&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
 				}
 			})
@@ -538,8 +538,8 @@ var _ = Describe("RDS DB Instance", func() {
 			describeDBInstancesInput *rds.DescribeDBInstancesInput
 			describeDBInstanceError  error
 
-			modifyDBInstancesInput *rds.ModifyDBInstanceInput
-			modifyDBInstanceError  error
+			modifyDBInstanceInput *rds.ModifyDBInstanceInput
+			modifyDBInstanceError error
 
 			addTagsToResourceInput *rds.AddTagsToResourceInput
 			addTagsToResourceError error
@@ -569,7 +569,7 @@ var _ = Describe("RDS DB Instance", func() {
 			}
 			describeDBInstanceError = nil
 
-			modifyDBInstancesInput = &rds.ModifyDBInstanceInput{
+			modifyDBInstanceInput = &rds.ModifyDBInstanceInput{
 				DBInstanceIdentifier:    aws.String(dbInstanceIdentifier),
 				ApplyImmediately:        aws.Bool(applyImmediately),
 				AutoMinorVersionUpgrade: aws.Bool(false),
@@ -611,7 +611,7 @@ var _ = Describe("RDS DB Instance", func() {
 					r.Error = describeDBInstanceError
 				case "ModifyDBInstance":
 					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ModifyDBInstanceInput{}))
-					Expect(r.Params).To(Equal(modifyDBInstancesInput))
+					Expect(r.Params).To(Equal(modifyDBInstanceInput))
 					r.Error = modifyDBInstanceError
 				case "AddTagsToResource":
 					Expect(r.Params).To(BeAssignableToTypeOf(&rds.AddTagsToResourceInput{}))
@@ -640,7 +640,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when apply immediately is set to true", func() {
 			BeforeEach(func() {
 				applyImmediately = true
-				modifyDBInstancesInput.ApplyImmediately = aws.Bool(true)
+				modifyDBInstanceInput.ApplyImmediately = aws.Bool(true)
 			})
 
 			It("returns the proper DB Instance", func() {
@@ -664,7 +664,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has AllocatedStorage", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.AllocatedStorage = 500
-				modifyDBInstancesInput.AllocatedStorage = aws.Int64(500)
+				modifyDBInstanceInput.AllocatedStorage = aws.Int64(500)
 			})
 
 			It("does not return error", func() {
@@ -675,7 +675,7 @@ var _ = Describe("RDS DB Instance", func() {
 			Context("and new value is less than old value", func() {
 				BeforeEach(func() {
 					dbInstanceDetails.AllocatedStorage = 50
-					modifyDBInstancesInput.AllocatedStorage = aws.Int64(100)
+					modifyDBInstanceInput.AllocatedStorage = aws.Int64(100)
 				})
 
 				It("picks up the old value", func() {
@@ -688,7 +688,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has AutoMinorVersionUpgrade", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.AutoMinorVersionUpgrade = true
-				modifyDBInstancesInput.AutoMinorVersionUpgrade = aws.Bool(true)
+				modifyDBInstanceInput.AutoMinorVersionUpgrade = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -700,7 +700,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has BackupRetentionPeriod", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.BackupRetentionPeriod = 7
-				modifyDBInstancesInput.BackupRetentionPeriod = aws.Int64(7)
+				modifyDBInstanceInput.BackupRetentionPeriod = aws.Int64(7)
 			})
 
 			It("does not return error", func() {
@@ -712,7 +712,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has CopyTagsToSnapshot", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.CopyTagsToSnapshot = true
-				modifyDBInstancesInput.CopyTagsToSnapshot = aws.Bool(true)
+				modifyDBInstanceInput.CopyTagsToSnapshot = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -724,7 +724,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has DBInstanceClass", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBInstanceClass = "db.m3.small"
-				modifyDBInstancesInput.DBInstanceClass = aws.String("db.m3.small")
+				modifyDBInstanceInput.DBInstanceClass = aws.String("db.m3.small")
 			})
 
 			It("does not return error", func() {
@@ -736,7 +736,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has DBParameterGroupName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBParameterGroupName = "test-db-parameter-group-name"
-				modifyDBInstancesInput.DBParameterGroupName = aws.String("test-db-parameter-group-name")
+				modifyDBInstanceInput.DBParameterGroupName = aws.String("test-db-parameter-group-name")
 			})
 
 			It("does not return error", func() {
@@ -748,7 +748,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has DBSecurityGroups", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBSecurityGroups = []string{"test-db-security-group"}
-				modifyDBInstancesInput.DBSecurityGroups = aws.StringSlice([]string{"test-db-security-group"})
+				modifyDBInstanceInput.DBSecurityGroups = aws.StringSlice([]string{"test-db-security-group"})
 			})
 
 			It("does not return error", func() {
@@ -760,8 +760,8 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has EngineVersion", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.EngineVersion = "1.2.4"
-				modifyDBInstancesInput.EngineVersion = aws.String("1.2.4")
-				modifyDBInstancesInput.AllowMajorVersionUpgrade = aws.Bool(false)
+				modifyDBInstanceInput.EngineVersion = aws.String("1.2.4")
+				modifyDBInstanceInput.AllowMajorVersionUpgrade = aws.Bool(false)
 			})
 
 			It("does not return error", func() {
@@ -772,8 +772,8 @@ var _ = Describe("RDS DB Instance", func() {
 			Context("and is a major version upgrade", func() {
 				BeforeEach(func() {
 					dbInstanceDetails.EngineVersion = "1.3.3"
-					modifyDBInstancesInput.EngineVersion = aws.String("1.3.3")
-					modifyDBInstancesInput.AllowMajorVersionUpgrade = aws.Bool(true)
+					modifyDBInstanceInput.EngineVersion = aws.String("1.3.3")
+					modifyDBInstanceInput.AllowMajorVersionUpgrade = aws.Bool(true)
 				})
 
 				It("does not return error", func() {
@@ -786,7 +786,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has MultiAZ", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.MultiAZ = true
-				modifyDBInstancesInput.MultiAZ = aws.Bool(true)
+				modifyDBInstanceInput.MultiAZ = aws.Bool(true)
 			})
 
 			It("does not return error", func() {
@@ -798,7 +798,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has OptionGroupName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.OptionGroupName = "test-option-group-name"
-				modifyDBInstancesInput.OptionGroupName = aws.String("test-option-group-name")
+				modifyDBInstanceInput.OptionGroupName = aws.String("test-option-group-name")
 			})
 
 			It("does not return error", func() {
@@ -810,7 +810,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has PreferredBackupWindow", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.PreferredBackupWindow = "test-preferred-backup-window"
-				modifyDBInstancesInput.PreferredBackupWindow = aws.String("test-preferred-backup-window")
+				modifyDBInstanceInput.PreferredBackupWindow = aws.String("test-preferred-backup-window")
 			})
 
 			It("does not return error", func() {
@@ -822,7 +822,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has PreferredMaintenanceWindow", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.PreferredMaintenanceWindow = "test-preferred-maintenance-window"
-				modifyDBInstancesInput.PreferredMaintenanceWindow = aws.String("test-preferred-maintenance-window")
+				modifyDBInstanceInput.PreferredMaintenanceWindow = aws.String("test-preferred-maintenance-window")
 			})
 
 			It("does not return error", func() {
@@ -834,7 +834,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has StorageType", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.StorageType = "test-storage-type"
-				modifyDBInstancesInput.StorageType = aws.String("test-storage-type")
+				modifyDBInstanceInput.StorageType = aws.String("test-storage-type")
 			})
 
 			It("does not return error", func() {
@@ -846,7 +846,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has Iops", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.Iops = 1000
-				modifyDBInstancesInput.Iops = aws.Int64(1000)
+				modifyDBInstanceInput.Iops = aws.Int64(1000)
 			})
 
 			It("does not return error", func() {
@@ -858,7 +858,7 @@ var _ = Describe("RDS DB Instance", func() {
 		Context("when has VpcSecurityGroupIds", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.VpcSecurityGroupIds = []string{"test-vpc-security-group-ids"}
-				modifyDBInstancesInput.VpcSecurityGroupIds = aws.StringSlice([]string{"test-vpc-security-group-ids"})
+				modifyDBInstanceInput.VpcSecurityGroupIds = aws.StringSlice([]string{"test-vpc-security-group-ids"})
 			})
 
 			It("does not return error", func() {
