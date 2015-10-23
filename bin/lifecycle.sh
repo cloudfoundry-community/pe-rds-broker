@@ -86,9 +86,9 @@ curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PATCH 
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PATCH "http://username:password@localhost:3000/v2/service_instances/unknown?accepts_incomplete=true" -d '{"service_id":"ce71b484-d542-40f7-9dd4-5526e38c81ba","plan_id":"b4943c34-fd33-47a6-8f0b-eb4f462fd746","previous_values":{"service_id":"ce71b484-d542-40f7-9dd4-5526e38c81ba","plan_id":"5b8282cf-a669-4ffc-b426-c169a7bbfc71","organization_guid":"organization_id","space_guid":"space_id"},"parameters":{"apply_immediately":true}}'
 
 # Deprovision Errors
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmy?service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=b4943c34-fd33-47a6-8f0b-eb4f462fd746
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmy?accepts_incomplete=true?service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=unknown
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/unknown?accepts_incomplete=true?service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=b4943c34-fd33-47a6-8f0b-eb4f462fd746
+curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmy?service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=b4943c34-fd33-47a6-8f0b-eb4f462fd746"
+curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmy?accepts_incomplete=true&service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=unknown"
+curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/unknown?accepts_incomplete=true&service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=b4943c34-fd33-47a6-8f0b-eb4f462fd746"
 
 # Bind Errors
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/testmy/service_bindings/mysql-1-binding" -d '{"service_id":"unknown","plan_id":"5b8282cf-a669-4ffc-b426-c169a7bbfc71"}'
@@ -97,6 +97,7 @@ curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "h
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X PUT "http://username:password@localhost:3000/v2/service_instances/unknown/service_bindings/mysql-1-binding" -d '{"service_id":"ce71b484-d542-40f7-9dd4-5526e38c81ba","plan_id":"5b8282cf-a669-4ffc-b426-c169a7bbfc71"}'
 
 # Unbind Errors
+curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testmy/service_bindings/mysql-1-binding?service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=unknown"
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/unknown/service_bindings/mysql-1-binding?service_id=ce71b484-d542-40f7-9dd4-5526e38c81ba&plan_id=b4943c34-fd33-47a6-8f0b-eb4f462fd746"
 
 # Last Operation Errors
