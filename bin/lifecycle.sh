@@ -66,7 +66,7 @@ curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testpg/service_bindings/pg-1-binding?service_id=a2c9adda-6511-462c-9934-b3fd8236e9f0&plan_id=80768f31-5c2c-40e8-8135-59fe3d710dc3"
 
 # Deprovision PostgreSQL
-curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testpg?accepts_incomplete=true&service_id=a2c9adda-6511-462c-9934-b3fd8236e9f0&plan_id=80768f31-5c2c-40e8-8135-59fe3d710dc3
+curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X DELETE "http://username:password@localhost:3000/v2/service_instances/testpg?accepts_incomplete=true&service_id=a2c9adda-6511-462c-9934-b3fd8236e9f0&plan_id=80768f31-5c2c-40e8-8135-59fe3d710dc3"
 
 # Last Operation PostgreSQL
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' -X GET "http://username:password@localhost:3000/v2/service_instances/testpg/last_operation"
