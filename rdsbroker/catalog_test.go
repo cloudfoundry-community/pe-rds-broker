@@ -47,7 +47,7 @@ var _ = Describe("Catalog", func() {
 			}
 		})
 
-		It("returns the Service if it is found", func() {
+		It("returns true and the Service if it is found", func() {
 			service, found := catalog.FindService("Service-1")
 			Expect(service).To(Equal(service1))
 			Expect(found).To(BeTrue())
@@ -66,7 +66,7 @@ var _ = Describe("Catalog", func() {
 			}
 		})
 
-		It("returns the Service Plan if it is found", func() {
+		It("returns true and the Service Plan if it is found", func() {
 			plan, found := catalog.FindServicePlan("Plan-1")
 			Expect(plan).To(Equal(plan1))
 			Expect(found).To(BeTrue())

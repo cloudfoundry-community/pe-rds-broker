@@ -16,11 +16,11 @@ var _ = Describe("Provider Service", func() {
 	)
 
 	BeforeEach(func() {
-		logger = lager.NewLogger("sql_engine_test")
+		logger = lager.NewLogger("provider_service_test")
 		sqlProvider = NewProviderService(logger)
 	})
 
-	Describe("GetDatabase", func() {
+	Describe("GetSQLEngine", func() {
 		It("returns error if engine is not supported", func() {
 			_, err := sqlProvider.GetSQLEngine("unknown")
 			Expect(err).To(HaveOccurred())
@@ -28,7 +28,7 @@ var _ = Describe("Provider Service", func() {
 		})
 
 		Context("when engine is aurora", func() {
-			It("return the proper Database", func() {
+			It("return the proper SQL Engine", func() {
 				sqlEngine, err := sqlProvider.GetSQLEngine("aurora")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sqlEngine).To(BeAssignableToTypeOf(&MySQLEngine{}))
@@ -36,7 +36,7 @@ var _ = Describe("Provider Service", func() {
 		})
 
 		Context("when engine is mariadb", func() {
-			It("return the proper Database", func() {
+			It("return the proper SQL Engine", func() {
 				sqlEngine, err := sqlProvider.GetSQLEngine("mariadb")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sqlEngine).To(BeAssignableToTypeOf(&MySQLEngine{}))
@@ -44,7 +44,7 @@ var _ = Describe("Provider Service", func() {
 		})
 
 		Context("when engine is mysql", func() {
-			It("return the proper Database", func() {
+			It("return the proper SQL Engine", func() {
 				sqlEngine, err := sqlProvider.GetSQLEngine("mysql")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sqlEngine).To(BeAssignableToTypeOf(&MySQLEngine{}))
@@ -52,7 +52,7 @@ var _ = Describe("Provider Service", func() {
 		})
 
 		Context("when engine is postgres", func() {
-			It("return the proper Database", func() {
+			It("return the proper SQL Engine", func() {
 				sqlEngine, err := sqlProvider.GetSQLEngine("postgres")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sqlEngine).To(BeAssignableToTypeOf(&PostgresEngine{}))
@@ -60,7 +60,7 @@ var _ = Describe("Provider Service", func() {
 		})
 
 		Context("when engine is postgresql", func() {
-			It("return the proper Database", func() {
+			It("return the proper SQL Engine", func() {
 				sqlEngine, err := sqlProvider.GetSQLEngine("postgresql")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sqlEngine).To(BeAssignableToTypeOf(&PostgresEngine{}))

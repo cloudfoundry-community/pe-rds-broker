@@ -8,7 +8,7 @@ import (
 )
 
 var _ = Describe("RandomAlphaNum", func() {
-	It("does not return error if all sections are valid", func() {
+	It("generates a random alpha numeric with the proper length", func() {
 		randomString := RandomAlphaNum(32)
 		Expect(len(randomString)).To(Equal(32))
 	})
