@@ -204,24 +204,12 @@ var _ = Describe("RDS DB Instance", func() {
 
 		BeforeEach(func() {
 			dbInstanceDetails = DBInstanceDetails{
-				DBInstanceClass:    "db.m3.small",
-				Engine:             "test-engine",
-				EngineVersion:      "1.2.3",
-				AllocatedStorage:   100,
-				DBName:             "test-dbname",
-				MasterUsername:     "master-username",
-				MasterUserPassword: "master-password",
+				Engine: "test-engine",
 			}
 
 			createDBInstanceInput = &rds.CreateDBInstanceInput{
 				DBInstanceIdentifier:    aws.String(dbInstanceIdentifier),
-				DBInstanceClass:         aws.String("db.m3.small"),
 				Engine:                  aws.String("test-engine"),
-				EngineVersion:           aws.String("1.2.3"),
-				AllocatedStorage:        aws.Int64(100),
-				DBName:                  aws.String("test-dbname"),
-				MasterUsername:          aws.String("master-username"),
-				MasterUserPassword:      aws.String("master-password"),
 				AutoMinorVersionUpgrade: aws.Bool(false),
 				CopyTagsToSnapshot:      aws.Bool(false),
 				MultiAZ:                 aws.Bool(false),
@@ -246,6 +234,18 @@ var _ = Describe("RDS DB Instance", func() {
 		It("does not return error", func() {
 			err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("when has AllocatedStorage", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.AllocatedStorage = 100
+				createDBInstanceInput.AllocatedStorage = aws.Int64(100)
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 
 		Context("when has AutoMinorVersionUpgrade", func() {
@@ -308,6 +308,42 @@ var _ = Describe("RDS DB Instance", func() {
 			})
 		})
 
+		Context("when has DBClusterIdentifier", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.DBClusterIdentifier = "test-db-cluster-identifier"
+				createDBInstanceInput.DBClusterIdentifier = aws.String("test-db-cluster-identifier")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has DBInstanceClass", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.DBInstanceClass = "db.m3.small"
+				createDBInstanceInput.DBInstanceClass = aws.String("db.m3.small")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has DBName", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.DBName = "test-dbname"
+				createDBInstanceInput.DBName = aws.String("test-dbname")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
 		Context("when has DBParameterGroupName", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBParameterGroupName = "test-db-parameter-group-name"
@@ -336,6 +372,54 @@ var _ = Describe("RDS DB Instance", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.DBSubnetGroupName = "test-db-subnet-group-name"
 				createDBInstanceInput.DBSubnetGroupName = aws.String("test-db-subnet-group-name")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has EngineVersion", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.EngineVersion = "1.2.3"
+				createDBInstanceInput.EngineVersion = aws.String("1.2.3")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has KmsKeyID", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.KmsKeyID = "test-kms-key-id"
+				createDBInstanceInput.KmsKeyId = aws.String("test-kms-key-id")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has MasterUsername", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.MasterUsername = "test-master-username"
+				createDBInstanceInput.MasterUsername = aws.String("test-master-username")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has MasterUserPassword", func() {
+			BeforeEach(func() {
+				dbInstanceDetails.MasterUserPassword = "test-master-user-password"
+				createDBInstanceInput.MasterUserPassword = aws.String("test-master-user-password")
 			})
 
 			It("does not return error", func() {
@@ -440,18 +524,6 @@ var _ = Describe("RDS DB Instance", func() {
 			})
 		})
 
-		Context("when has KmsKeyID", func() {
-			BeforeEach(func() {
-				dbInstanceDetails.KmsKeyID = "test-kms-key-id"
-				createDBInstanceInput.KmsKeyId = aws.String("test-kms-key-id")
-			})
-
-			It("does not return error", func() {
-				err := rdsDBInstance.Create(dbInstanceIdentifier, dbInstanceDetails)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
 		Context("when has StorageType", func() {
 			BeforeEach(func() {
 				dbInstanceDetails.StorageType = "test-storage-type"
@@ -502,7 +574,7 @@ var _ = Describe("RDS DB Instance", func() {
 			})
 		})
 
-		Context("when creating the DB instance fails", func() {
+		Context("when creating the DB Instance fails", func() {
 			BeforeEach(func() {
 				createDBInstanceError = errors.New("operation failed")
 			})

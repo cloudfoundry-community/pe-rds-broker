@@ -3,7 +3,6 @@ package awsrds
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -85,15 +84,6 @@ func (r *RDSDBCluster) Create(ID string, dbClusterDetails DBClusterDetails) erro
 }
 
 func (r *RDSDBCluster) Modify(ID string, dbClusterDetails DBClusterDetails, applyImmediately bool) error {
-	oldDBClusterDetails, err := r.Describe(ID)
-	if err != nil {
-		return err
-	}
-
-	if dbClusterDetails.Engine != "" && strings.ToLower(oldDBClusterDetails.Engine) != strings.ToLower(dbClusterDetails.Engine) {
-		return fmt.Errorf("Migrating the RDS DB Cluster engine from '%s' to '%s' is not supported", oldDBClusterDetails.Engine, dbClusterDetails.Engine)
-	}
-
 	modifyDBClusterInput := r.buildModifyDBClusterInput(ID, dbClusterDetails, applyImmediately)
 	r.logger.Debug("modify-db-cluster", lager.Data{"input": modifyDBClusterInput})
 
@@ -101,6 +91,11 @@ func (r *RDSDBCluster) Modify(ID string, dbClusterDetails DBClusterDetails, appl
 	if err != nil {
 		r.logger.Error("aws-rds-error", err)
 		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return ErrDBClusterDoesNotExist
+				}
+			}
 			return errors.New(awsErr.Code() + ": " + awsErr.Message())
 		}
 		return err
@@ -153,6 +148,7 @@ func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster) DBClusterDetails
 		MasterUsername:   aws.StringValue(dbCluster.MasterUsername),
 		AllocatedStorage: aws.Int64Value(dbCluster.AllocatedStorage),
 		Endpoint:         aws.StringValue(dbCluster.Endpoint),
+		Port:             aws.Int64Value(dbCluster.Port),
 	}
 
 	return dbClusterDetails
@@ -162,10 +158,6 @@ func (r *RDSDBCluster) buildCreateDBClusterInput(ID string, dbClusterDetails DBC
 	createDBClusterInput := &rds.CreateDBClusterInput{
 		DBClusterIdentifier: aws.String(ID),
 		Engine:              aws.String(dbClusterDetails.Engine),
-		EngineVersion:       aws.String(dbClusterDetails.EngineVersion),
-		DatabaseName:        aws.String(dbClusterDetails.DatabaseName),
-		MasterUsername:      aws.String(dbClusterDetails.MasterUsername),
-		MasterUserPassword:  aws.String(dbClusterDetails.MasterUserPassword),
 	}
 
 	if len(dbClusterDetails.AvailabilityZones) > 0 {
@@ -180,12 +172,28 @@ func (r *RDSDBCluster) buildCreateDBClusterInput(ID string, dbClusterDetails DBC
 		createDBClusterInput.CharacterSetName = aws.String(dbClusterDetails.CharacterSetName)
 	}
 
+	if dbClusterDetails.DatabaseName != "" {
+		createDBClusterInput.DatabaseName = aws.String(dbClusterDetails.DatabaseName)
+	}
+
 	if dbClusterDetails.DBClusterParameterGroupName != "" {
 		createDBClusterInput.DBClusterParameterGroupName = aws.String(dbClusterDetails.DBClusterParameterGroupName)
 	}
 
 	if dbClusterDetails.DBSubnetGroupName != "" {
 		createDBClusterInput.DBSubnetGroupName = aws.String(dbClusterDetails.DBSubnetGroupName)
+	}
+
+	if dbClusterDetails.EngineVersion != "" {
+		createDBClusterInput.EngineVersion = aws.String(dbClusterDetails.EngineVersion)
+	}
+
+	if dbClusterDetails.MasterUsername != "" {
+		createDBClusterInput.MasterUsername = aws.String(dbClusterDetails.MasterUsername)
+	}
+
+	if dbClusterDetails.MasterUserPassword != "" {
+		createDBClusterInput.MasterUserPassword = aws.String(dbClusterDetails.MasterUserPassword)
 	}
 
 	if dbClusterDetails.OptionGroupName != "" {
@@ -227,6 +235,10 @@ func (r *RDSDBCluster) buildModifyDBClusterInput(ID string, dbClusterDetails DBC
 
 	if dbClusterDetails.DBClusterParameterGroupName != "" {
 		modifyDBClusterInput.DBClusterParameterGroupName = aws.String(dbClusterDetails.DBClusterParameterGroupName)
+	}
+
+	if dbClusterDetails.MasterUserPassword != "" {
+		modifyDBClusterInput.MasterUserPassword = aws.String(dbClusterDetails.MasterUserPassword)
 	}
 
 	if dbClusterDetails.OptionGroupName != "" {

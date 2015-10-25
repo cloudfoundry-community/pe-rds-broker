@@ -61,32 +61,32 @@ type Cost struct {
 }
 
 type RDSProperties struct {
-	DBInstanceClass            string   `json:"db_instance_class"`
-	Engine                     string   `json:"engine"`
-	EngineVersion              string   `json:"engine_version"`
-	AllocatedStorage           int64    `json:"allocated_storage"`
-	AutoMinorVersionUpgrade    bool     `json:"auto_minor_version_upgrade,omitempty"`
-	AvailabilityZone           string   `json:"availability_zone,omitempty"`
-	BackupRetentionPeriod      int64    `json:"backup_retention_period,omitempty"`
-	CharacterSetName           string   `json:"character_set_name,omitempty"`
-	DBName                     string   `json:"dbname,omitempty"`
-	DBParameterGroupName       string   `json:"db_parameter_group_name,omitempty"`
-	DBSecurityGroups           []string `json:"db_security_groups,omitempty"`
-	DBSubnetGroupName          string   `json:"db_subnet_group_name,omitempty"`
-	LicenseModel               string   `json:"license_model,omitempty"`
-	MultiAZ                    bool     `json:"multi_az,omitempty"`
-	OptionGroupName            string   `json:"option_group_name,omitempty"`
-	Port                       int64    `json:"port,omitempty"`
-	PreferredBackupWindow      string   `json:"preferred_backup_window,omitempty"`
-	PreferredMaintenanceWindow string   `json:"preferred_maintenance_window,omitempty"`
-	PubliclyAccessible         bool     `json:"publicly_accessible,omitempty"`
-	StorageEncrypted           bool     `json:"storage_encrypted,omitempty"`
-	KmsKeyID                   string   `json:"kms_key_id,omitempty"`
-	StorageType                string   `json:"storage_type,omitempty"`
-	Iops                       int64    `json:"iops,omitempty"`
-	VpcSecurityGroupIds        []string `json:"vpc_security_group_ids,omitempty"`
-	CopyTagsToSnapshot         bool     `json:"copy_tags_to_snapshot,omitempty"`
-	SkipFinalSnapshot          bool     `json:"skip_final_snapshot,omitempty"`
+	DBInstanceClass             string   `json:"db_instance_class"`
+	Engine                      string   `json:"engine"`
+	EngineVersion               string   `json:"engine_version"`
+	AllocatedStorage            int64    `json:"allocated_storage"`
+	AutoMinorVersionUpgrade     bool     `json:"auto_minor_version_upgrade,omitempty"`
+	AvailabilityZone            string   `json:"availability_zone,omitempty"`
+	BackupRetentionPeriod       int64    `json:"backup_retention_period,omitempty"`
+	CharacterSetName            string   `json:"character_set_name,omitempty"`
+	DBParameterGroupName        string   `json:"db_parameter_group_name,omitempty"`
+	DBClusterParameterGroupName string   `json:"db_cluster_parameter_group_name,omitempty"`
+	DBSecurityGroups            []string `json:"db_security_groups,omitempty"`
+	DBSubnetGroupName           string   `json:"db_subnet_group_name,omitempty"`
+	LicenseModel                string   `json:"license_model,omitempty"`
+	MultiAZ                     bool     `json:"multi_az,omitempty"`
+	OptionGroupName             string   `json:"option_group_name,omitempty"`
+	Port                        int64    `json:"port,omitempty"`
+	PreferredBackupWindow       string   `json:"preferred_backup_window,omitempty"`
+	PreferredMaintenanceWindow  string   `json:"preferred_maintenance_window,omitempty"`
+	PubliclyAccessible          bool     `json:"publicly_accessible,omitempty"`
+	StorageEncrypted            bool     `json:"storage_encrypted,omitempty"`
+	KmsKeyID                    string   `json:"kms_key_id,omitempty"`
+	StorageType                 string   `json:"storage_type,omitempty"`
+	Iops                        int64    `json:"iops,omitempty"`
+	VpcSecurityGroupIds         []string `json:"vpc_security_group_ids,omitempty"`
+	CopyTagsToSnapshot          bool     `json:"copy_tags_to_snapshot,omitempty"`
+	SkipFinalSnapshot           bool     `json:"skip_final_snapshot,omitempty"`
 }
 
 func (c Catalog) Validate() error {
@@ -173,19 +173,12 @@ func (rp RDSProperties) Validate() error {
 	}
 
 	switch strings.ToLower(rp.Engine) {
+	case "aurora":
 	case "mariadb":
 	case "mysql":
 	case "postgres":
 	default:
 		return fmt.Errorf("This broker does not support RDS engine '%s' (%+v)", rp.Engine, rp)
-	}
-
-	if rp.EngineVersion == "" {
-		return fmt.Errorf("Must provide a non-empty EngineVersion (%+v)", rp)
-	}
-
-	if rp.AllocatedStorage < minAllocatedStorage || rp.AllocatedStorage > maxAllocatedStorage {
-		return fmt.Errorf("Invalid Allocated Storage (%d), must be between %d and %d", rp.AllocatedStorage, minAllocatedStorage, maxAllocatedStorage)
 	}
 
 	return nil

@@ -75,6 +75,11 @@ func (r *RDSDBInstance) Create(ID string, dbInstanceDetails DBInstanceDetails) e
 	if err != nil {
 		r.logger.Error("aws-rds-error", err)
 		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return ErrDBClusterDoesNotExist
+				}
+			}
 			return errors.New(awsErr.Code() + ": " + awsErr.Message())
 		}
 		return err
@@ -101,6 +106,11 @@ func (r *RDSDBInstance) Modify(ID string, dbInstanceDetails DBInstanceDetails, a
 	if err != nil {
 		r.logger.Error("aws-rds-error", err)
 		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return ErrDBClusterDoesNotExist
+				}
+			}
 			return errors.New(awsErr.Code() + ": " + awsErr.Message())
 		}
 		return err
@@ -173,13 +183,11 @@ func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance) DBInstanceDe
 func (r *RDSDBInstance) buildCreateDBInstanceInput(ID string, dbInstanceDetails DBInstanceDetails) *rds.CreateDBInstanceInput {
 	createDBInstanceInput := &rds.CreateDBInstanceInput{
 		DBInstanceIdentifier: aws.String(ID),
-		DBInstanceClass:      aws.String(dbInstanceDetails.DBInstanceClass),
 		Engine:               aws.String(dbInstanceDetails.Engine),
-		EngineVersion:        aws.String(dbInstanceDetails.EngineVersion),
-		AllocatedStorage:     aws.Int64(dbInstanceDetails.AllocatedStorage),
-		DBName:               aws.String(dbInstanceDetails.DBName),
-		MasterUsername:       aws.String(dbInstanceDetails.MasterUsername),
-		MasterUserPassword:   aws.String(dbInstanceDetails.MasterUserPassword),
+	}
+
+	if dbInstanceDetails.AllocatedStorage > 0 {
+		createDBInstanceInput.AllocatedStorage = aws.Int64(dbInstanceDetails.AllocatedStorage)
 	}
 
 	createDBInstanceInput.AutoMinorVersionUpgrade = aws.Bool(dbInstanceDetails.AutoMinorVersionUpgrade)
@@ -198,6 +206,18 @@ func (r *RDSDBInstance) buildCreateDBInstanceInput(ID string, dbInstanceDetails 
 
 	createDBInstanceInput.CopyTagsToSnapshot = aws.Bool(dbInstanceDetails.CopyTagsToSnapshot)
 
+	if dbInstanceDetails.DBClusterIdentifier != "" {
+		createDBInstanceInput.DBClusterIdentifier = aws.String(dbInstanceDetails.DBClusterIdentifier)
+	}
+
+	if dbInstanceDetails.DBInstanceClass != "" {
+		createDBInstanceInput.DBInstanceClass = aws.String(dbInstanceDetails.DBInstanceClass)
+	}
+
+	if dbInstanceDetails.DBName != "" {
+		createDBInstanceInput.DBName = aws.String(dbInstanceDetails.DBName)
+	}
+
 	if dbInstanceDetails.DBParameterGroupName != "" {
 		createDBInstanceInput.DBParameterGroupName = aws.String(dbInstanceDetails.DBParameterGroupName)
 	}
@@ -210,8 +230,24 @@ func (r *RDSDBInstance) buildCreateDBInstanceInput(ID string, dbInstanceDetails 
 		createDBInstanceInput.DBSubnetGroupName = aws.String(dbInstanceDetails.DBSubnetGroupName)
 	}
 
+	if dbInstanceDetails.EngineVersion != "" {
+		createDBInstanceInput.EngineVersion = aws.String(dbInstanceDetails.EngineVersion)
+	}
+
+	if dbInstanceDetails.KmsKeyID != "" {
+		createDBInstanceInput.KmsKeyId = aws.String(dbInstanceDetails.KmsKeyID)
+	}
+
 	if dbInstanceDetails.LicenseModel != "" {
 		createDBInstanceInput.LicenseModel = aws.String(dbInstanceDetails.LicenseModel)
+	}
+
+	if dbInstanceDetails.MasterUsername != "" {
+		createDBInstanceInput.MasterUsername = aws.String(dbInstanceDetails.MasterUsername)
+	}
+
+	if dbInstanceDetails.MasterUserPassword != "" {
+		createDBInstanceInput.MasterUserPassword = aws.String(dbInstanceDetails.MasterUserPassword)
 	}
 
 	createDBInstanceInput.MultiAZ = aws.Bool(dbInstanceDetails.MultiAZ)
@@ -235,10 +271,6 @@ func (r *RDSDBInstance) buildCreateDBInstanceInput(ID string, dbInstanceDetails 
 	createDBInstanceInput.PubliclyAccessible = aws.Bool(dbInstanceDetails.PubliclyAccessible)
 
 	createDBInstanceInput.StorageEncrypted = aws.Bool(dbInstanceDetails.StorageEncrypted)
-
-	if dbInstanceDetails.KmsKeyID != "" {
-		createDBInstanceInput.KmsKeyId = aws.String(dbInstanceDetails.KmsKeyID)
-	}
 
 	if dbInstanceDetails.StorageType != "" {
 		createDBInstanceInput.StorageType = aws.String(dbInstanceDetails.StorageType)
@@ -296,6 +328,10 @@ func (r *RDSDBInstance) buildModifyDBInstanceInput(ID string, dbInstanceDetails 
 	if dbInstanceDetails.EngineVersion != "" && dbInstanceDetails.EngineVersion != oldDBInstanceDetails.EngineVersion {
 		modifyDBInstanceInput.EngineVersion = aws.String(dbInstanceDetails.EngineVersion)
 		modifyDBInstanceInput.AllowMajorVersionUpgrade = aws.Bool(r.allowMajorVersionUpgrade(dbInstanceDetails.EngineVersion, oldDBInstanceDetails.EngineVersion))
+	}
+
+	if dbInstanceDetails.MasterUserPassword != "" {
+		modifyDBInstanceInput.MasterUserPassword = aws.String(dbInstanceDetails.MasterUserPassword)
 	}
 
 	modifyDBInstanceInput.MultiAZ = aws.Bool(dbInstanceDetails.MultiAZ)

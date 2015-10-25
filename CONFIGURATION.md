@@ -71,31 +71,31 @@ Please refer to the [Catalog Documentation](https://docs.cloudfoundry.org/servic
 
 Please refer to the [Amazon Relational Database Service Documentation](https://aws.amazon.com/documentation/rds/) for more details about these properties.
 
-| Option                       | Required | Type      | Description
-|:-----------------------------|:--------:|:--------- |:-----------
-| db_instance_class            | Y        | String    | The name of the DB Instance Class
-| engine                       | Y        | String    | The name of the Database Engine (only `mariadb`, `mysql` and `postgres` are supported)
-| engine_version               | Y        | String    | The version number of the Database Engine
-| allocated_storage            | Y        | Integer   | The amount of storage (in gigabytes) to be initially allocated for the database instances (between `5` and `6144`)
-| auto_minor_version_upgrade   | N        | Boolean   | Enable or disable automatic upgrades to new minor versions as they are released (defaults to `false`)
-| availability_zone            | N        | String    | The Availability Zone that database instances will be created in
-| backup_retention_period      | N        | Integer   | The number of days that Amazon RDS should retain automatic backups of DB instances (between `0` and `35`)
-| character_set_name           | N        | String    | For supported engines, indicates that DB instances should be associated with the specified CharacterSet
-| dbname                       | N        | String    | The name of the Database to be provisioned. If this parameter is not set, the broker will use a random Database name
-| db_parameter_group_name      | N        | String    | The DB parameter group name that defines the configuration settings you want applied to DB instances
-| db_security_groups           | N        | []String  | The security group(s) names that have rules authorizing connections from applications that need to access the data stored in the DB instance
-| db_subnet_group_name         | N        | String    | The DB subnet group name that defines which subnets and IP ranges the DB instance can use in the VPC
-| license_model                | N        | String    | License model information for DB instances (`license-included`, `bring-your-own-license`, `general-public-license`)
-| multi_az                     | N        | Boolean   | Enable or disable Multi-AZ deployment for high availability DB Instances
-| option_group_name            | N        | String    | The DB option group name that enables any optional functionality you want the DB instances to support
-| port                         | N        | Integer   | The TCP/IP port DB instances will use for application connections
-| preferred_backup_window      | N        | String    | The daily time range during which automated backups are created if automated backups are enabled
-| preferred_maintenance_window | N        | String    | The weekly time range during which system maintenance can occur
-| publicly_accessible          | N        | Boolean   | Specify if DB instances will be publicly accessible
-| storage_encrypted            | N        | Boolean   | Specifies whether DB instances are encrypted
-| kms_key_id                   | N        | String    | The KMS key identifier for encrypted DB instances
-| storage_type                 | N        | String    | The storage type to be associated with DB instances (`standard`, `gp2`, `io1`)
-| iops                         | N        | Integer   | The amount of Provisioned IOPS to be initially allocated for DB instances
-| vpc_security_group_ids       | N        | []String  | VPC security group(s) IDs that have rules authorizing connections from applications that need to access the data stored in DB instances
-| copy_tags_to_snapshot        | N        | Boolean   | Enable or disable copying all tags from DB instances to snapshots
-| skip_final_snapshot          | N        | Boolean   | Determines whether a final DB snapshot is created before the DB instances are deleted
+| Option                          | Required | Type      | Description
+|:--------------------------------|:--------:|:--------- |:-----------
+| allocated_storage               | Y        | Integer   | The amount of storage (in gigabytes) to be initially allocated for the database instances (between `5` and `6144`). Not applicable when using `aurora`
+| auto_minor_version_upgrade      | N        | Boolean   | Enable or disable automatic upgrades to new minor versions as they are released (defaults to `false`)
+| availability_zone               | N        | String    | The Availability Zone that database instances will be created in
+| backup_retention_period         | N        | Integer   | The number of days that Amazon RDS should retain automatic backups of DB instances (between `0` and `35`)
+| character_set_name              | N        | String    | For supported engines, indicates that DB instances should be associated with the specified CharacterSet. Not applicable when using `aurora`
+| copy_tags_to_snapshot           | N        | Boolean   | Enable or disable copying all tags from DB instances to snapshots
+| db_instance_class               | Y        | String    | The name of the DB Instance Class
+| db_parameter_group_name         | N        | String    | The DB parameter group name that defines the configuration settings you want applied to DB instances
+| db_cluster_parameter_group_name | N        | String    | The DB cluster parameter group name that defines the configuration settings you want applied to DB clusters (only for `aurora`)
+| db_security_groups              | N        | []String  | The security group(s) names that have rules authorizing connections from applications that need to access the data stored in the DB instance. Not applicable when using `aurora`
+| db_subnet_group_name            | N        | String    | The DB subnet group name that defines which subnets and IP ranges the DB instance can use in the VPC
+| engine                          | Y        | String    | The name of the Database Engine (only `aurora`, `mariadb`, `mysql` and `postgres` are supported)
+| engine_version                  | Y        | String    | The version number of the Database Engine
+| iops                            | N        | Integer   | The amount of Provisioned IOPS to be initially allocated for DB instances when using `io1` storage type. Not applicable when using `aurora`
+| kms_key_id                      | N        | String    | The KMS key identifier for encrypted DB instances. Not applicable when using `aurora`
+| license_model                   | N        | String    | License model information for DB instances (`license-included`, `bring-your-own-license`, `general-public-license`). Not applicable when using `aurora`
+| multi_az                        | N        | Boolean   | Enable or disable Multi-AZ deployment for high availability DB Instances. Not applicable when using `aurora`
+| option_group_name               | N        | String    | The DB option group name that enables any optional functionality you want the DB instances to support. Not applicable when using `aurora`
+| port                            | N        | Integer   | The TCP/IP port DB instances will use for application connections
+| preferred_backup_window         | N        | String    | The daily time range during which automated backups are created if automated backups are enabled
+| preferred_maintenance_window    | N        | String    | The weekly time range during which system maintenance can occur
+| publicly_accessible             | N        | Boolean   | Specify if DB instances will be publicly accessible
+| skip_final_snapshot             | N        | Boolean   | Determines whether a final DB snapshot is created before the DB instances are deleted
+| storage_encrypted               | N        | Boolean   | Specifies whether DB instances are encrypted. Not applicable when using `aurora`
+| storage_type                    | N        | String    | The storage type to be associated with DB instances (`standard`, `gp2`, `io1`)
+| vpc_security_group_ids          | N        | []String  | VPC security group(s) IDs that have rules authorizing connections from applications that need to access the data stored in DB instances

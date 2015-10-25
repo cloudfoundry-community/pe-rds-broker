@@ -71,6 +71,7 @@ var _ = Describe("RDS DB Cluster", func() {
 				MasterUsername:   "test-master-username",
 				AllocatedStorage: int64(100),
 				Endpoint:         "test-endpoint",
+				Port:             int64(3306),
 			}
 
 			describeDBCluster = &rds.DBCluster{
@@ -82,6 +83,7 @@ var _ = Describe("RDS DB Cluster", func() {
 				MasterUsername:      aws.String("test-master-username"),
 				AllocatedStorage:    aws.Int64(100),
 				Endpoint:            aws.String("test-endpoint"),
+				Port:                aws.Int64(3306),
 			}
 			describeDBClusters = []*rds.DBCluster{describeDBCluster}
 
@@ -173,20 +175,12 @@ var _ = Describe("RDS DB Cluster", func() {
 
 		BeforeEach(func() {
 			dbClusterDetails = DBClusterDetails{
-				Engine:             "test-engine",
-				EngineVersion:      "1.2.3",
-				DatabaseName:       "test-dbname",
-				MasterUsername:     "master-username",
-				MasterUserPassword: "master-password",
+				Engine: "test-engine",
 			}
 
 			createDBClustersInput = &rds.CreateDBClusterInput{
 				DBClusterIdentifier: aws.String(dbClusterIdentifier),
 				Engine:              aws.String("test-engine"),
-				EngineVersion:       aws.String("1.2.3"),
-				DatabaseName:        aws.String("test-dbname"),
-				MasterUsername:      aws.String("master-username"),
-				MasterUserPassword:  aws.String("master-password"),
 			}
 			createDBClusterError = nil
 		})
@@ -244,6 +238,18 @@ var _ = Describe("RDS DB Cluster", func() {
 			})
 		})
 
+		Context("when has DatabaseName", func() {
+			BeforeEach(func() {
+				dbClusterDetails.DatabaseName = "test-database-name"
+				createDBClustersInput.DatabaseName = aws.String("test-database-name")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBCluster.Create(dbClusterIdentifier, dbClusterDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
 		Context("when has DBClusterParameterGroupName", func() {
 			BeforeEach(func() {
 				dbClusterDetails.DBClusterParameterGroupName = "test-db-cluster-parameter-group-name"
@@ -260,6 +266,42 @@ var _ = Describe("RDS DB Cluster", func() {
 			BeforeEach(func() {
 				dbClusterDetails.DBSubnetGroupName = "test-db-subnet-group-name"
 				createDBClustersInput.DBSubnetGroupName = aws.String("test-db-subnet-group-name")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBCluster.Create(dbClusterIdentifier, dbClusterDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has EngineVersion", func() {
+			BeforeEach(func() {
+				dbClusterDetails.EngineVersion = "1.2.3"
+				createDBClustersInput.EngineVersion = aws.String("1.2.3")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBCluster.Create(dbClusterIdentifier, dbClusterDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has MasterUsername", func() {
+			BeforeEach(func() {
+				dbClusterDetails.MasterUsername = "test-master-username"
+				createDBClustersInput.MasterUsername = aws.String("test-master-username")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBCluster.Create(dbClusterIdentifier, dbClusterDetails)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has MasterUserPassword", func() {
+			BeforeEach(func() {
+				dbClusterDetails.MasterUserPassword = "test-master-user-password"
+				createDBClustersInput.MasterUserPassword = aws.String("test-master-user-password")
 			})
 
 			It("does not return error", func() {
@@ -372,9 +414,6 @@ var _ = Describe("RDS DB Cluster", func() {
 			dbClusterDetails DBClusterDetails
 			applyImmediately bool
 
-			describeDBClusters []*rds.DBCluster
-			describeDBCluster  *rds.DBCluster
-
 			describeDBClustersInput *rds.DescribeDBClustersInput
 			describeDBClusterError  error
 
@@ -392,17 +431,6 @@ var _ = Describe("RDS DB Cluster", func() {
 		BeforeEach(func() {
 			dbClusterDetails = DBClusterDetails{}
 			applyImmediately = false
-
-			describeDBCluster = &rds.DBCluster{
-				DBClusterIdentifier: aws.String(dbClusterIdentifier),
-				Status:              aws.String("available"),
-				Engine:              aws.String("test-engine"),
-				EngineVersion:       aws.String("1.2.3"),
-				DatabaseName:        aws.String("test-dbname"),
-				MasterUsername:      aws.String("test-master-username"),
-				AllocatedStorage:    aws.Int64(100),
-			}
-			describeDBClusters = []*rds.DBCluster{describeDBCluster}
 
 			describeDBClustersInput = &rds.DescribeDBClustersInput{
 				DBClusterIdentifier: aws.String(dbClusterIdentifier),
@@ -437,15 +465,8 @@ var _ = Describe("RDS DB Cluster", func() {
 			rdssvc.Handlers.Clear()
 
 			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(MatchRegexp("DescribeDBClusters|ModifyDBCluster|AddTagsToResource"))
+				Expect(r.Operation.Name).To(MatchRegexp("ModifyDBCluster|AddTagsToResource"))
 				switch r.Operation.Name {
-				case "DescribeDBClusters":
-					Expect(r.Operation.Name).To(Equal("DescribeDBClusters"))
-					Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBClustersInput{}))
-					Expect(r.Params).To(Equal(describeDBClustersInput))
-					data := r.Data.(*rds.DescribeDBClustersOutput)
-					data.DBClusters = describeDBClusters
-					r.Error = describeDBClusterError
 				case "ModifyDBCluster":
 					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ModifyDBClusterInput{}))
 					Expect(r.Params).To(Equal(modifyDBClusterInput))
@@ -486,18 +507,6 @@ var _ = Describe("RDS DB Cluster", func() {
 			})
 		})
 
-		Context("when is a different DB engine", func() {
-			BeforeEach(func() {
-				dbClusterDetails.Engine = "new-engine"
-			})
-
-			It("returns the proper error", func() {
-				err := rdsDBCluster.Modify(dbClusterIdentifier, dbClusterDetails, applyImmediately)
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("Migrating the RDS DB Cluster engine from 'test-engine' to 'new-engine' is not supported"))
-			})
-		})
-
 		Context("when has BackupRetentionPeriod", func() {
 			BeforeEach(func() {
 				dbClusterDetails.BackupRetentionPeriod = 7
@@ -514,6 +523,30 @@ var _ = Describe("RDS DB Cluster", func() {
 			BeforeEach(func() {
 				dbClusterDetails.DBClusterParameterGroupName = "test-db-cluster-parameter-group-name"
 				modifyDBClusterInput.DBClusterParameterGroupName = aws.String("test-db-cluster-parameter-group-name")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBCluster.Modify(dbClusterIdentifier, dbClusterDetails, applyImmediately)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has MasterUserPassword", func() {
+			BeforeEach(func() {
+				dbClusterDetails.MasterUserPassword = "test-master-user-password"
+				modifyDBClusterInput.MasterUserPassword = aws.String("test-master-user-password")
+			})
+
+			It("does not return error", func() {
+				err := rdsDBCluster.Modify(dbClusterIdentifier, dbClusterDetails, applyImmediately)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when has OptionGroupName", func() {
+			BeforeEach(func() {
+				dbClusterDetails.OptionGroupName = "test-option-group-name"
+				modifyDBClusterInput.OptionGroupName = aws.String("test-option-group-name")
 			})
 
 			It("does not return error", func() {
@@ -603,18 +636,6 @@ var _ = Describe("RDS DB Cluster", func() {
 			})
 		})
 
-		Context("when describing the DB cluster fails", func() {
-			BeforeEach(func() {
-				describeDBClusterError = errors.New("operation failed")
-			})
-
-			It("returns the proper error", func() {
-				err := rdsDBCluster.Modify(dbClusterIdentifier, dbClusterDetails, applyImmediately)
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("operation failed"))
-			})
-		})
-
 		Context("when modifying the DB cluster fails", func() {
 			BeforeEach(func() {
 				modifyDBClusterError = errors.New("operation failed")
@@ -635,6 +656,19 @@ var _ = Describe("RDS DB Cluster", func() {
 					err := rdsDBCluster.Modify(dbClusterIdentifier, dbClusterDetails, applyImmediately)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(Equal("code: message"))
+				})
+			})
+
+			Context("and it is a 404 error", func() {
+				BeforeEach(func() {
+					awsError := awserr.New("code", "message", errors.New("operation failed"))
+					modifyDBClusterError = awserr.NewRequestFailure(awsError, 404, "request-id")
+				})
+
+				It("returns the proper error", func() {
+					err := rdsDBCluster.Modify(dbClusterIdentifier, dbClusterDetails, applyImmediately)
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(ErrDBClusterDoesNotExist))
 				})
 			})
 		})

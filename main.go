@@ -62,10 +62,11 @@ func main() {
 	iamsvc := iam.New(awsConfig)
 	rdssvc := rds.New(awsConfig)
 	dbInstance := awsrds.NewRDSDBInstance(config.RDSConfig.Region, iamsvc, rdssvc, logger)
+	dbCluster := awsrds.NewRDSDBCluster(config.RDSConfig.Region, iamsvc, rdssvc, logger)
 
 	sqlProvider := sqlengine.NewProviderService(logger)
 
-	serviceBroker := rdsbroker.New(config.RDSConfig, dbInstance, sqlProvider, logger)
+	serviceBroker := rdsbroker.New(config.RDSConfig, dbInstance, dbCluster, sqlProvider, logger)
 
 	credentials := brokerapi.BrokerCredentials{
 		Username: config.Username,

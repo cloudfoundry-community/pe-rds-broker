@@ -251,29 +251,5 @@ var _ = Describe("RDSProperties", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("This broker does not support RDS engine"))
 		})
-
-		It("returns error if EngineVersion is empty", func() {
-			rdsProperties.EngineVersion = ""
-
-			err := rdsProperties.Validate()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Must provide a non-empty EngineVersion"))
-		})
-
-		It("returns error if AllocatedStorage is less than valid range", func() {
-			rdsProperties.AllocatedStorage = 1
-
-			err := rdsProperties.Validate()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Invalid Allocated Storage"))
-		})
-
-		It("returns error if AllocatedStorage is great than valid range", func() {
-			rdsProperties.AllocatedStorage = 10000
-
-			err := rdsProperties.Validate()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Invalid Allocated Storage"))
-		})
 	})
 })

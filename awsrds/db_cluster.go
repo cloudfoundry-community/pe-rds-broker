@@ -32,8 +32,6 @@ type DBClusterDetails struct {
 	PreferredMaintenanceWindow  string
 	VpcSecurityGroupIds         []string
 	Tags                        map[string]string
-	//DBClusterMembers
-	//DBClusterOptionGroupMemberships
 }
 
 var (

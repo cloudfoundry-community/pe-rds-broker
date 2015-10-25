@@ -43,6 +43,7 @@ type RDSBroker struct {
 	allowUserBindParameters      bool
 	catalog                      Catalog
 	dbInstance                   awsrds.DBInstance
+	dbCluster                    awsrds.DBCluster
 	sqlProvider                  sqlengine.Provider
 	logger                       lager.Logger
 }
@@ -50,6 +51,7 @@ type RDSBroker struct {
 func New(
 	config Config,
 	dbInstance awsrds.DBInstance,
+	dbCluster awsrds.DBCluster,
 	sqlProvider sqlengine.Provider,
 	logger lager.Logger,
 ) *RDSBroker {
@@ -60,6 +62,7 @@ func New(
 		allowUserBindParameters:      config.AllowUserBindParameters,
 		catalog:                      config.Catalog,
 		dbInstance:                   dbInstance,
+		dbCluster:                    dbCluster,
 		sqlProvider:                  sqlProvider,
 		logger:                       logger.Session("broker"),
 	}
@@ -110,8 +113,21 @@ func (b *RDSBroker) Provision(instanceID string, details brokerapi.ProvisionDeta
 		return provisioningResponse, false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
+	var err error
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		createDBCluster := b.createDBCluster(instanceID, servicePlan, provisionParameters, details)
+		if err = b.dbCluster.Create(b.dbClusterIdentifier(instanceID), *createDBCluster); err != nil {
+			return provisioningResponse, false, err
+		}
+		defer func() {
+			if err != nil {
+				b.dbCluster.Delete(b.dbClusterIdentifier(instanceID), servicePlan.RDSProperties.SkipFinalSnapshot)
+			}
+		}()
+	}
+
 	createDBInstance := b.createDBInstance(instanceID, servicePlan, provisionParameters, details)
-	if err := b.dbInstance.Create(b.dbInstanceIdentifier(instanceID), *createDBInstance); err != nil {
+	if err = b.dbInstance.Create(b.dbInstanceIdentifier(instanceID), *createDBInstance); err != nil {
 		return provisioningResponse, false, err
 	}
 
@@ -177,11 +193,20 @@ func (b *RDSBroker) Deprovision(instanceID string, details brokerapi.Deprovision
 		return false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	if err := b.dbInstance.Delete(b.dbInstanceIdentifier(instanceID), servicePlan.RDSProperties.SkipFinalSnapshot); err != nil {
+	skipDBInstanceFinalSnapshot := servicePlan.RDSProperties.SkipFinalSnapshot
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		skipDBInstanceFinalSnapshot = true
+	}
+
+	if err := b.dbInstance.Delete(b.dbInstanceIdentifier(instanceID), skipDBInstanceFinalSnapshot); err != nil {
 		if err == awsrds.ErrDBInstanceDoesNotExist {
 			return false, brokerapi.ErrInstanceDoesNotExist
 		}
 		return false, err
+	}
+
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		b.dbCluster.Delete(b.dbClusterIdentifier(instanceID), servicePlan.RDSProperties.SkipFinalSnapshot)
 	}
 
 	return true, nil
@@ -212,32 +237,61 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 		return bindingResponse, brokerapi.ErrInstanceNotBindable
 	}
 
-	_, ok = b.catalog.FindServicePlan(details.PlanID)
+	servicePlan, ok := b.catalog.FindServicePlan(details.PlanID)
 	if !ok {
 		return bindingResponse, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
-	if err != nil {
-		if err == awsrds.ErrDBInstanceDoesNotExist {
-			return bindingResponse, brokerapi.ErrInstanceDoesNotExist
+	var dbAddress, dbName, masterUsername string
+	var dbPort int64
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		dbClusterDetails, err := b.dbCluster.Describe(b.dbClusterIdentifier(instanceID))
+		if err != nil {
+			if err == awsrds.ErrDBInstanceDoesNotExist {
+				return bindingResponse, brokerapi.ErrInstanceDoesNotExist
+			}
+			return bindingResponse, err
 		}
-		return bindingResponse, err
+
+		dbAddress = dbClusterDetails.Endpoint
+		dbPort = dbClusterDetails.Port
+		masterUsername = dbClusterDetails.MasterUsername
+		if dbClusterDetails.DatabaseName != "" {
+			dbName = dbClusterDetails.DatabaseName
+		} else {
+			dbName = b.dbName(instanceID)
+		}
+	} else {
+		dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
+		if err != nil {
+			if err == awsrds.ErrDBInstanceDoesNotExist {
+				return bindingResponse, brokerapi.ErrInstanceDoesNotExist
+			}
+			return bindingResponse, err
+		}
+
+		dbAddress = dbInstanceDetails.Address
+		dbPort = dbInstanceDetails.Port
+		masterUsername = dbInstanceDetails.MasterUsername
+		if dbInstanceDetails.DBName != "" {
+			dbName = dbInstanceDetails.DBName
+		} else {
+			dbName = b.dbName(instanceID)
+		}
 	}
 
-	sqlEngine, err := b.sqlProvider.GetSQLEngine(dbInstanceDetails.Engine)
+	sqlEngine, err := b.sqlProvider.GetSQLEngine(servicePlan.RDSProperties.Engine)
 	if err != nil {
 		return bindingResponse, err
 	}
 
-	if err = sqlEngine.Open(dbInstanceDetails.Address, dbInstanceDetails.Port, dbInstanceDetails.DBName, dbInstanceDetails.MasterUsername, b.masterPassword(instanceID)); err != nil {
+	if err = sqlEngine.Open(dbAddress, dbPort, dbName, masterUsername, b.masterPassword(instanceID)); err != nil {
 		return bindingResponse, err
 	}
 	defer sqlEngine.Close()
 
 	dbUsername := b.dbUsername(bindingID)
 	dbPassword := b.dbPassword()
-	dbName := dbInstanceDetails.DBName
 
 	if bindParameters.DBName != "" {
 		dbName = bindParameters.DBName
@@ -255,13 +309,13 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 	}
 
 	bindingResponse.Credentials = &brokerapi.CredentialsHash{
-		Host:     dbInstanceDetails.Address,
-		Port:     dbInstanceDetails.Port,
+		Host:     dbAddress,
+		Port:     dbPort,
 		Name:     dbName,
 		Username: dbUsername,
 		Password: dbPassword,
-		URI:      sqlEngine.URI(dbInstanceDetails.Address, dbInstanceDetails.Port, dbName, dbUsername, dbPassword),
-		JDBCURI:  sqlEngine.JDBCURI(dbInstanceDetails.Address, dbInstanceDetails.Port, dbName, dbUsername, dbPassword),
+		URI:      sqlEngine.URI(dbAddress, dbPort, dbName, dbUsername, dbPassword),
+		JDBCURI:  sqlEngine.JDBCURI(dbAddress, dbPort, dbName, dbUsername, dbPassword),
 	}
 
 	return bindingResponse, nil
@@ -274,25 +328,55 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 		detailsLogKey:    details,
 	})
 
-	_, ok := b.catalog.FindServicePlan(details.PlanID)
+	servicePlan, ok := b.catalog.FindServicePlan(details.PlanID)
 	if !ok {
 		return fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
-	if err != nil {
-		if err == awsrds.ErrDBInstanceDoesNotExist {
-			return brokerapi.ErrInstanceDoesNotExist
+	var dbAddress, dbName, masterUsername string
+	var dbPort int64
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		dbClusterDetails, err := b.dbCluster.Describe(b.dbClusterIdentifier(instanceID))
+		if err != nil {
+			if err == awsrds.ErrDBInstanceDoesNotExist {
+				return brokerapi.ErrInstanceDoesNotExist
+			}
+			return err
 		}
-		return err
+
+		dbAddress = dbClusterDetails.Endpoint
+		dbPort = dbClusterDetails.Port
+		masterUsername = dbClusterDetails.MasterUsername
+		if dbClusterDetails.DatabaseName != "" {
+			dbName = dbClusterDetails.DatabaseName
+		} else {
+			dbName = b.dbName(instanceID)
+		}
+	} else {
+		dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
+		if err != nil {
+			if err == awsrds.ErrDBInstanceDoesNotExist {
+				return brokerapi.ErrInstanceDoesNotExist
+			}
+			return err
+		}
+
+		dbAddress = dbInstanceDetails.Address
+		dbPort = dbInstanceDetails.Port
+		masterUsername = dbInstanceDetails.MasterUsername
+		if dbInstanceDetails.DBName != "" {
+			dbName = dbInstanceDetails.DBName
+		} else {
+			dbName = b.dbName(instanceID)
+		}
 	}
 
-	sqlEngine, err := b.sqlProvider.GetSQLEngine(dbInstanceDetails.Engine)
+	sqlEngine, err := b.sqlProvider.GetSQLEngine(servicePlan.RDSProperties.Engine)
 	if err != nil {
 		return err
 	}
 
-	if err = sqlEngine.Open(dbInstanceDetails.Address, dbInstanceDetails.Port, dbInstanceDetails.DBName, dbInstanceDetails.MasterUsername, b.masterPassword(instanceID)); err != nil {
+	if err = sqlEngine.Open(dbAddress, dbPort, dbName, masterUsername, b.masterPassword(instanceID)); err != nil {
 		return err
 	}
 	defer sqlEngine.Close()
@@ -304,10 +388,10 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 
 	var userDB string
 	dbUsername := b.dbUsername(bindingID)
-	for dbName, userNames := range privileges {
+	for privDBName, userNames := range privileges {
 		for _, userName := range userNames {
 			if userName == dbUsername {
-				userDB = dbName
+				userDB = privDBName
 				break
 			}
 		}
@@ -318,7 +402,7 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 			return err
 		}
 
-		if userDB != dbInstanceDetails.DBName {
+		if userDB != dbName {
 			users := privileges[userDB]
 			if len(users) == 1 {
 				if err = sqlEngine.DropDB(userDB); err != nil {
@@ -364,6 +448,10 @@ func (b *RDSBroker) LastOperation(instanceID string) (brokerapi.LastOperationRes
 	return lastOperationResponse, nil
 }
 
+func (b *RDSBroker) dbClusterIdentifier(instanceID string) string {
+	return fmt.Sprintf("%s-%s", b.dbPrefix, strings.Replace(instanceID, "_", "-", -1))
+}
+
 func (b *RDSBroker) dbInstanceIdentifier(instanceID string) string {
 	return fmt.Sprintf("%s-%s", b.dbPrefix, strings.Replace(instanceID, "_", "-", -1))
 }
@@ -388,65 +476,159 @@ func (b *RDSBroker) dbName(instanceID string) string {
 	return fmt.Sprintf("%s_%s", b.dbPrefix, strings.Replace(instanceID, "-", "_", -1))
 }
 
-func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan, provisionParameters ProvisionParameters, details brokerapi.ProvisionDetails) *awsrds.DBInstanceDetails {
-	dbInstanceDetails := b.dbInstancefromPlan(servicePlan)
-	dbInstanceDetails.Identifier = b.dbInstanceIdentifier(instanceID)
-	dbInstanceDetails.DBName = b.dbName(instanceID)
-	dbInstanceDetails.MasterUsername = b.masterUsername()
-	dbInstanceDetails.MasterUserPassword = b.masterPassword(instanceID)
+func (b *RDSBroker) createDBCluster(instanceID string, servicePlan ServicePlan, provisionParameters ProvisionParameters, details brokerapi.ProvisionDetails) *awsrds.DBClusterDetails {
+	dbClusterDetails := b.dbClusterFromPlan(servicePlan)
+	dbClusterDetails.DatabaseName = b.dbName(instanceID)
+	dbClusterDetails.MasterUsername = b.masterUsername()
+	dbClusterDetails.MasterUserPassword = b.masterPassword(instanceID)
 
 	if provisionParameters.BackupRetentionPeriod > 0 {
-		dbInstanceDetails.BackupRetentionPeriod = provisionParameters.BackupRetentionPeriod
-	}
-
-	if provisionParameters.CharacterSetName != "" {
-		dbInstanceDetails.CharacterSetName = provisionParameters.CharacterSetName
+		dbClusterDetails.BackupRetentionPeriod = provisionParameters.BackupRetentionPeriod
 	}
 
 	if provisionParameters.DBName != "" {
-		dbInstanceDetails.DBName = provisionParameters.DBName
+		dbClusterDetails.DatabaseName = provisionParameters.DBName
 	}
 
 	if provisionParameters.PreferredBackupWindow != "" {
-		dbInstanceDetails.PreferredBackupWindow = provisionParameters.PreferredBackupWindow
+		dbClusterDetails.PreferredBackupWindow = provisionParameters.PreferredBackupWindow
+	}
+
+	if provisionParameters.PreferredMaintenanceWindow != "" {
+		dbClusterDetails.PreferredMaintenanceWindow = provisionParameters.PreferredMaintenanceWindow
+	}
+
+	dbClusterDetails.Tags = b.dbTags("Created", details.ServiceID, details.PlanID, details.OrganizationGUID, details.SpaceGUID)
+
+	return dbClusterDetails
+}
+
+func (b *RDSBroker) modifyDBCluster(instanceID string, servicePlan ServicePlan, updateParameters UpdateParameters, details brokerapi.UpdateDetails) *awsrds.DBClusterDetails {
+	dbClusterDetails := b.dbClusterFromPlan(servicePlan)
+
+	if updateParameters.BackupRetentionPeriod > 0 {
+		dbClusterDetails.BackupRetentionPeriod = updateParameters.BackupRetentionPeriod
+	}
+
+	if updateParameters.PreferredBackupWindow != "" {
+		dbClusterDetails.PreferredBackupWindow = updateParameters.PreferredBackupWindow
+	}
+
+	if updateParameters.PreferredMaintenanceWindow != "" {
+		dbClusterDetails.PreferredMaintenanceWindow = updateParameters.PreferredMaintenanceWindow
+	}
+
+	dbClusterDetails.Tags = b.dbTags("Updated", details.ServiceID, details.PlanID, "", "")
+
+	return dbClusterDetails
+}
+
+func (b *RDSBroker) dbClusterFromPlan(servicePlan ServicePlan) *awsrds.DBClusterDetails {
+	dbClusterDetails := &awsrds.DBClusterDetails{
+		Engine: servicePlan.RDSProperties.Engine,
+	}
+
+	if servicePlan.RDSProperties.AvailabilityZone != "" {
+		dbClusterDetails.AvailabilityZones = []string{servicePlan.RDSProperties.AvailabilityZone}
+	}
+
+	if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
+		dbClusterDetails.BackupRetentionPeriod = servicePlan.RDSProperties.BackupRetentionPeriod
+	}
+
+	if servicePlan.RDSProperties.DBClusterParameterGroupName != "" {
+		dbClusterDetails.DBClusterParameterGroupName = servicePlan.RDSProperties.DBClusterParameterGroupName
+	}
+
+	if servicePlan.RDSProperties.DBSubnetGroupName != "" {
+		dbClusterDetails.DBSubnetGroupName = servicePlan.RDSProperties.DBSubnetGroupName
+	}
+
+	if servicePlan.RDSProperties.EngineVersion != "" {
+		dbClusterDetails.EngineVersion = servicePlan.RDSProperties.EngineVersion
+	}
+
+	if servicePlan.RDSProperties.Port > 0 {
+		dbClusterDetails.Port = servicePlan.RDSProperties.Port
+	}
+
+	if servicePlan.RDSProperties.PreferredBackupWindow != "" {
+		dbClusterDetails.PreferredBackupWindow = servicePlan.RDSProperties.PreferredBackupWindow
+	}
+
+	if servicePlan.RDSProperties.PreferredMaintenanceWindow != "" {
+		dbClusterDetails.PreferredMaintenanceWindow = servicePlan.RDSProperties.PreferredMaintenanceWindow
+	}
+
+	if len(servicePlan.RDSProperties.VpcSecurityGroupIds) > 0 {
+		dbClusterDetails.VpcSecurityGroupIds = servicePlan.RDSProperties.VpcSecurityGroupIds
+	}
+
+	return dbClusterDetails
+}
+
+func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan, provisionParameters ProvisionParameters, details brokerapi.ProvisionDetails) *awsrds.DBInstanceDetails {
+	dbInstanceDetails := b.dbInstanceFromPlan(servicePlan)
+
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		dbInstanceDetails.DBClusterIdentifier = b.dbClusterIdentifier(instanceID)
+	} else {
+		dbInstanceDetails.DBName = b.dbName(instanceID)
+		dbInstanceDetails.MasterUsername = b.masterUsername()
+		dbInstanceDetails.MasterUserPassword = b.masterPassword(instanceID)
+
+		if provisionParameters.BackupRetentionPeriod > 0 {
+			dbInstanceDetails.BackupRetentionPeriod = provisionParameters.BackupRetentionPeriod
+		}
+
+		if provisionParameters.CharacterSetName != "" {
+			dbInstanceDetails.CharacterSetName = provisionParameters.CharacterSetName
+		}
+
+		if provisionParameters.DBName != "" {
+			dbInstanceDetails.DBName = provisionParameters.DBName
+		}
+
+		if provisionParameters.PreferredBackupWindow != "" {
+			dbInstanceDetails.PreferredBackupWindow = provisionParameters.PreferredBackupWindow
+		}
 	}
 
 	if provisionParameters.PreferredMaintenanceWindow != "" {
 		dbInstanceDetails.PreferredMaintenanceWindow = provisionParameters.PreferredMaintenanceWindow
 	}
 
-	dbInstanceDetails.Tags = b.dbInstanceTags("Created", details.ServiceID, details.PlanID, details.OrganizationGUID, details.SpaceGUID)
+	dbInstanceDetails.Tags = b.dbTags("Created", details.ServiceID, details.PlanID, details.OrganizationGUID, details.SpaceGUID)
 
 	return dbInstanceDetails
 }
 
 func (b *RDSBroker) modifyDBInstance(instanceID string, servicePlan ServicePlan, updateParameters UpdateParameters, details brokerapi.UpdateDetails) *awsrds.DBInstanceDetails {
-	dbInstanceDetails := b.dbInstancefromPlan(servicePlan)
-	dbInstanceDetails.Identifier = b.dbInstanceIdentifier(instanceID)
+	dbInstanceDetails := b.dbInstanceFromPlan(servicePlan)
 
-	if updateParameters.BackupRetentionPeriod > 0 {
-		dbInstanceDetails.BackupRetentionPeriod = updateParameters.BackupRetentionPeriod
-	}
+	if servicePlan.RDSProperties.Engine != "aurora" {
+		if updateParameters.BackupRetentionPeriod > 0 {
+			dbInstanceDetails.BackupRetentionPeriod = updateParameters.BackupRetentionPeriod
+		}
 
-	if updateParameters.PreferredBackupWindow != "" {
-		dbInstanceDetails.PreferredBackupWindow = updateParameters.PreferredBackupWindow
+		if updateParameters.PreferredBackupWindow != "" {
+			dbInstanceDetails.PreferredBackupWindow = updateParameters.PreferredBackupWindow
+		}
 	}
 
 	if updateParameters.PreferredMaintenanceWindow != "" {
 		dbInstanceDetails.PreferredMaintenanceWindow = updateParameters.PreferredMaintenanceWindow
 	}
 
-	dbInstanceDetails.Tags = b.dbInstanceTags("Updated", details.ServiceID, details.PlanID, "", "")
+	dbInstanceDetails.Tags = b.dbTags("Updated", details.ServiceID, details.PlanID, "", "")
 
 	return dbInstanceDetails
 }
 
-func (b *RDSBroker) dbInstancefromPlan(servicePlan ServicePlan) *awsrds.DBInstanceDetails {
+func (b *RDSBroker) dbInstanceFromPlan(servicePlan ServicePlan) *awsrds.DBInstanceDetails {
 	dbInstanceDetails := &awsrds.DBInstanceDetails{
-		DBInstanceClass:  servicePlan.RDSProperties.DBInstanceClass,
-		Engine:           servicePlan.RDSProperties.Engine,
-		EngineVersion:    servicePlan.RDSProperties.EngineVersion,
-		AllocatedStorage: servicePlan.RDSProperties.AllocatedStorage,
+		DBInstanceClass: servicePlan.RDSProperties.DBInstanceClass,
+		Engine:          servicePlan.RDSProperties.Engine,
 	}
 
 	dbInstanceDetails.AutoMinorVersionUpgrade = servicePlan.RDSProperties.AutoMinorVersionUpgrade
@@ -455,48 +637,22 @@ func (b *RDSBroker) dbInstancefromPlan(servicePlan ServicePlan) *awsrds.DBInstan
 		dbInstanceDetails.AvailabilityZone = servicePlan.RDSProperties.AvailabilityZone
 	}
 
-	if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
-		dbInstanceDetails.BackupRetentionPeriod = servicePlan.RDSProperties.BackupRetentionPeriod
-	}
-
-	if servicePlan.RDSProperties.CharacterSetName != "" {
-		dbInstanceDetails.CharacterSetName = servicePlan.RDSProperties.CharacterSetName
-	}
-
 	dbInstanceDetails.CopyTagsToSnapshot = servicePlan.RDSProperties.CopyTagsToSnapshot
-
-	if servicePlan.RDSProperties.DBName != "" {
-		dbInstanceDetails.DBName = servicePlan.RDSProperties.DBName
-	}
 
 	if servicePlan.RDSProperties.DBParameterGroupName != "" {
 		dbInstanceDetails.DBParameterGroupName = servicePlan.RDSProperties.DBParameterGroupName
-	}
-
-	if len(servicePlan.RDSProperties.DBSecurityGroups) > 0 {
-		dbInstanceDetails.DBSecurityGroups = servicePlan.RDSProperties.DBSecurityGroups
 	}
 
 	if servicePlan.RDSProperties.DBSubnetGroupName != "" {
 		dbInstanceDetails.DBSubnetGroupName = servicePlan.RDSProperties.DBSubnetGroupName
 	}
 
-	if servicePlan.RDSProperties.LicenseModel != "" {
-		dbInstanceDetails.LicenseModel = servicePlan.RDSProperties.LicenseModel
+	if servicePlan.RDSProperties.EngineVersion != "" {
+		dbInstanceDetails.EngineVersion = servicePlan.RDSProperties.EngineVersion
 	}
-
-	dbInstanceDetails.MultiAZ = servicePlan.RDSProperties.MultiAZ
 
 	if servicePlan.RDSProperties.OptionGroupName != "" {
 		dbInstanceDetails.OptionGroupName = servicePlan.RDSProperties.OptionGroupName
-	}
-
-	if servicePlan.RDSProperties.Port > 0 {
-		dbInstanceDetails.Port = servicePlan.RDSProperties.Port
-	}
-
-	if servicePlan.RDSProperties.PreferredBackupWindow != "" {
-		dbInstanceDetails.PreferredBackupWindow = servicePlan.RDSProperties.PreferredBackupWindow
 	}
 
 	if servicePlan.RDSProperties.PreferredMaintenanceWindow != "" {
@@ -505,28 +661,60 @@ func (b *RDSBroker) dbInstancefromPlan(servicePlan ServicePlan) *awsrds.DBInstan
 
 	dbInstanceDetails.PubliclyAccessible = servicePlan.RDSProperties.PubliclyAccessible
 
-	dbInstanceDetails.StorageEncrypted = servicePlan.RDSProperties.StorageEncrypted
+	if servicePlan.RDSProperties.Engine != "aurora" {
+		if servicePlan.RDSProperties.AllocatedStorage > 0 {
+			dbInstanceDetails.AllocatedStorage = servicePlan.RDSProperties.AllocatedStorage
+		}
 
-	if servicePlan.RDSProperties.KmsKeyID != "" {
-		dbInstanceDetails.KmsKeyID = servicePlan.RDSProperties.KmsKeyID
-	}
+		if servicePlan.RDSProperties.BackupRetentionPeriod > 0 {
+			dbInstanceDetails.BackupRetentionPeriod = servicePlan.RDSProperties.BackupRetentionPeriod
+		}
 
-	if servicePlan.RDSProperties.StorageType != "" {
-		dbInstanceDetails.StorageType = servicePlan.RDSProperties.StorageType
-	}
+		if servicePlan.RDSProperties.CharacterSetName != "" {
+			dbInstanceDetails.CharacterSetName = servicePlan.RDSProperties.CharacterSetName
+		}
 
-	if servicePlan.RDSProperties.Iops > 0 {
-		dbInstanceDetails.Iops = servicePlan.RDSProperties.Iops
-	}
+		if len(servicePlan.RDSProperties.DBSecurityGroups) > 0 {
+			dbInstanceDetails.DBSecurityGroups = servicePlan.RDSProperties.DBSecurityGroups
+		}
 
-	if len(servicePlan.RDSProperties.VpcSecurityGroupIds) > 0 {
-		dbInstanceDetails.VpcSecurityGroupIds = servicePlan.RDSProperties.VpcSecurityGroupIds
+		if servicePlan.RDSProperties.Iops > 0 {
+			dbInstanceDetails.Iops = servicePlan.RDSProperties.Iops
+		}
+
+		if servicePlan.RDSProperties.KmsKeyID != "" {
+			dbInstanceDetails.KmsKeyID = servicePlan.RDSProperties.KmsKeyID
+		}
+
+		if servicePlan.RDSProperties.LicenseModel != "" {
+			dbInstanceDetails.LicenseModel = servicePlan.RDSProperties.LicenseModel
+		}
+
+		dbInstanceDetails.MultiAZ = servicePlan.RDSProperties.MultiAZ
+
+		if servicePlan.RDSProperties.Port > 0 {
+			dbInstanceDetails.Port = servicePlan.RDSProperties.Port
+		}
+
+		if servicePlan.RDSProperties.PreferredBackupWindow != "" {
+			dbInstanceDetails.PreferredBackupWindow = servicePlan.RDSProperties.PreferredBackupWindow
+		}
+
+		dbInstanceDetails.StorageEncrypted = servicePlan.RDSProperties.StorageEncrypted
+
+		if servicePlan.RDSProperties.StorageType != "" {
+			dbInstanceDetails.StorageType = servicePlan.RDSProperties.StorageType
+		}
+
+		if len(servicePlan.RDSProperties.VpcSecurityGroupIds) > 0 {
+			dbInstanceDetails.VpcSecurityGroupIds = servicePlan.RDSProperties.VpcSecurityGroupIds
+		}
 	}
 
 	return dbInstanceDetails
 }
 
-func (b *RDSBroker) dbInstanceTags(action, serviceID, planID, organizationID, spaceID string) map[string]string {
+func (b *RDSBroker) dbTags(action, serviceID, planID, organizationID, spaceID string) map[string]string {
 	tags := make(map[string]string)
 
 	tags["Owner"] = "Cloud Foundry"
