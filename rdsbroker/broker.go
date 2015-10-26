@@ -166,6 +166,13 @@ func (b *RDSBroker) Update(instanceID string, details brokerapi.UpdateDetails, a
 		return false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
+	if servicePlan.RDSProperties.Engine == "aurora" {
+		modifyDBCluster := b.modifyDBCluster(instanceID, servicePlan, updateParameters, details)
+		if err := b.dbCluster.Modify(b.dbClusterIdentifier(instanceID), *modifyDBCluster, updateParameters.ApplyImmediately); err != nil {
+			return false, err
+		}
+	}
+
 	modifyDBInstance := b.modifyDBInstance(instanceID, servicePlan, updateParameters, details)
 	if err := b.dbInstance.Modify(b.dbInstanceIdentifier(instanceID), *modifyDBInstance, updateParameters.ApplyImmediately); err != nil {
 		if err == awsrds.ErrDBInstanceDoesNotExist {
