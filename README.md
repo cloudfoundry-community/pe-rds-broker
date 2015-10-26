@@ -1,6 +1,6 @@
 # AWS RDS Service Broker [![Build Status](https://travis-ci.org/cf-platform-eng/rds-broker.png)](https://travis-ci.org/cf-platform-eng/rds-broker)
 
-This is an **experimental** [Cloud Foundry Service Broker](https://docs.cloudfoundry.org/services/overview.html) for [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds/).
+This is an **experimental** [Cloud Foundry Service Broker](https://docs.cloudfoundry.org/services/overview.html) for [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds/) supporting [Aurora](https://aws.amazon.com/rds/aurora/), [MariaDB](https://aws.amazon.com/rds/mariadb/), [MySQL](https://aws.amazon.com/rds/mysql/) and [PostgreSQL](https://aws.amazon.com/rds/postgresql/) RDS Databases.
 
 More details can be found at this [Pivotal P.O.V Blog post](http://blog.pivotal.io/pivotal-cloud-foundry/products/a-look-at-cloud-foundrys-service-broker-updates).
 
@@ -21,7 +21,7 @@ $ rds-broker -port=3000 -config=<path-to-your-config-file>
 
 ### Cloud Foundry
 
-The broker can be deployed to a [Cloud Foundry](https://www.cloudfoundry.org/) installation:
+The broker can be deployed to an already existing [Cloud Foundry](https://www.cloudfoundry.org/) installation:
 
 ```
 $ git clone https://github.com/cf-platform-eng/rds-broker.git
@@ -45,7 +45,7 @@ $ docker run -d --name rds-broker -p 3000:3000 \
   cfplatformeng/rds-broker
 ```
 
-The Docker image cames with an [embedded sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). If you want to override it, you can create the Docker image with you custome configuration file running:
+The Docker image cames with an [embedded sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). If you want to override it, you can create the Docker image with you custom configuration file by running:
 
 ```
 $ git clone https://github.com/cf-platform-eng/rds-broker.git
@@ -67,7 +67,7 @@ Refer to the [Configuration](https://github.com/cf-platform-eng/rds-broker/blob/
 
 Configure and deploy the broker using one of the above methods. Then:
 
-1. Check that your Cloud Foundry installation supports the [Service Broker API Version v2.6 or greater](https://docs.cloudfoundry.org/services/api.html#changelog)
+1. Check that your Cloud Foundry installation supports [Service Broker API Version v2.6 or greater](https://docs.cloudfoundry.org/services/api.html#changelog)
 2. [Register the broker](https://docs.cloudfoundry.org/services/managing-service-brokers.html#register-broker) within your Cloud Foundry installation;
 3. [Make Services and Plans public](https://docs.cloudfoundry.org/services/access-control.html#enable-access);
 4. Depending on your Cloud Foundry settings, you migh also need to create/bind an [Application Security Group](https://docs.cloudfoundry.org/adminguide/app-sec-groups.html) to allow access to the RDS DB Instances.
@@ -84,8 +84,8 @@ Provision calls support the following optional [arbitrary parameters](https://do
 
 | Option                       | Type    | Description
 |:-----------------------------|:------- |:-----------
-| backup_retention_period      | Integer | The number of days that Amazon RDS should retain automatic backups of the DB instance (between `0` and `35`)
-| character_set_name           | String  | For supported engines, indicates that the DB instance should be associated with the specified CharacterSet
+| backup_retention_period      | Integer | The number of days that Amazon RDS should retain automatic backups of the DB instance (between `0` and `35`) (*)
+| character_set_name           | String  | For supported engines, indicates that the DB instance should be associated with the specified CharacterSet (*)
 | dbname                       | String  | The name of the Database to be provisioned. If it does not exists, the broker will create it, otherwise, it will reuse the existing one. If this parameter is not set, the broker will use a random Database name
 | preferred_backup_window      | String  | The daily time range during which automated backups are created if automated backups are enabled (*)
 | preferred_maintenance_window | String  | The weekly time range during which system maintenance can occur (*)
@@ -98,8 +98,8 @@ Update calls support the following optional [arbitrary parameters](https://docs.
 
 | Option                       | Type    | Description
 |:-----------------------------|:------- |:-----------
-| apply_immediately            | Boolean | Specifies whether the modifications in this request and any pending modifications are asynchronously applied as soon as possible, regardless of the Preferred Maintenance Window setting for the DB instance
-| backup_retention_period      | Integer | The number of days that Amazon RDS should retain automatic backups of the DB instance (between `0` and `35`)
+| apply_immediately            | Boolean | Specifies whether the modifications in this request and any pending modifications are asynchronously applied as soon as possible, regardless of the Preferred Maintenance Window setting for the DB instance (*)
+| backup_retention_period      | Integer | The number of days that Amazon RDS should retain automatic backups of the DB instance (between `0` and `35`) (*)
 | preferred_backup_window      | String  | The daily time range during which automated backups are created if automated backups are enabled (*)
 | preferred_maintenance_window | String  | The weekly time range during which system maintenance can occur (*)
 
