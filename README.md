@@ -2,6 +2,8 @@
 
 This is an **experimental** [Cloud Foundry Service Broker](https://docs.cloudfoundry.org/services/overview.html) for [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds/).
 
+More details can be found at this [Pivotal P.O.V Blog post](http://blog.pivotal.io/pivotal-cloud-foundry/products/a-look-at-cloud-foundrys-service-broker-updates).
+
 ## Disclaimer
 
 This is **NOT** presently a production ready Service Broker. This is a work in progress. It is suitable for experimentation and may not become supported in the future.
