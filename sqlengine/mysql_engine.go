@@ -119,12 +119,17 @@ func (d *MySQLEngine) Privileges() (map[string][]string, error) {
 	d.logger.Debug("database-privileges", lager.Data{"statement": selectPrivilegesStatement})
 
 	rows, err := d.db.Query(selectPrivilegesStatement)
+	if err != nil {
+		d.logger.Error("sql-error", err)
+		return privileges, err
+	}
 	defer rows.Close()
 
 	var dbname, username string
 	for rows.Next() {
 		err := rows.Scan(&dbname, &username)
 		if err != nil {
+			d.logger.Error("sql-error", err)
 			return privileges, err
 		}
 		if _, ok := privileges[dbname]; !ok {
@@ -134,6 +139,7 @@ func (d *MySQLEngine) Privileges() (map[string][]string, error) {
 	}
 	err = rows.Err()
 	if err != nil {
+		d.logger.Error("sql-error", err)
 		return privileges, err
 	}
 
