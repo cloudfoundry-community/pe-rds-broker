@@ -114,7 +114,7 @@ func (b *RDSBroker) Provision(instanceID string, details brokerapi.ProvisionDeta
 	}
 
 	var err error
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		createDBCluster := b.createDBCluster(instanceID, servicePlan, provisionParameters, details)
 		if err = b.dbCluster.Create(b.dbClusterIdentifier(instanceID), *createDBCluster); err != nil {
 			return provisioningResponse, false, err
@@ -166,7 +166,7 @@ func (b *RDSBroker) Update(instanceID string, details brokerapi.UpdateDetails, a
 		return false, fmt.Errorf("Service Plan '%s' not found", details.PlanID)
 	}
 
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		modifyDBCluster := b.modifyDBCluster(instanceID, servicePlan, updateParameters, details)
 		if err := b.dbCluster.Modify(b.dbClusterIdentifier(instanceID), *modifyDBCluster, updateParameters.ApplyImmediately); err != nil {
 			return false, err
@@ -201,7 +201,7 @@ func (b *RDSBroker) Deprovision(instanceID string, details brokerapi.Deprovision
 	}
 
 	skipDBInstanceFinalSnapshot := servicePlan.RDSProperties.SkipFinalSnapshot
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		skipDBInstanceFinalSnapshot = true
 	}
 
@@ -212,7 +212,7 @@ func (b *RDSBroker) Deprovision(instanceID string, details brokerapi.Deprovision
 		return false, err
 	}
 
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		b.dbCluster.Delete(b.dbClusterIdentifier(instanceID), servicePlan.RDSProperties.SkipFinalSnapshot)
 	}
 
@@ -251,7 +251,7 @@ func (b *RDSBroker) Bind(instanceID, bindingID string, details brokerapi.BindDet
 
 	var dbAddress, dbName, masterUsername string
 	var dbPort int64
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		dbClusterDetails, err := b.dbCluster.Describe(b.dbClusterIdentifier(instanceID))
 		if err != nil {
 			if err == awsrds.ErrDBInstanceDoesNotExist {
@@ -342,7 +342,7 @@ func (b *RDSBroker) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 
 	var dbAddress, dbName, masterUsername string
 	var dbPort int64
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		dbClusterDetails, err := b.dbCluster.Describe(b.dbClusterIdentifier(instanceID))
 		if err != nil {
 			if err == awsrds.ErrDBInstanceDoesNotExist {
@@ -577,7 +577,7 @@ func (b *RDSBroker) dbClusterFromPlan(servicePlan ServicePlan) *awsrds.DBCluster
 func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan, provisionParameters ProvisionParameters, details brokerapi.ProvisionDetails) *awsrds.DBInstanceDetails {
 	dbInstanceDetails := b.dbInstanceFromPlan(servicePlan)
 
-	if servicePlan.RDSProperties.Engine == "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) == "aurora" {
 		dbInstanceDetails.DBClusterIdentifier = b.dbClusterIdentifier(instanceID)
 	} else {
 		dbInstanceDetails.DBName = b.dbName(instanceID)
@@ -613,7 +613,7 @@ func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan,
 func (b *RDSBroker) modifyDBInstance(instanceID string, servicePlan ServicePlan, updateParameters UpdateParameters, details brokerapi.UpdateDetails) *awsrds.DBInstanceDetails {
 	dbInstanceDetails := b.dbInstanceFromPlan(servicePlan)
 
-	if servicePlan.RDSProperties.Engine != "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) != "aurora" {
 		if updateParameters.BackupRetentionPeriod > 0 {
 			dbInstanceDetails.BackupRetentionPeriod = updateParameters.BackupRetentionPeriod
 		}
@@ -668,7 +668,7 @@ func (b *RDSBroker) dbInstanceFromPlan(servicePlan ServicePlan) *awsrds.DBInstan
 
 	dbInstanceDetails.PubliclyAccessible = servicePlan.RDSProperties.PubliclyAccessible
 
-	if servicePlan.RDSProperties.Engine != "aurora" {
+	if strings.ToLower(servicePlan.RDSProperties.Engine) != "aurora" {
 		if servicePlan.RDSProperties.AllocatedStorage > 0 {
 			dbInstanceDetails.AllocatedStorage = servicePlan.RDSProperties.AllocatedStorage
 		}
