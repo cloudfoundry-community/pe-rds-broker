@@ -171,7 +171,7 @@ func (d *PostgresEngine) RevokePrivileges(dbname string, username string) error 
 }
 
 func (d *PostgresEngine) URI(address string, port int64, dbname string, username string, password string) string {
-	return fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?reconnect=true", username, password, address, port, dbname)
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?reconnect=true", username, password, address, port, dbname)
 }
 
 func (d *PostgresEngine) JDBCURI(address string, port int64, dbname string, username string, password string) string {
