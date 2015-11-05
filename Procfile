@@ -1,1 +1,1 @@
-web: rds-broker --config=config-sample.json -port=$PORT
+web: rds-broker --config=config.json -port=$PORT
