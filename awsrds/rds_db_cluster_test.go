@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/pivotal-golang/lager"
@@ -21,6 +22,8 @@ var _ = Describe("RDS DB Cluster", func() {
 	var (
 		region              string
 		dbClusterIdentifier string
+
+		awsSession *session.Session
 
 		iamsvc  *iam.IAM
 		iamCall func(r *request.Request)
@@ -40,8 +43,10 @@ var _ = Describe("RDS DB Cluster", func() {
 	})
 
 	JustBeforeEach(func() {
-		iamsvc = iam.New(nil)
-		rdssvc = rds.New(nil)
+		awsSession = session.New(nil)
+
+		iamsvc = iam.New(awsSession)
+		rdssvc = rds.New(awsSession)
 
 		logger = lager.NewLogger("rdsdbcluster_test")
 		testSink = lagertest.NewTestSink()

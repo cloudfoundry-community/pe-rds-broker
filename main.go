@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/frodenas/brokerapi"
@@ -59,8 +60,10 @@ func main() {
 	logger := buildLogger(config.LogLevel)
 
 	awsConfig := aws.NewConfig().WithRegion(config.RDSConfig.Region)
-	iamsvc := iam.New(awsConfig)
-	rdssvc := rds.New(awsConfig)
+	awsSession := session.New(awsConfig)
+
+	iamsvc := iam.New(awsSession)
+	rdssvc := rds.New(awsSession)
 	dbInstance := awsrds.NewRDSDBInstance(config.RDSConfig.Region, iamsvc, rdssvc, logger)
 	dbCluster := awsrds.NewRDSDBCluster(config.RDSConfig.Region, iamsvc, rdssvc, logger)
 
