@@ -2,48 +2,48 @@
 	"ImportPath": "github.com/cf-platform-eng/rds-broker",
 	"GoVersion": "go1.5.1",
 	"Packages": [
-		"./...."
+		"./..."
 	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
-			"ImportPath": "github.com/aws/aws-sdk-go/internal/endpoints",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"ImportPath": "github.com/aws/aws-sdk-go/private/endpoints",
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
-			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/query",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/query",
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
-			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/rest",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/rest",
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
-			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/xml/xmlutil",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil",
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
-			"ImportPath": "github.com/aws/aws-sdk-go/internal/signer/v4",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"ImportPath": "github.com/aws/aws-sdk-go/private/signer/v4",
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
 			"ImportPath": "github.com/aws/aws-sdk-go/service/iam",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
 			"ImportPath": "github.com/aws/aws-sdk-go/service/rds",
-			"Comment": "v0.9.14-1-g7d9ac5f",
-			"Rev": "7d9ac5f2079172b9725513796718eaad96218f3b"
+			"Comment": "v0.10.1",
+			"Rev": "99e1b7ffaa0cea584f0cb8c60eef52fdfe25555b"
 		},
 		{
 			"ImportPath": "github.com/frodenas/brokerapi",
