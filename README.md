@@ -60,7 +60,9 @@ This broker can be deployed using the [AWS Service Broker BOSH Release](https://
 
 ## Configuration
 
-Refer to the [Configuration](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md) instructions.
+Refer to the [Configuration](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md) instructions for details about configuring this broker.
+
+This broker gets the AWS credentials from the environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. It requires a user with some [IAM](https://aws.amazon.com/iam/) & [RDS](https://aws.amazon.com/rds/) permissions. Refer to the [iam_policy.json](https://github.com/cf-platform-eng/rds-broker/blob/master/iam_policy.json) file to check what actions the user must be allowed to perform.
 
 ## Usage
 
