@@ -6,15 +6,15 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/cf-platform-eng/rds-broker/rdsbroker"
+	. "github.com/alphagov/paas-rds-broker/rdsbroker"
 
 	"github.com/frodenas/brokerapi"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
 
-	"github.com/cf-platform-eng/rds-broker/awsrds"
-	rdsfake "github.com/cf-platform-eng/rds-broker/awsrds/fakes"
-	sqlfake "github.com/cf-platform-eng/rds-broker/sqlengine/fakes"
+	"github.com/alphagov/paas-rds-broker/awsrds"
+	rdsfake "github.com/alphagov/paas-rds-broker/awsrds/fakes"
+	sqlfake "github.com/alphagov/paas-rds-broker/sqlengine/fakes"
 )
 
 var _ = Describe("RDS Broker", func() {

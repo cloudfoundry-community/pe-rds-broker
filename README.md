@@ -1,4 +1,4 @@
-# AWS RDS Service Broker [![Build Status](https://travis-ci.org/cf-platform-eng/rds-broker.png)](https://travis-ci.org/cf-platform-eng/rds-broker)
+# AWS RDS Service Broker [![Build Status](https://travis-ci.org/alphagov/paas-rds-broker.png)](https://travis-ci.org/alphagov/paas-rds-broker)
 
 This is an **experimental** [Cloud Foundry Service Broker](https://docs.cloudfoundry.org/services/overview.html) for [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds/) supporting [Aurora](https://aws.amazon.com/rds/aurora/), [MariaDB](https://aws.amazon.com/rds/mariadb/), [MySQL](https://aws.amazon.com/rds/mysql/) and [PostgreSQL](https://aws.amazon.com/rds/postgresql/) RDS Databases.
 
@@ -15,7 +15,7 @@ This is **NOT** presently a production ready Service Broker. This is a work in p
 Using the standard `go install` (you must have [Go](https://golang.org/) already installed in your local machine):
 
 ```
-$ go install github.com/cf-platform-eng/rds-broker
+$ go install github.com/alphagov/paas-rds-broker
 $ rds-broker -port=3000 -config=<path-to-your-config-file>
 ```
 
@@ -24,11 +24,11 @@ $ rds-broker -port=3000 -config=<path-to-your-config-file>
 The broker can be deployed to an already existing [Cloud Foundry](https://www.cloudfoundry.org/) installation:
 
 ```
-$ git clone https://github.com/cf-platform-eng/rds-broker.git
+$ git clone https://github.com/alphagov/paas-rds-broker.git
 $ cd rds-broker
 ```
 
-Modify the [included manifest file](https://github.com/cf-platform-eng/rds-broker/blob/master/manifest.yml) to include your AWS credentials and optionally the [sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). Then you can push the broker to your [Cloud Foundry](https://www.cloudfoundry.org/) environment:
+Modify the [included manifest file](https://github.com/alphagov/paas-rds-broker/blob/master/manifest.yml) to include your AWS credentials and optionally the [sample configuration file](https://github.com/alphagov/paas-rds-broker/blob/master/config-sample.json). Then you can push the broker to your [Cloud Foundry](https://www.cloudfoundry.org/) environment:
 
 ```
 $ cp config-sample.json config.json
@@ -46,10 +46,10 @@ $ docker run -d --name rds-broker -p 3000:3000 \
   cfplatformeng/rds-broker
 ```
 
-The Docker image cames with an [embedded sample configuration file](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json). If you want to override it, you can create the Docker image with you custom configuration file by running:
+The Docker image cames with an [embedded sample configuration file](https://github.com/alphagov/paas-rds-broker/blob/master/config-sample.json). If you want to override it, you can create the Docker image with you custom configuration file by running:
 
 ```
-$ git clone https://github.com/cf-platform-eng/rds-broker.git
+$ git clone https://github.com/alphagov/paas-rds-broker.git
 $ cd rds-broker
 $ bin/build-docker-image
 ```
@@ -60,9 +60,9 @@ This broker can be deployed using the [AWS Service Broker BOSH Release](https://
 
 ## Configuration
 
-Refer to the [Configuration](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md) instructions for details about configuring this broker.
+Refer to the [Configuration](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md) instructions for details about configuring this broker.
 
-This broker gets the AWS credentials from the environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. It requires a user with some [IAM](https://aws.amazon.com/iam/) & [RDS](https://aws.amazon.com/rds/) permissions. Refer to the [iam_policy.json](https://github.com/cf-platform-eng/rds-broker/blob/master/iam_policy.json) file to check what actions the user must be allowed to perform.
+This broker gets the AWS credentials from the environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. It requires a user with some [IAM](https://aws.amazon.com/iam/) & [RDS](https://aws.amazon.com/rds/) permissions. Refer to the [iam_policy.json](https://github.com/alphagov/paas-rds-broker/blob/master/iam_policy.json) file to check what actions the user must be allowed to perform.
 
 ## Usage
 
@@ -79,7 +79,7 @@ Configure and deploy the broker using one of the above methods. Then:
 
 Application Developers can start to consume the services using the standard [CF CLI commands](https://docs.cloudfoundry.org/devguide/services/managing-services.html).
 
-Depending on the [broker configuration](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#rds-broker-configuration), Application Depevelopers can send arbitrary parameters on certain broker calls:
+Depending on the [broker configuration](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md#rds-broker-configuration), Application Depevelopers can send arbitrary parameters on certain broker calls:
 
 #### Provision
 
@@ -129,12 +129,12 @@ Here are some ways *you* can contribute:
 * by writing specifications
 * by writing code (**no patch is too small**: fix typos, add comments, clean up inconsistent whitespace)
 * by refactoring code
-* by closing [issues](https://github.com/cf-platform-eng/rds-broker/issues)
+* by closing [issues](https://github.com/alphagov/paas-rds-broker/issues)
 * by reviewing patches
 
 ### Submitting an Issue
 
-We use the [GitHub issue tracker](https://github.com/cf-platform-eng/rds-broker/issues) to track bugs and features. Before submitting a bug report or feature request, check to make sure it hasn't already been submitted. You can indicate support for an existing issue by voting it up. When submitting a bug report, please include a [Gist](http://gist.github.com/) that includes a stack trace and any details that may be necessary to reproduce the bug, including your Golang version and operating system. Ideally, a bug report should include a pull request with failing specs.
+We use the [GitHub issue tracker](https://github.com/alphagov/paas-rds-broker/issues) to track bugs and features. Before submitting a bug report or feature request, check to make sure it hasn't already been submitted. You can indicate support for an existing issue by voting it up. When submitting a bug report, please include a [Gist](http://gist.github.com/) that includes a stack trace and any details that may be necessary to reproduce the bug, including your Golang version and operating system. Ideally, a bug report should include a pull request with failing specs.
 
 ### Submitting a Pull Request
 
@@ -146,4 +146,4 @@ We use the [GitHub issue tracker](https://github.com/cf-platform-eng/rds-broker/
 
 ## Copyright
 
-Copyright (c) 2015 Pivotal Software Inc. See [LICENSE](https://github.com/cf-platform-eng/rds-broker/blob/master/LICENSE) for details.
+Copyright (c) 2015 Pivotal Software Inc. See [LICENSE](https://github.com/alphagov/paas-rds-broker/blob/master/LICENSE) for details.

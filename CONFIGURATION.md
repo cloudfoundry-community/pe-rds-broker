@@ -1,6 +1,6 @@
 # Configuration
 
-A sample configuration can be found at [config-sample.json](https://github.com/cf-platform-eng/rds-broker/blob/master/config-sample.json).
+A sample configuration can be found at [config-sample.json](https://github.com/alphagov/paas-rds-broker/blob/master/config-sample.json).
 
 ## General Configuration
 
@@ -9,7 +9,7 @@ A sample configuration can be found at [config-sample.json](https://github.com/c
 | log_level  | Y        | String | Broker Log Level (DEBUG, INFO, ERROR, FATAL)
 | username   | Y        | String | Broker Auth Username
 | password   | Y        | String | Broker Auth Password
-| rds_config | Y        | Hash   | [RDS Broker configuration](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#rds-broker-configuration)
+| rds_config | Y        | Hash   | [RDS Broker configuration](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md#rds-broker-configuration)
 
 ## RDS Broker Configuration
 
@@ -20,7 +20,7 @@ A sample configuration can be found at [config-sample.json](https://github.com/c
 | allow_user_provision_parameters| N        | Boolean | Allow users to send arbitrary parameters on provision calls (defaults to `false`)
 | allow_user_update_parameters   | N        | Boolean | Allow users to send arbitrary parameters on update calls (defaults to `false`)
 | allow_user_bind_parameters     | N        | Boolean | Allow users to send arbitrary parameters on bind calls (defaults to `false`)
-| catalog                        | Y        | Hash    | [RDS Broker catalog](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#rds-broker-catalog)
+| catalog                        | Y        | Hash    | [RDS Broker catalog](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md#rds-broker-catalog)
 
 ## RDS Broker catalog
 
@@ -30,7 +30,7 @@ Please refer to the [Catalog Documentation](https://docs.cloudfoundry.org/servic
 
 | Option   | Required | Type      | Description
 |:---------|:--------:|:--------- |:-----------
-| services | N        | []Service | A list of [Services](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#service)
+| services | N        | []Service | A list of [Services](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md#service)
 
 ### Service
 
@@ -49,7 +49,7 @@ Please refer to the [Catalog Documentation](https://docs.cloudfoundry.org/servic
 | metadata.supportUrl           | N        | String        | Link to support for the service
 | requires                      | N        | []String      | A list of permissions that the user would have to give the service, if they provision it (only `syslog_drain` is supported)
 | plan_updateable               | N        | Boolean       | Whether the service supports upgrade/downgrade for some plans
-| plans                         | N        | []ServicePlan | A list of [Plans](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#service-plan) for this service
+| plans                         | N        | []ServicePlan | A list of [Plans](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md#service-plan) for this service
 | dashboard_client.id           | N        | String        | The id of the Oauth2 client that the service intends to use
 | dashboard_client.secret       | N        | String        | A secret for the dashboard client
 | dashboard_client.redirect_uri | N        | String        | A domain for the service dashboard that will be whitelisted by the UAA to enable SSO
@@ -65,7 +65,7 @@ Please refer to the [Catalog Documentation](https://docs.cloudfoundry.org/servic
 | metadata.costs       | N        | Cost Object   | An array-of-objects that describes the costs of a service, in what currency, and the unit of measure
 | metadata.displayName | N        | String        | Name of the plan to be display in graphical clients
 | free                 | N        | Boolean       | This field allows the plan to be limited by the non_basic_services_allowed field in a Cloud Foundry Quota
-| rds_properties       | Y        | RDSProperties | [RDS Properties](https://github.com/cf-platform-eng/rds-broker/blob/master/CONFIGURATION.md#rds-properties)
+| rds_properties       | Y        | RDSProperties | [RDS Properties](https://github.com/alphagov/paas-rds-broker/blob/master/CONFIGURATION.md#rds-properties)
 
 ## RDS Properties
 

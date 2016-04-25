@@ -4,9 +4,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/cf-platform-eng/rds-broker"
+	. "github.com/alphagov/paas-rds-broker"
 
-	"github.com/cf-platform-eng/rds-broker/rdsbroker"
+	"github.com/alphagov/paas-rds-broker/rdsbroker"
 )
 
 var _ = Describe("Config", func() {
