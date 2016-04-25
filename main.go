@@ -15,9 +15,9 @@ import (
 	"github.com/frodenas/brokerapi"
 	"github.com/pivotal-golang/lager"
 
-	"github.com/cf-platform-eng/rds-broker/awsrds"
-	"github.com/cf-platform-eng/rds-broker/rdsbroker"
-	"github.com/cf-platform-eng/rds-broker/sqlengine"
+	"github.com/alphagov/paas-rds-broker/awsrds"
+	"github.com/alphagov/paas-rds-broker/rdsbroker"
+	"github.com/alphagov/paas-rds-broker/sqlengine"
 )
 
 var (

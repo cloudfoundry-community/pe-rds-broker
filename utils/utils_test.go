@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/cf-platform-eng/rds-broker/utils"
+	. "github.com/alphagov/paas-rds-broker/utils"
 )
 
 var _ = Describe("RandomAlphaNum", func() {

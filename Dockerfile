@@ -8,7 +8,7 @@ ENV GOARM       5
 ENV GOOS        linux
 
 # Build BOSH Registry
-RUN go get -a -installsuffix cgo -ldflags '-s' github.com/cf-platform-eng/rds-broker
+RUN go get -a -installsuffix cgo -ldflags '-s' github.com/alphagov/paas-rds-broker
 
 # Add files
 ADD Dockerfile.final /go/bin/Dockerfile

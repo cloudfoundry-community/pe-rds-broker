@@ -10,9 +10,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/pivotal-golang/lager"
 
-	"github.com/cf-platform-eng/rds-broker/awsrds"
-	"github.com/cf-platform-eng/rds-broker/sqlengine"
-	"github.com/cf-platform-eng/rds-broker/utils"
+	"github.com/alphagov/paas-rds-broker/awsrds"
+	"github.com/alphagov/paas-rds-broker/sqlengine"
+	"github.com/alphagov/paas-rds-broker/utils"
 )
 
 const defaultUsernameLength = 16

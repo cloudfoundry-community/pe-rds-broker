@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/cf-platform-eng/rds-broker/rdsbroker"
+	"github.com/alphagov/paas-rds-broker/rdsbroker"
 )
 
 type Config struct {

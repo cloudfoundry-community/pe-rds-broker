@@ -1,7 +1,7 @@
 package fakes
 
 import (
-	"github.com/cf-platform-eng/rds-broker/awsrds"
+	"github.com/alphagov/paas-rds-broker/awsrds"
 )
 
 type FakeDBInstance struct {

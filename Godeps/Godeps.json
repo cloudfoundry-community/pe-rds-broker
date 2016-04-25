@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/cf-platform-eng/rds-broker",
+	"ImportPath": "github.com/alphagov/paas-rds-broker",
 	"GoVersion": "go1.5.1",
 	"Packages": [
 		"./..."
