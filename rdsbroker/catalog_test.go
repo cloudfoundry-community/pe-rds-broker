@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/cf-platform-eng/rds-broker/rdsbroker"
+	. "github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"
 )
 
 var _ = Describe("Catalog", func() {

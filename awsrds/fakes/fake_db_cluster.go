@@ -1,7 +1,7 @@
 package fakes
 
 import (
-	"github.com/cf-platform-eng/rds-broker/awsrds"
+	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 )
 
 type FakeDBCluster struct {

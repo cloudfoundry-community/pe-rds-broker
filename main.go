@@ -15,9 +15,9 @@ import (
 	"github.com/frodenas/brokerapi"
 	"github.com/pivotal-golang/lager"
 
-	"github.com/cf-platform-eng/rds-broker/awsrds"
-	"github.com/cf-platform-eng/rds-broker/rdsbroker"
-	"github.com/cf-platform-eng/rds-broker/sqlengine"
+	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
+	"github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"
+	"github.com/cloudfoundry-community/pe-rds-broker/sqlengine"
 )
 
 var (
