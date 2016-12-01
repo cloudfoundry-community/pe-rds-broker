@@ -1,6 +1,7 @@
 package rdsbroker_test
 
 import (
+	"context"
 	"errors"
 
 	. "github.com/onsi/ginkgo"
@@ -8,9 +9,9 @@ import (
 
 	. "github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"
 
-	"github.com/frodenas/brokerapi"
-	"github.com/pivotal-golang/lager"
-	"github.com/pivotal-golang/lager/lagertest"
+	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/lagertest"
+	"github.com/joek/brokerapi"
 
 	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 	rdsfake "github.com/cloudfoundry-community/pe-rds-broker/awsrds/fakes"
@@ -39,6 +40,8 @@ var _ = Describe("RDS Broker", func() {
 		logger   lager.Logger
 
 		rdsBroker *RDSBroker
+
+		context = context.Background()
 
 		allowUserProvisionParameters bool
 		allowUserUpdateParameters    bool
@@ -89,16 +92,19 @@ var _ = Describe("RDS Broker", func() {
 	})
 
 	JustBeforeEach(func() {
+		f := false
 		plan1 = ServicePlan{
 			ID:            "Plan-1",
 			Name:          "Plan 1",
 			Description:   "This is the Plan 1",
+			Free:          &f,
 			RDSProperties: rdsProperties1,
 		}
 		plan2 = ServicePlan{
 			ID:            "Plan-2",
 			Name:          "Plan 2",
 			Description:   "This is the Plan 2",
+			Free:          &f,
 			RDSProperties: rdsProperties2,
 		}
 
@@ -141,38 +147,39 @@ var _ = Describe("RDS Broker", func() {
 
 	var _ = Describe("Services", func() {
 		var (
-			properCatalogResponse brokerapi.CatalogResponse
+			properServicesResponse []brokerapi.Service
 		)
 
 		BeforeEach(func() {
-			properCatalogResponse = brokerapi.CatalogResponse{
-				Services: []brokerapi.Service{
-					brokerapi.Service{
-						ID:             "Service-1",
-						Name:           "Service 1",
-						Description:    "This is the Service 1",
-						Bindable:       serviceBindable,
-						PlanUpdateable: planUpdateable,
-						Plans: []brokerapi.ServicePlan{
-							brokerapi.ServicePlan{
-								ID:          "Plan-1",
-								Name:        "Plan 1",
-								Description: "This is the Plan 1",
-							},
+			f := false
+			properServicesResponse = []brokerapi.Service{
+				brokerapi.Service{
+					ID:            "Service-1",
+					Name:          "Service 1",
+					Description:   "This is the Service 1",
+					Bindable:      serviceBindable,
+					PlanUpdatable: planUpdateable,
+					Plans: []brokerapi.ServicePlan{
+						brokerapi.ServicePlan{
+							ID:          "Plan-1",
+							Name:        "Plan 1",
+							Description: "This is the Plan 1",
+							Free:        &f,
 						},
 					},
-					brokerapi.Service{
-						ID:             "Service-2",
-						Name:           "Service 2",
-						Description:    "This is the Service 2",
-						Bindable:       serviceBindable,
-						PlanUpdateable: planUpdateable,
-						Plans: []brokerapi.ServicePlan{
-							brokerapi.ServicePlan{
-								ID:          "Plan-2",
-								Name:        "Plan 2",
-								Description: "This is the Plan 2",
-							},
+				},
+				brokerapi.Service{
+					ID:            "Service-2",
+					Name:          "Service 2",
+					Description:   "This is the Service 2",
+					Bindable:      serviceBindable,
+					PlanUpdatable: planUpdateable,
+					Plans: []brokerapi.ServicePlan{
+						brokerapi.ServicePlan{
+							ID:          "Plan-2",
+							Name:        "Plan 2",
+							Description: "This is the Plan 2",
+							Free:        &f,
 						},
 					},
 				},
@@ -180,18 +187,18 @@ var _ = Describe("RDS Broker", func() {
 		})
 
 		It("returns the proper CatalogResponse", func() {
-			brokerCatalog := rdsBroker.Services()
-			Expect(brokerCatalog).To(Equal(properCatalogResponse))
+			brokerCatalog := rdsBroker.Services(context)
+			Expect(brokerCatalog).To(Equal(properServicesResponse))
 		})
 
 	})
 
 	var _ = Describe("Provision", func() {
 		var (
-			provisionDetails  brokerapi.ProvisionDetails
-			acceptsIncomplete bool
+			provisionDetails brokerapi.ProvisionDetails
+			asyncAllowed     bool
 
-			properProvisioningResponse brokerapi.ProvisioningResponse
+			properProvisioningResponse brokerapi.ProvisionedServiceSpec
 		)
 
 		BeforeEach(func() {
@@ -200,22 +207,24 @@ var _ = Describe("RDS Broker", func() {
 				PlanID:           "Plan-1",
 				ServiceID:        "Service-1",
 				SpaceGUID:        "space-id",
-				Parameters:       map[string]interface{}{},
+				RawParameters:    []byte(`{}`),
 			}
-			acceptsIncomplete = true
+			asyncAllowed = true
 
-			properProvisioningResponse = brokerapi.ProvisioningResponse{}
+			properProvisioningResponse = brokerapi.ProvisionedServiceSpec{
+				IsAsync: true,
+			}
 		})
 
 		It("returns the proper response", func() {
-			provisioningResponse, asynch, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+			provisioningResponse, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 			Expect(provisioningResponse).To(Equal(properProvisioningResponse))
-			Expect(asynch).To(BeTrue())
+			Expect(provisioningResponse.IsAsync).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("makes the proper calls", func() {
-			_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+			_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 			Expect(dbInstance.CreateCalled).To(BeTrue())
 			Expect(dbInstance.CreateID).To(Equal(dbInstanceIdentifier))
 			Expect(dbInstance.CreateDBInstanceDetails.DBInstanceClass).To(Equal("db.m1.test"))
@@ -239,7 +248,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.AllocatedStorage).To(Equal(int64(100)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -250,7 +259,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.AllocatedStorage).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -263,7 +272,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.AutoMinorVersionUpgrade).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -275,7 +284,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.AvailabilityZone).To(Equal("test-az"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -286,7 +295,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.AvailabilityZone).To(Equal("test-az"))
 					Expect(dbCluster.CreateDBClusterDetails.AvailabilityZones).To(Equal([]string{"test-az"}))
 					Expect(err).ToNot(HaveOccurred())
@@ -300,7 +309,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(7)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -311,7 +320,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.BackupRetentionPeriod).To(Equal(int64(7)))
 					Expect(dbInstance.CreateDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
@@ -320,11 +329,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has BackupRetentionPeriod Parameter", func() {
 				BeforeEach(func() {
-					provisionDetails.Parameters = map[string]interface{}{"backup_retention_period": 12}
+					provisionDetails.RawParameters = []byte(`{"backup_retention_period": 12}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(12)))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -335,7 +344,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+						_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 						Expect(dbCluster.CreateDBClusterDetails.BackupRetentionPeriod).To(Equal(int64(12)))
 						Expect(dbInstance.CreateDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(0)))
 						Expect(err).ToNot(HaveOccurred())
@@ -350,7 +359,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.CharacterSetName).To(Equal("test-characterset-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -361,7 +370,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.CharacterSetName).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -369,11 +378,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has CharacterSetName Parameter", func() {
 				BeforeEach(func() {
-					provisionDetails.Parameters = map[string]interface{}{"character_set_name": "test-characterset-name-parameter"}
+					provisionDetails.RawParameters = []byte(`{"character_set_name": "test-characterset-name-parameter"}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.CharacterSetName).To(Equal("test-characterset-name-parameter"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -384,7 +393,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+						_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 						Expect(dbInstance.CreateDBInstanceDetails.CharacterSetName).To(Equal(""))
 						Expect(err).ToNot(HaveOccurred())
 					})
@@ -398,7 +407,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.CopyTagsToSnapshot).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -406,11 +415,11 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when has DBName parameter", func() {
 			BeforeEach(func() {
-				provisionDetails.Parameters = map[string]interface{}{"dbname": "test-dbname"}
+				provisionDetails.RawParameters = []byte(`{"dbname": "test-dbname"}`)
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.DBName).To(Equal("test-dbname"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -421,7 +430,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.DatabaseName).To(Equal("test-dbname"))
 					Expect(dbInstance.CreateDBInstanceDetails.DBName).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
@@ -435,7 +444,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.DBParameterGroupName).To(Equal("test-db-parameter-group-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -447,7 +456,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.DBSecurityGroups).To(Equal([]string{"test-db-security-group"}))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -458,7 +467,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.DBSecurityGroups).To(BeNil())
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -471,7 +480,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.DBSubnetGroupName).To(Equal("test-db-subnet-group-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -482,7 +491,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.DBSubnetGroupName).To(Equal("test-db-subnet-group-name"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -495,7 +504,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.EngineVersion).To(Equal("1.2.3"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -506,7 +515,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.EngineVersion).To(Equal("1.2.3"))
 					Expect(dbCluster.CreateDBClusterDetails.EngineVersion).To(Equal("1.2.3"))
 					Expect(err).ToNot(HaveOccurred())
@@ -520,7 +529,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.Iops).To(Equal(int64(1000)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -531,7 +540,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.Iops).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -544,7 +553,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.KmsKeyID).To(Equal("test-kms-key-id"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -555,7 +564,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.KmsKeyID).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -568,7 +577,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.LicenseModel).To(Equal("test-license-model"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -579,7 +588,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.LicenseModel).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -592,7 +601,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.MultiAZ).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -603,7 +612,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.MultiAZ).To(BeFalse())
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -616,7 +625,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.OptionGroupName).To(Equal("test-option-group-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -628,7 +637,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.Port).To(Equal(int64(3306)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -639,7 +648,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.Port).To(Equal(int64(3306)))
 					Expect(dbInstance.CreateDBInstanceDetails.Port).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
@@ -653,7 +662,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -664,7 +673,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window"))
 					Expect(dbInstance.CreateDBInstanceDetails.PreferredBackupWindow).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
@@ -673,11 +682,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has PreferredBackupWindow Parameter", func() {
 				BeforeEach(func() {
-					provisionDetails.Parameters = map[string]interface{}{"preferred_backup_window": "test-preferred-backup-window-parameter"}
+					provisionDetails.RawParameters = []byte(`{"preferred_backup_window": "test-preferred-backup-window-parameter"}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window-parameter"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -688,7 +697,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+						_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 						Expect(dbCluster.CreateDBClusterDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window-parameter"))
 						Expect(dbInstance.CreateDBInstanceDetails.PreferredBackupWindow).To(Equal(""))
 						Expect(err).ToNot(HaveOccurred())
@@ -703,7 +712,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -714,7 +723,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -722,11 +731,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has PreferredMaintenanceWindow Parameter", func() {
 				BeforeEach(func() {
-					provisionDetails.Parameters = map[string]interface{}{"preferred_maintenance_window": "test-preferred-maintenance-window-parameter"}
+					provisionDetails.RawParameters = []byte(`{"preferred_maintenance_window": "test-preferred-maintenance-window-parameter"}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window-parameter"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -737,7 +746,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+						_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 						Expect(dbCluster.CreateDBClusterDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window-parameter"))
 						Expect(err).ToNot(HaveOccurred())
 					})
@@ -751,7 +760,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.PubliclyAccessible).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -763,7 +772,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.StorageEncrypted).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -774,7 +783,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.StorageEncrypted).To(BeFalse())
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -787,7 +796,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.StorageType).To(Equal("test-storage-type"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -798,7 +807,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbInstance.CreateDBInstanceDetails.StorageType).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -811,7 +820,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.VpcSecurityGroupIds).To(Equal([]string{"test-vpc-security-group-ids"}))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -822,7 +831,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.VpcSecurityGroupIds).To(Equal([]string{"test-vpc-security-group-ids"}))
 					Expect(dbInstance.CreateDBInstanceDetails.VpcSecurityGroupIds).To(BeNil())
 					Expect(err).ToNot(HaveOccurred())
@@ -832,11 +841,11 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when request does not accept incomplete", func() {
 			BeforeEach(func() {
-				acceptsIncomplete = false
+				asyncAllowed = false
 			})
 
 			It("returns the proper error", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(brokerapi.ErrAsyncRequired))
 			})
@@ -844,13 +853,13 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when Parameters are not valid", func() {
 			BeforeEach(func() {
-				provisionDetails.Parameters = map[string]interface{}{"backup_retention_period": "invalid"}
+				provisionDetails.RawParameters = []byte(`{"backup_retention_period": "invalid"}`)
 			})
 
 			It("returns the proper error", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("'backup_retention_period' expected type 'int64', got unconvertible type 'string'"))
+				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal string into Go value of type int64"))
 			})
 
 			Context("and user provision parameters are not allowed", func() {
@@ -859,7 +868,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("does not return an error", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
@@ -871,7 +880,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
 			})
@@ -883,7 +892,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
@@ -895,7 +904,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbCluster.CreateCalled).To(BeTrue())
 				Expect(dbCluster.CreateID).To(Equal(dbClusterIdentifier))
 				Expect(dbCluster.CreateDBClusterDetails.Engine).To(Equal("aurora"))
@@ -920,7 +929,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(dbCluster.CreateDBClusterDetails.DBClusterParameterGroupName).To(Equal("test-db-cluster-parameter-group-name"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -932,7 +941,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("deletes the DB Cluster", func() {
-					_, _, err := rdsBroker.Provision(instanceID, provisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 					Expect(err).To(HaveOccurred())
 					Expect(dbCluster.DeleteCalled).To(BeTrue())
 					Expect(dbCluster.DeleteID).To(Equal(dbClusterIdentifier))
@@ -943,33 +952,33 @@ var _ = Describe("RDS Broker", func() {
 
 	var _ = Describe("Update", func() {
 		var (
-			updateDetails     brokerapi.UpdateDetails
-			acceptsIncomplete bool
+			updateDetails brokerapi.UpdateDetails
+			asyncAllowed  bool
 		)
 
 		BeforeEach(func() {
 			updateDetails = brokerapi.UpdateDetails{
-				ServiceID:  "Service-2",
-				PlanID:     "Plan-2",
-				Parameters: map[string]interface{}{},
+				ServiceID:     "Service-2",
+				PlanID:        "Plan-2",
+				RawParameters: []byte(`{}`),
 				PreviousValues: brokerapi.PreviousValues{
-					PlanID:         "Plan-1",
-					ServiceID:      "Service-1",
-					OrganizationID: "organization-id",
-					SpaceID:        "space-id",
+					PlanID:    "Plan-1",
+					ServiceID: "Service-1",
+					OrgID:     "organization-id",
+					SpaceID:   "space-id",
 				},
 			}
-			acceptsIncomplete = true
+			asyncAllowed = true
 		})
 
 		It("returns the proper response", func() {
-			asynch, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
-			Expect(asynch).To(BeTrue())
+			resp, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
+			Expect(resp.IsAsync).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("makes the proper calls", func() {
-			_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+			_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 			Expect(dbInstance.ModifyCalled).To(BeTrue())
 			Expect(dbInstance.ModifyID).To(Equal(dbInstanceIdentifier))
 			Expect(dbInstance.ModifyDBInstanceDetails.DBInstanceClass).To(Equal("db.m2.test"))
@@ -988,7 +997,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.AllocatedStorage).To(Equal(int64(100)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -999,7 +1008,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.AllocatedStorage).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1012,7 +1021,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.AutoMinorVersionUpgrade).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1024,7 +1033,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.AvailabilityZone).To(Equal("test-az"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1035,7 +1044,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.AvailabilityZone).To(Equal("test-az"))
 					Expect(dbCluster.ModifyDBClusterDetails.AvailabilityZones).To(Equal([]string{"test-az"}))
 					Expect(err).ToNot(HaveOccurred())
@@ -1049,7 +1058,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(7)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1060,7 +1069,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.BackupRetentionPeriod).To(Equal(int64(7)))
 					Expect(dbInstance.ModifyDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
@@ -1069,11 +1078,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has BackupRetentionPeriod Parameter", func() {
 				BeforeEach(func() {
-					updateDetails.Parameters = map[string]interface{}{"backup_retention_period": 12}
+					updateDetails.RawParameters = []byte(`{"backup_retention_period": 12}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(12)))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1084,7 +1093,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+						_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 						Expect(dbCluster.ModifyDBClusterDetails.BackupRetentionPeriod).To(Equal(int64(12)))
 						Expect(dbInstance.ModifyDBInstanceDetails.BackupRetentionPeriod).To(Equal(int64(0)))
 						Expect(err).ToNot(HaveOccurred())
@@ -1099,7 +1108,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.CharacterSetName).To(Equal("test-characterset-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1110,7 +1119,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.CharacterSetName).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1123,7 +1132,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.CopyTagsToSnapshot).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1135,7 +1144,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.DBParameterGroupName).To(Equal("test-db-parameter-group-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1147,7 +1156,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.DBSecurityGroups).To(Equal([]string{"test-db-security-group"}))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1158,7 +1167,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.DBSecurityGroups).To(BeNil())
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1171,7 +1180,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.DBSubnetGroupName).To(Equal("test-db-subnet-group-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1182,7 +1191,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.DBSubnetGroupName).To(Equal("test-db-subnet-group-name"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1195,7 +1204,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.EngineVersion).To(Equal("1.2.3"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1206,7 +1215,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.EngineVersion).To(Equal("1.2.3"))
 					Expect(dbCluster.ModifyDBClusterDetails.EngineVersion).To(Equal("1.2.3"))
 					Expect(err).ToNot(HaveOccurred())
@@ -1220,7 +1229,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.Iops).To(Equal(int64(1000)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1231,7 +1240,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.Iops).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1244,7 +1253,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.KmsKeyID).To(Equal("test-kms-key-id"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1255,7 +1264,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.KmsKeyID).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1268,7 +1277,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.LicenseModel).To(Equal("test-license-model"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1279,7 +1288,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.LicenseModel).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1292,7 +1301,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.MultiAZ).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1303,7 +1312,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.MultiAZ).To(BeFalse())
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1316,7 +1325,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.OptionGroupName).To(Equal("test-option-group-name"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1328,7 +1337,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.Port).To(Equal(int64(3306)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1339,7 +1348,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.Port).To(Equal(int64(3306)))
 					Expect(dbInstance.ModifyDBInstanceDetails.Port).To(Equal(int64(0)))
 					Expect(err).ToNot(HaveOccurred())
@@ -1353,7 +1362,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1364,7 +1373,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window"))
 					Expect(dbInstance.ModifyDBInstanceDetails.PreferredBackupWindow).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
@@ -1373,11 +1382,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has PreferredBackupWindow Parameter", func() {
 				BeforeEach(func() {
-					updateDetails.Parameters = map[string]interface{}{"preferred_backup_window": "test-preferred-backup-window-parameter"}
+					updateDetails.RawParameters = []byte(`{"preferred_backup_window": "test-preferred-backup-window-parameter"}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window-parameter"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1388,7 +1397,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+						_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 						Expect(dbCluster.ModifyDBClusterDetails.PreferredBackupWindow).To(Equal("test-preferred-backup-window-parameter"))
 						Expect(dbInstance.ModifyDBInstanceDetails.PreferredBackupWindow).To(Equal(""))
 						Expect(err).ToNot(HaveOccurred())
@@ -1403,7 +1412,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1414,7 +1423,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1422,11 +1431,11 @@ var _ = Describe("RDS Broker", func() {
 
 			Context("but has PreferredMaintenanceWindow Parameter", func() {
 				BeforeEach(func() {
-					updateDetails.Parameters = map[string]interface{}{"preferred_maintenance_window": "test-preferred-maintenance-window-parameter"}
+					updateDetails.RawParameters = []byte(`{"preferred_maintenance_window": "test-preferred-maintenance-window-parameter"}`)
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window-parameter"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1437,7 +1446,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+						_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 						Expect(dbCluster.ModifyDBClusterDetails.PreferredMaintenanceWindow).To(Equal("test-preferred-maintenance-window-parameter"))
 						Expect(err).ToNot(HaveOccurred())
 					})
@@ -1451,7 +1460,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.PubliclyAccessible).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1463,7 +1472,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.StorageEncrypted).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1474,7 +1483,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.StorageEncrypted).To(BeFalse())
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1487,7 +1496,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.StorageType).To(Equal("test-storage-type"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1498,7 +1507,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbInstance.ModifyDBInstanceDetails.StorageType).To(Equal(""))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1511,7 +1520,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbInstance.ModifyDBInstanceDetails.VpcSecurityGroupIds).To(Equal([]string{"test-vpc-security-group-ids"}))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -1522,7 +1531,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.VpcSecurityGroupIds).To(Equal([]string{"test-vpc-security-group-ids"}))
 					Expect(dbInstance.ModifyDBInstanceDetails.VpcSecurityGroupIds).To(BeNil())
 					Expect(err).ToNot(HaveOccurred())
@@ -1532,11 +1541,11 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when request does not accept incomplete", func() {
 			BeforeEach(func() {
-				acceptsIncomplete = false
+				asyncAllowed = false
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(brokerapi.ErrAsyncRequired))
 			})
@@ -1544,13 +1553,13 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when Parameters are not valid", func() {
 			BeforeEach(func() {
-				updateDetails.Parameters = map[string]interface{}{"backup_retention_period": "invalid"}
+				updateDetails.RawParameters = []byte(`{"backup_retention_period": "invalid"}`)
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("'backup_retention_period' expected type 'int64', got unconvertible type 'string'"))
+				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal string into Go value of type int64"))
 			})
 
 			Context("and user update parameters are not allowed", func() {
@@ -1559,7 +1568,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("does not return an error", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
@@ -1571,7 +1580,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service 'unknown' not found"))
 			})
@@ -1583,7 +1592,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(brokerapi.ErrInstanceNotUpdateable))
 			})
@@ -1595,7 +1604,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
 			})
@@ -1607,7 +1616,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
@@ -1618,7 +1627,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 				})
@@ -1631,7 +1640,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(dbCluster.ModifyCalled).To(BeTrue())
 				Expect(dbCluster.ModifyID).To(Equal(dbClusterIdentifier))
 				Expect(dbCluster.ModifyDBClusterDetails.Engine).To(Equal("aurora"))
@@ -1649,7 +1658,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Update(instanceID, updateDetails, acceptsIncomplete)
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 					Expect(dbCluster.ModifyDBClusterDetails.DBClusterParameterGroupName).To(Equal("test-db-cluster-parameter-group-name"))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -1659,26 +1668,27 @@ var _ = Describe("RDS Broker", func() {
 
 	var _ = Describe("Deprovision", func() {
 		var (
-			deprovisionDetails brokerapi.DeprovisionDetails
-			acceptsIncomplete  bool
+			DeprovisionDetails brokerapi.DeprovisionDetails
+			asyncAllowed       bool
 		)
 
 		BeforeEach(func() {
-			deprovisionDetails = brokerapi.DeprovisionDetails{
+			DeprovisionDetails = brokerapi.DeprovisionDetails{
 				ServiceID: "Service-1",
 				PlanID:    "Plan-1",
 			}
-			acceptsIncomplete = true
+			asyncAllowed = true
 		})
 
 		It("returns the proper response", func() {
-			asynch, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
-			Expect(asynch).To(BeTrue())
+			resp, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
+			Expect(resp.IsAsync).To(BeTrue())
+			Expect(resp.OperationData).To(Equal("Successfull deprovisinoed Instance"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("makes the proper calls", func() {
-			_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+			_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 			Expect(dbInstance.DeleteCalled).To(BeTrue())
 			Expect(dbInstance.DeleteID).To(Equal(dbInstanceIdentifier))
 			Expect(dbInstance.DeleteSkipFinalSnapshot).To(BeTrue())
@@ -1691,7 +1701,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 				Expect(dbInstance.DeleteCalled).To(BeTrue())
 				Expect(dbInstance.DeleteID).To(Equal(dbInstanceIdentifier))
 				Expect(dbInstance.DeleteSkipFinalSnapshot).To(BeFalse())
@@ -1701,11 +1711,11 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when request does not accept incomplete", func() {
 			BeforeEach(func() {
-				acceptsIncomplete = false
+				asyncAllowed = false
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(brokerapi.ErrAsyncRequired))
 			})
@@ -1713,11 +1723,11 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when Service Plan is not found", func() {
 			BeforeEach(func() {
-				deprovisionDetails.PlanID = "unknown"
+				DeprovisionDetails.PlanID = "unknown"
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
 			})
@@ -1729,7 +1739,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
@@ -1740,7 +1750,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 				})
@@ -1753,7 +1763,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+				_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 				Expect(dbCluster.DeleteCalled).To(BeTrue())
 				Expect(dbCluster.DeleteID).To(Equal(dbClusterIdentifier))
 				Expect(dbCluster.DeleteSkipFinalSnapshot).To(BeTrue())
@@ -1767,7 +1777,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 					Expect(dbCluster.DeleteSkipFinalSnapshot).To(BeFalse())
 					Expect(dbInstance.DeleteSkipFinalSnapshot).To(BeTrue())
 					Expect(err).ToNot(HaveOccurred())
@@ -1780,7 +1790,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("does not return an error", func() {
-					_, err := rdsBroker.Deprovision(instanceID, deprovisionDetails, acceptsIncomplete)
+					_, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
@@ -1794,10 +1804,10 @@ var _ = Describe("RDS Broker", func() {
 
 		BeforeEach(func() {
 			bindDetails = brokerapi.BindDetails{
-				ServiceID:  "Service-1",
-				PlanID:     "Plan-1",
-				AppGUID:    "Application-1",
-				Parameters: map[string]interface{}{},
+				ServiceID:     "Service-1",
+				PlanID:        "Plan-1",
+				AppGUID:       "Application-1",
+				RawParameters: []byte(`{}`),
 			}
 
 			dbInstance.DescribeDBInstanceDetails = awsrds.DBInstanceDetails{
@@ -1818,8 +1828,8 @@ var _ = Describe("RDS Broker", func() {
 		})
 
 		It("returns the proper response", func() {
-			bindingResponse, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
-			credentials := bindingResponse.Credentials.(*brokerapi.CredentialsHash)
+			bindingResponse, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
+			credentials := bindingResponse.Credentials.(*CredentialsHash)
 			Expect(bindingResponse.SyslogDrainURL).To(BeEmpty())
 			Expect(credentials.Host).To(Equal("endpoint-address"))
 			Expect(credentials.Port).To(Equal(int64(3306)))
@@ -1832,7 +1842,7 @@ var _ = Describe("RDS Broker", func() {
 		})
 
 		It("makes the proper calls", func() {
-			_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+			_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 			Expect(dbCluster.DescribeCalled).To(BeFalse())
 			Expect(dbInstance.DescribeCalled).To(BeTrue())
 			Expect(dbInstance.DescribeID).To(Equal(dbInstanceIdentifier))
@@ -1857,13 +1867,13 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when Parameters are not valid", func() {
 			BeforeEach(func() {
-				bindDetails.Parameters = map[string]interface{}{"dbname": true}
+				bindDetails.RawParameters = []byte(`{"dbname": true}`)
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("'dbname' expected type 'string', got unconvertible type 'bool'"))
+				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal bool into Go value of type string"))
 			})
 
 			Context("and user bind parameters are not allowed", func() {
@@ -1872,7 +1882,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("does not return an error", func() {
-					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
@@ -1884,7 +1894,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service 'unknown' not found"))
 			})
@@ -1896,7 +1906,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(brokerapi.ErrInstanceNotBindable))
 			})
@@ -1908,7 +1918,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
 			})
@@ -1920,7 +1930,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
@@ -1931,7 +1941,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 				})
@@ -1944,7 +1954,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("does not describe the DB Instance", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(dbInstance.DescribeCalled).To(BeFalse())
 			})
@@ -1955,7 +1965,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(Equal("operation failed"))
 				})
@@ -1966,7 +1976,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("returns the proper error", func() {
-						_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+						_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 						Expect(err).To(HaveOccurred())
 						Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 					})
@@ -1980,7 +1990,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Engine 'unknown' not supported"))
 			})
@@ -1992,7 +2002,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to open sqlEngine"))
 			})
@@ -2000,18 +2010,18 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when DBNname Parameter is set", func() {
 			BeforeEach(func() {
-				bindDetails.Parameters = map[string]interface{}{"dbname": "my-test-db"}
+				bindDetails.RawParameters = []byte(`{"dbname": "my-test-db"}`)
 			})
 
 			It("returns the proper response", func() {
-				bindingResponse, _ := rdsBroker.Bind(instanceID, bindingID, bindDetails)
-				credentials := bindingResponse.Credentials.(*brokerapi.CredentialsHash)
+				bindingResponse, _ := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
+				credentials := bindingResponse.Credentials.(*CredentialsHash)
 				Expect(bindingResponse.SyslogDrainURL).To(BeEmpty())
 				Expect(credentials.Name).To(Equal("my-test-db"))
 			})
 
 			It("creates the DB with the proper name", func() {
-				rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(sqlEngine.CreateDBCalled).To(BeTrue())
 				Expect(sqlEngine.CreateDBDBName).To(Equal("my-test-db"))
 				Expect(sqlEngine.GrantPrivilegesDBName).To(Equal("my-test-db"))
@@ -2023,7 +2033,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+					_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(Equal("Failed to create sqlEngine"))
 					Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2037,7 +2047,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to create user"))
 				Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2050,7 +2060,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.Bind(instanceID, bindingID, bindDetails)
+				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to grant privileges"))
 				Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2060,11 +2070,11 @@ var _ = Describe("RDS Broker", func() {
 
 	var _ = Describe("Unbind", func() {
 		var (
-			unbindDetails brokerapi.UnbindDetails
+			UnbindDetails brokerapi.UnbindDetails
 		)
 
 		BeforeEach(func() {
-			unbindDetails = brokerapi.UnbindDetails{
+			UnbindDetails = brokerapi.UnbindDetails{
 				ServiceID: "Service-1",
 				PlanID:    "Plan-1",
 			}
@@ -2087,7 +2097,7 @@ var _ = Describe("RDS Broker", func() {
 		})
 
 		It("makes the proper calls", func() {
-			err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+			err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 			Expect(dbCluster.DescribeCalled).To(BeFalse())
 			Expect(dbInstance.DescribeCalled).To(BeTrue())
 			Expect(dbInstance.DescribeID).To(Equal(dbInstanceIdentifier))
@@ -2110,11 +2120,11 @@ var _ = Describe("RDS Broker", func() {
 
 		Context("when Service Plan is not found", func() {
 			BeforeEach(func() {
-				unbindDetails.PlanID = "unknown"
+				UnbindDetails.PlanID = "unknown"
 			})
 
 			It("returns the proper error", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Service Plan 'unknown' not found"))
 			})
@@ -2126,7 +2136,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
@@ -2137,7 +2147,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 				})
@@ -2150,7 +2160,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("does not describe the DB Instance", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(dbInstance.DescribeCalled).To(BeFalse())
 			})
@@ -2161,7 +2171,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(Equal("operation failed"))
 				})
@@ -2172,7 +2182,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("returns the proper error", func() {
-						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+						err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 						Expect(err).To(HaveOccurred())
 						Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 					})
@@ -2186,7 +2196,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("SQL Engine 'unknown' not supported"))
 			})
@@ -2198,7 +2208,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to open sqlEngine"))
 			})
@@ -2210,7 +2220,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to get privileges"))
 				Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2223,7 +2233,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("makes the proper calls", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(sqlEngine.RevokePrivilegesCalled).To(BeTrue())
 				Expect(sqlEngine.RevokePrivilegesDBName).To(Equal("test-db"))
 				Expect(sqlEngine.RevokePrivilegesUsername).To(Equal(dbUsername))
@@ -2238,7 +2248,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(Equal("Failed to revoke privileges"))
 					Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2251,7 +2261,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("makes the proper calls", func() {
-					err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+					err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 					Expect(sqlEngine.RevokePrivilegesCalled).To(BeTrue())
 					Expect(sqlEngine.RevokePrivilegesDBName).To(Equal("another-test-db"))
 					Expect(sqlEngine.RevokePrivilegesUsername).To(Equal(dbUsername))
@@ -2267,7 +2277,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("returns the proper error", func() {
-						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+						err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 						Expect(err).To(HaveOccurred())
 						Expect(err.Error()).To(Equal("Failed to drop db"))
 						Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2280,7 +2290,7 @@ var _ = Describe("RDS Broker", func() {
 					})
 
 					It("makes the proper calls", func() {
-						err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+						err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 						Expect(sqlEngine.RevokePrivilegesCalled).To(BeTrue())
 						Expect(sqlEngine.RevokePrivilegesDBName).To(Equal("another-test-db"))
 						Expect(sqlEngine.RevokePrivilegesUsername).To(Equal(dbUsername))
@@ -2298,7 +2308,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				err := rdsBroker.Unbind(instanceID, bindingID, unbindDetails)
+				err := rdsBroker.Unbind(context, instanceID, bindingID, UnbindDetails)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Failed to delete user"))
 				Expect(sqlEngine.CloseCalled).To(BeTrue())
@@ -2309,8 +2319,8 @@ var _ = Describe("RDS Broker", func() {
 	var _ = Describe("LastOperation", func() {
 		var (
 			dbInstanceStatus            string
-			lastOperationState          string
-			properLastOperationResponse brokerapi.LastOperationResponse
+			lastOperationState          brokerapi.LastOperationState
+			properLastOperationResponse brokerapi.LastOperation
 		)
 
 		JustBeforeEach(func() {
@@ -2324,7 +2334,7 @@ var _ = Describe("RDS Broker", func() {
 				Status:         dbInstanceStatus,
 			}
 
-			properLastOperationResponse = brokerapi.LastOperationResponse{
+			properLastOperationResponse = brokerapi.LastOperation{
 				State:       lastOperationState,
 				Description: "DB Instance '" + dbInstanceIdentifier + "' status is '" + dbInstanceStatus + "'",
 			}
@@ -2336,7 +2346,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("returns the proper error", func() {
-				_, err := rdsBroker.LastOperation(instanceID)
+				_, err := rdsBroker.LastOperation(context, instanceID, "")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("operation failed"))
 			})
@@ -2347,7 +2357,7 @@ var _ = Describe("RDS Broker", func() {
 				})
 
 				It("returns the proper error", func() {
-					_, err := rdsBroker.LastOperation(instanceID)
+					_, err := rdsBroker.LastOperation(context, instanceID, "")
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(brokerapi.ErrInstanceDoesNotExist))
 				})
@@ -2357,11 +2367,11 @@ var _ = Describe("RDS Broker", func() {
 		Context("when last operation is still in progress", func() {
 			BeforeEach(func() {
 				dbInstanceStatus = "creating"
-				lastOperationState = brokerapi.LastOperationInProgress
+				lastOperationState = brokerapi.InProgress
 			})
 
 			It("returns the proper LastOperationResponse", func() {
-				lastOperationResponse, err := rdsBroker.LastOperation(instanceID)
+				lastOperationResponse, err := rdsBroker.LastOperation(context, instanceID, "")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(lastOperationResponse).To(Equal(properLastOperationResponse))
 			})
@@ -2370,11 +2380,11 @@ var _ = Describe("RDS Broker", func() {
 		Context("when last operation failed", func() {
 			BeforeEach(func() {
 				dbInstanceStatus = "failed"
-				lastOperationState = brokerapi.LastOperationFailed
+				lastOperationState = brokerapi.Failed
 			})
 
 			It("returns the proper LastOperationResponse", func() {
-				lastOperationResponse, err := rdsBroker.LastOperation(instanceID)
+				lastOperationResponse, err := rdsBroker.LastOperation(context, instanceID, "")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(lastOperationResponse).To(Equal(properLastOperationResponse))
 			})
@@ -2383,11 +2393,11 @@ var _ = Describe("RDS Broker", func() {
 		Context("when last operation succeeded", func() {
 			BeforeEach(func() {
 				dbInstanceStatus = "available"
-				lastOperationState = brokerapi.LastOperationSucceeded
+				lastOperationState = brokerapi.Succeeded
 			})
 
 			It("returns the proper LastOperationResponse", func() {
-				lastOperationResponse, err := rdsBroker.LastOperation(instanceID)
+				lastOperationResponse, err := rdsBroker.LastOperation(context, instanceID, "")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(lastOperationResponse).To(Equal(properLastOperationResponse))
 			})
@@ -2396,14 +2406,14 @@ var _ = Describe("RDS Broker", func() {
 				JustBeforeEach(func() {
 					dbInstance.DescribeDBInstanceDetails.PendingModifications = true
 
-					properLastOperationResponse = brokerapi.LastOperationResponse{
-						State:       brokerapi.LastOperationInProgress,
+					properLastOperationResponse = brokerapi.LastOperation{
+						State:       brokerapi.InProgress,
 						Description: "DB Instance '" + dbInstanceIdentifier + "' has pending modifications",
 					}
 				})
 
 				It("returns the proper LastOperationResponse", func() {
-					lastOperationResponse, err := rdsBroker.LastOperation(instanceID)
+					lastOperationResponse, err := rdsBroker.LastOperation(context, instanceID, "")
 					Expect(err).ToNot(HaveOccurred())
 					Expect(lastOperationResponse).To(Equal(properLastOperationResponse))
 				})

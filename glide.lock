@@ -1,0 +1,95 @@
+hash: 94fb32e6b21025d41ced832d45a7c89368ed87629b3b111babe405e14959cd3c
+updated: 2016-12-01T11:29:05.849759627+01:00
+imports:
+- name: code.cloudfoundry.org/lager
+  version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
+  subpackages:
+  - lagertest
+- name: github.com/aws/aws-sdk-go
+  version: e7849863adae563900a3474ee6feed65471ab070
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - private/endpoints
+  - private/protocol
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/xml/xmlutil
+  - private/waiter
+  - service/iam
+  - service/rds
+  - service/sts
+- name: github.com/frodenas/brokerapi
+  version: ac1ed76a08954bbd7b40a8794738539404a84313
+  subpackages:
+  - auth
+- name: github.com/go-ini/ini
+  version: 2ba15ac2dc9cdf88c110ec2dc0ced7fa45f5678c
+- name: github.com/go-sql-driver/mysql
+  version: a732e14c62dde3285440047bba97581bc472ae18
+- name: github.com/gorilla/context
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/gorilla/mux
+  version: cf79e51a62d8219d52060dfc1b4e810414ba2d15
+- name: github.com/jmespath/go-jmespath
+  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
+- name: github.com/joek/brokerapi
+  version: 92549497799b8f345f80abb726abd5a0e3fcdae0
+- name: github.com/lib/pq
+  version: 4a82388ebc5138c8289fe9bc602cb0b3e32cd617
+  subpackages:
+  - oid
+- name: github.com/onsi/ginkgo
+  version: 462326b1628e124b23f42e87a8f2750e3c4e2d24
+  subpackages:
+  - config
+  - internal/codelocation
+  - internal/containernode
+  - internal/failer
+  - internal/leafnodes
+  - internal/remote
+  - internal/spec
+  - internal/specrunner
+  - internal/suite
+  - internal/testingtproxy
+  - internal/writer
+  - reporters
+  - reporters/stenographer
+  - types
+- name: github.com/onsi/gomega
+  version: a78ae492d53aad5a7a232d0d0462c14c400e3ee7
+  subpackages:
+  - format
+  - gbytes
+  - internal/assertion
+  - internal/asyncassertion
+  - internal/testingtsupport
+  - matchers
+  - matchers/support/goraph/bipartitegraph
+  - matchers/support/goraph/edge
+  - matchers/support/goraph/node
+  - matchers/support/goraph/util
+  - types
+- name: github.com/pivotal-cf/brokerapi
+  version: 3dcb3e88faf1f81359679aa1b931df45d30f01de
+  subpackages:
+  - auth
+- name: github.com/pivotal-golang/lager
+  version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
+  subpackages:
+  - lagertest
+testImports: []

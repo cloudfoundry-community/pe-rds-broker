@@ -3,6 +3,8 @@ package rdsbroker
 import (
 	"fmt"
 	"strings"
+
+	"github.com/joek/brokerapi"
 )
 
 const minAllocatedStorage = 5
@@ -13,51 +15,25 @@ type Catalog struct {
 }
 
 type Service struct {
-	ID              string           `json:"id"`
-	Name            string           `json:"name"`
-	Description     string           `json:"description"`
-	Bindable        bool             `json:"bindable,omitempty"`
-	Tags            []string         `json:"tags,omitempty"`
-	Metadata        *ServiceMetadata `json:"metadata,omitempty"`
-	Requires        []string         `json:"requires,omitempty"`
-	PlanUpdateable  bool             `json:"plan_updateable"`
-	Plans           []ServicePlan    `json:"plans,omitempty"`
-	DashboardClient *DashboardClient `json:"dashboard_client,omitempty"`
-}
-
-type ServiceMetadata struct {
-	DisplayName         string `json:"displayName,omitempty"`
-	ImageURL            string `json:"imageUrl,omitempty"`
-	LongDescription     string `json:"longDescription,omitempty"`
-	ProviderDisplayName string `json:"providerDisplayName,omitempty"`
-	DocumentationURL    string `json:"documentationUrl,omitempty"`
-	SupportURL          string `json:"supportUrl,omitempty"`
+	ID              string                            `json:"id"`
+	Name            string                            `json:"name"`
+	Description     string                            `json:"description"`
+	Bindable        bool                              `json:"bindable,omitempty"`
+	Tags            []string                          `json:"tags,omitempty"`
+	Metadata        *brokerapi.ServiceMetadata        `json:"metadata,omitempty"`
+	Requires        []brokerapi.RequiredPermission    `json:"requires,omitempty"`
+	PlanUpdateable  bool                              `json:"plan_updateable"`
+	Plans           []ServicePlan                     `json:"plans,omitempty"`
+	DashboardClient *brokerapi.ServiceDashboardClient `json:"dashboard_client,omitempty"`
 }
 
 type ServicePlan struct {
-	ID            string               `json:"id"`
-	Name          string               `json:"name"`
-	Description   string               `json:"description"`
-	Metadata      *ServicePlanMetadata `json:"metadata,omitempty"`
-	Free          bool                 `json:"free"`
-	RDSProperties RDSProperties        `json:"rds_properties,omitempty"`
-}
-
-type ServicePlanMetadata struct {
-	Bullets     []string `json:"bullets,omitempty"`
-	Costs       []Cost   `json:"costs,omitempty"`
-	DisplayName string   `json:"displayName,omitempty"`
-}
-
-type DashboardClient struct {
-	ID          string `json:"id,omitempty"`
-	Secret      string `json:"secret,omitempty"`
-	RedirectURI string `json:"redirect_uri,omitempty"`
-}
-
-type Cost struct {
-	Amount map[string]interface{} `json:"amount,omitempty"`
-	Unit   string                 `json:"unit,omitempty"`
+	ID            string                         `json:"id"`
+	Name          string                         `json:"name"`
+	Description   string                         `json:"description"`
+	Metadata      *brokerapi.ServicePlanMetadata `json:"metadata,omitempty"`
+	Free          *bool                          `json:"free"`
+	RDSProperties RDSProperties                  `json:"rds_properties,omitempty"`
 }
 
 type RDSProperties struct {

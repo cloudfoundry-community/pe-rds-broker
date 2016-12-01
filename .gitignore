@@ -3,3 +3,5 @@ pkg
 gobin/*
 
 *\.test
+config.json
+manifest.yml
