@@ -9,7 +9,6 @@ import:
   - aws/session
   - service/iam
   - service/rds
-- package: github.com/frodenas/brokerapi
 - package: github.com/go-sql-driver/mysql
   version: ^1.3.0
 - package: github.com/lib/pq

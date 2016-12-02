@@ -1,5 +1,5 @@
-hash: 417f4fa940cb27f00d557589dbc46b47baa2ca9dde53f78068696ba704d747b6
-updated: 2016-12-02T09:30:04.510257884+01:00
+hash: 119b6368d4707cb2543b6bd0f185a45a11fc659f7e6d797c48a7f7fa5d44f178
+updated: 2016-12-02T09:33:40.34270475+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
@@ -33,8 +33,6 @@ imports:
   - service/iam
   - service/rds
   - service/sts
-- name: github.com/frodenas/brokerapi
-  version: ac1ed76a08954bbd7b40a8794738539404a84313
 - name: github.com/go-ini/ini
   version: 2ba15ac2dc9cdf88c110ec2dc0ced7fa45f5678c
 - name: github.com/go-sql-driver/mysql
