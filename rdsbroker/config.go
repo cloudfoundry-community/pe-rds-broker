@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Config representation
 type Config struct {
 	Region                       string  `json:"region"`
 	DBPrefix                     string  `json:"db_prefix"`
@@ -14,6 +15,7 @@ type Config struct {
 	Catalog                      Catalog `json:"catalog"`
 }
 
+// Validate config
 func (c Config) Validate() error {
 	if c.Region == "" {
 		return errors.New("Must provide a non-empty Region")

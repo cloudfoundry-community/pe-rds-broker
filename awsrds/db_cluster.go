@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// DBCluster generic DBCluster interface
 type DBCluster interface {
 	Describe(ID string) (DBClusterDetails, error)
 	Create(ID string, dbClusterDetails DBClusterDetails) error
@@ -11,6 +12,7 @@ type DBCluster interface {
 	Delete(ID string, skipFinalSnapshot bool) error
 }
 
+// DBClusterDetails struct holding information about the cluster
 type DBClusterDetails struct {
 	Identifier                  string
 	Status                      string
@@ -35,5 +37,6 @@ type DBClusterDetails struct {
 }
 
 var (
+	// ErrDBClusterDoesNotExist default error for not existing cluster
 	ErrDBClusterDoesNotExist = errors.New("rds db cluster does not exist")
 )

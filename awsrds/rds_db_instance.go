@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 )
 
+// RDSDBInstance specific DBInstance Implementation for RDS
 type RDSDBInstance struct {
 	region string
 	iamsvc *iam.IAM
@@ -20,6 +21,7 @@ type RDSDBInstance struct {
 	logger lager.Logger
 }
 
+// NewRDSDBInstance factory for RDSDBInstance
 func NewRDSDBInstance(
 	region string,
 	iamsvc *iam.IAM,
@@ -34,6 +36,7 @@ func NewRDSDBInstance(
 	}
 }
 
+// Describe RDSDBInstance
 func (r *RDSDBInstance) Describe(ID string) (DBInstanceDetails, error) {
 	dbInstanceDetails := DBInstanceDetails{}
 
@@ -67,6 +70,7 @@ func (r *RDSDBInstance) Describe(ID string) (DBInstanceDetails, error) {
 	return dbInstanceDetails, ErrDBInstanceDoesNotExist
 }
 
+// Create RDSDBInstance
 func (r *RDSDBInstance) Create(ID string, dbInstanceDetails DBInstanceDetails) error {
 	createDBInstanceInput := r.buildCreateDBInstanceInput(ID, dbInstanceDetails)
 	r.logger.Debug("create-db-instance", lager.Data{"input": createDBInstanceInput})
@@ -89,6 +93,7 @@ func (r *RDSDBInstance) Create(ID string, dbInstanceDetails DBInstanceDetails) e
 	return nil
 }
 
+// Modify RDSDBInstance on AWS
 func (r *RDSDBInstance) Modify(ID string, dbInstanceDetails DBInstanceDetails, applyImmediately bool) error {
 	oldDBInstanceDetails, err := r.Describe(ID)
 	if err != nil {
@@ -131,6 +136,7 @@ func (r *RDSDBInstance) Modify(ID string, dbInstanceDetails DBInstanceDetails, a
 	return nil
 }
 
+// Delete RDSDBInstance on AWS.
 func (r *RDSDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	deleteDBInstanceInput := r.buildDeleteDBInstanceInput(ID, skipFinalSnapshot)
 	r.logger.Debug("delete-db-instance", lager.Data{"input": deleteDBInstanceInput})

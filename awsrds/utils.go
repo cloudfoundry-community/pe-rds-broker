@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 )
 
+// UserAccount Get IAM AWS user
 func UserAccount(iamsvc *iam.IAM) (string, error) {
 	getUserInput := &iam.GetUserInput{}
 	getUserOutput, err := iamsvc.GetUser(getUserInput)
@@ -23,6 +24,7 @@ func UserAccount(iamsvc *iam.IAM) (string, error) {
 	return userAccount[4], nil
 }
 
+// BuilRDSTags for RDS Objects
 func BuilRDSTags(tags map[string]string) []*rds.Tag {
 	var rdsTags []*rds.Tag
 
@@ -33,6 +35,7 @@ func BuilRDSTags(tags map[string]string) []*rds.Tag {
 	return rdsTags
 }
 
+// AddTagsToResource  for RDS Objects
 func AddTagsToResource(resourceARN string, tags []*rds.Tag, rdssvc *rds.RDS, logger lager.Logger) error {
 	addTagsToResourceInput := &rds.AddTagsToResourceInput{
 		ResourceName: aws.String(resourceARN),

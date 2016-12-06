@@ -10,10 +10,12 @@ import (
 const minAllocatedStorage = 5
 const maxAllocatedStorage = 6144
 
+// Catalog of services
 type Catalog struct {
 	Services []Service `json:"services,omitempty"`
 }
 
+// Service representation
 type Service struct {
 	ID              string                            `json:"id"`
 	Name            string                            `json:"name"`
@@ -27,6 +29,7 @@ type Service struct {
 	DashboardClient *brokerapi.ServiceDashboardClient `json:"dashboard_client,omitempty"`
 }
 
+// ServicePlan representation
 type ServicePlan struct {
 	ID            string                         `json:"id"`
 	Name          string                         `json:"name"`
@@ -36,6 +39,7 @@ type ServicePlan struct {
 	RDSProperties RDSProperties                  `json:"rds_properties,omitempty"`
 }
 
+// RDSProperties representation
 type RDSProperties struct {
 	DBInstanceClass             string   `json:"db_instance_class"`
 	Engine                      string   `json:"engine"`
@@ -65,6 +69,7 @@ type RDSProperties struct {
 	SkipFinalSnapshot           bool     `json:"skip_final_snapshot,omitempty"`
 }
 
+// Validate catalog data
 func (c Catalog) Validate() error {
 	for _, service := range c.Services {
 		if err := service.Validate(); err != nil {
@@ -75,6 +80,7 @@ func (c Catalog) Validate() error {
 	return nil
 }
 
+// FindService in catalog
 func (c Catalog) FindService(serviceID string) (service Service, found bool) {
 	for _, service := range c.Services {
 		if service.ID == serviceID {
@@ -85,6 +91,7 @@ func (c Catalog) FindService(serviceID string) (service Service, found bool) {
 	return service, false
 }
 
+// FindServicePlan in catalog
 func (c Catalog) FindServicePlan(planID string) (plan ServicePlan, found bool) {
 	for _, service := range c.Services {
 		for _, plan := range service.Plans {
@@ -97,6 +104,7 @@ func (c Catalog) FindServicePlan(planID string) (plan ServicePlan, found bool) {
 	return plan, false
 }
 
+// Validate service configuration
 func (s Service) Validate() error {
 	if s.ID == "" {
 		return fmt.Errorf("Must provide a non-empty ID (%+v)", s)
@@ -119,6 +127,7 @@ func (s Service) Validate() error {
 	return nil
 }
 
+// Validate ServicePlan configuration
 func (sp ServicePlan) Validate() error {
 	if sp.ID == "" {
 		return fmt.Errorf("Must provide a non-empty ID (%+v)", sp)
@@ -139,6 +148,7 @@ func (sp ServicePlan) Validate() error {
 	return nil
 }
 
+// Validate RDSProperties configuration.
 func (rp RDSProperties) Validate() error {
 	if rp.DBInstanceClass == "" {
 		return fmt.Errorf("Must provide a non-empty DBInstanceClass (%+v)", rp)

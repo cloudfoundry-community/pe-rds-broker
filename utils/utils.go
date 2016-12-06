@@ -11,6 +11,7 @@ import (
 var alpha = []byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 var numer = []byte("0123456789")
 
+// RandomAlphaNum generate random alpha number with specific length
 func RandomAlphaNum(length int) string {
 	return randChar(1, alpha) + randChar(length-1, append(alpha, numer...))
 }
@@ -38,6 +39,7 @@ func randChar(length int, chars []byte) string {
 	}
 }
 
+// GetMD5B64 get base64 encoding of string
 func GetMD5B64(text string, length int) string {
 	hasher := md5.New()
 	md5 := hasher.Sum([]byte(text))

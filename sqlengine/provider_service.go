@@ -7,14 +7,17 @@ import (
 	"code.cloudfoundry.org/lager"
 )
 
+// ProviderService object
 type ProviderService struct {
 	logger lager.Logger
 }
 
+// NewProviderService create new ProviderService
 func NewProviderService(logger lager.Logger) *ProviderService {
 	return &ProviderService{logger: logger}
 }
 
+// GetSQLEngine of ProviderService
 func (p *ProviderService) GetSQLEngine(engine string) (SQLEngine, error) {
 	switch strings.ToLower(engine) {
 	case "aurora", "mariadb", "mysql":

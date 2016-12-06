@@ -1,5 +1,6 @@
 package sqlengine
 
+// SQLEngine interface
 type SQLEngine interface {
 	Open(address string, port int64, dbname string, username string, password string) error
 	Close()

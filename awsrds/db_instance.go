@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// DBInstance  generic DBInstace interface
 type DBInstance interface {
 	Describe(ID string) (DBInstanceDetails, error)
 	Create(ID string, dbInstanceDetails DBInstanceDetails) error
@@ -11,6 +12,7 @@ type DBInstance interface {
 	Delete(ID string, skipFinalSnapshot bool) error
 }
 
+// DBInstanceDetails struct to store information about instance. See AWS RDBS Documentation for details.
 type DBInstanceDetails struct {
 	Identifier                 string
 	Status                     string
@@ -48,5 +50,6 @@ type DBInstanceDetails struct {
 }
 
 var (
+	// ErrDBInstanceDoesNotExist default error for not existing instances
 	ErrDBInstanceDoesNotExist = errors.New("rds db instance does not exist")
 )

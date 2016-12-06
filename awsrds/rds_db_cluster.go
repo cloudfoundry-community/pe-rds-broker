@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 )
 
+// RDSDBCluster specific DBCluster implementation for RDS
 type RDSDBCluster struct {
 	region string
 	iamsvc *iam.IAM
@@ -19,6 +20,7 @@ type RDSDBCluster struct {
 	logger lager.Logger
 }
 
+// NewRDSDBCluster is creating new RDSDBCluster struct
 func NewRDSDBCluster(
 	region string,
 	iamsvc *iam.IAM,
@@ -33,6 +35,7 @@ func NewRDSDBCluster(
 	}
 }
 
+// Describe returning DBClusterDetails
 func (r *RDSDBCluster) Describe(ID string) (DBClusterDetails, error) {
 	dbClusterDetails := DBClusterDetails{}
 
@@ -66,6 +69,7 @@ func (r *RDSDBCluster) Describe(ID string) (DBClusterDetails, error) {
 	return dbClusterDetails, ErrDBClusterDoesNotExist
 }
 
+// Create new RDSDBCluster on AWS
 func (r *RDSDBCluster) Create(ID string, dbClusterDetails DBClusterDetails) error {
 	createDBClusterInput := r.buildCreateDBClusterInput(ID, dbClusterDetails)
 	r.logger.Debug("create-db-cluster", lager.Data{"input": createDBClusterInput})
@@ -83,6 +87,7 @@ func (r *RDSDBCluster) Create(ID string, dbClusterDetails DBClusterDetails) erro
 	return nil
 }
 
+// Modify RDSDBCluster on AWS
 func (r *RDSDBCluster) Modify(ID string, dbClusterDetails DBClusterDetails, applyImmediately bool) error {
 	modifyDBClusterInput := r.buildModifyDBClusterInput(ID, dbClusterDetails, applyImmediately)
 	r.logger.Debug("modify-db-cluster", lager.Data{"input": modifyDBClusterInput})
@@ -116,6 +121,7 @@ func (r *RDSDBCluster) Modify(ID string, dbClusterDetails DBClusterDetails, appl
 	return nil
 }
 
+// Delete RDSDBCluster on AWS
 func (r *RDSDBCluster) Delete(ID string, skipFinalSnapshot bool) error {
 	deleteDBClusterInput := r.buildDeleteDBClusterInput(ID, skipFinalSnapshot)
 	r.logger.Debug("delete-db-cluster", lager.Data{"input": deleteDBClusterInput})

@@ -1,5 +1,6 @@
 package rdsbroker
 
+// ProvisionParameters for RDS DB
 type ProvisionParameters struct {
 	BackupRetentionPeriod      int64  `json:"backup_retention_period"`
 	CharacterSetName           string `json:"character_set_name"`
@@ -8,6 +9,7 @@ type ProvisionParameters struct {
 	PreferredMaintenanceWindow string `json:"preferred_maintenance_window"`
 }
 
+// UpdateParameters for RDS DB
 type UpdateParameters struct {
 	ApplyImmediately           bool   `json:"apply_immediately"`
 	BackupRetentionPeriod      int64  `json:"backup_retention_period"`
@@ -15,10 +17,12 @@ type UpdateParameters struct {
 	PreferredMaintenanceWindow string `json:"preferred_maintenance_window"`
 }
 
+// BindParameters for RDS DB
 type BindParameters struct {
 	DBName string `json:"dbname"`
 }
 
+// CredentialsHash for RDS DB
 type CredentialsHash struct {
 	Host     string `json:"host,omitempty"`
 	Port     int64  `json:"port,omitempty"`
