@@ -1,5 +1,7 @@
 package rdsbroker_test
 
+//atx:vet:exclude
+
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
