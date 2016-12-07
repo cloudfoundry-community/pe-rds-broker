@@ -977,6 +977,12 @@ var _ = Describe("RDS Broker", func() {
 			asyncAllowed = true
 		})
 
+		It("Deals with empty Parameters", func() {
+			updateDetails.RawParameters = []byte{}
+			_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
 		It("returns the proper response", func() {
 			resp, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 			Expect(resp.IsAsync).To(BeTrue())
@@ -1831,6 +1837,12 @@ var _ = Describe("RDS Broker", func() {
 				DatabaseName:   "test-db",
 				MasterUsername: "master-username",
 			}
+		})
+
+		It("Deals with empty Parameters", func() {
+			bindDetails.RawParameters = []byte{}
+			_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("returns the proper response", func() {
