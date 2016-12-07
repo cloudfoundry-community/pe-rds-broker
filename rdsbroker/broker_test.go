@@ -216,6 +216,12 @@ var _ = Describe("RDS Broker", func() {
 			}
 		})
 
+		It("Deals with empty Parameters", func() {
+			provisionDetails.RawParameters = []byte{}
+			_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
 		It("returns the proper response", func() {
 			provisioningResponse, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 			Expect(provisioningResponse).To(Equal(properProvisioningResponse))
