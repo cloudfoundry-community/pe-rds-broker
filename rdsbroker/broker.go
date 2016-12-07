@@ -122,6 +122,11 @@ func (b *RDSBroker) Provision(context context.Context, instanceID string, detail
 	provisionParameters := ProvisionParameters{}
 	if b.allowUserProvisionParameters {
 		if err := json.Unmarshal(details.RawParameters, &provisionParameters); err != nil {
+			b.logger.Debug("unmarshal failed", lager.Data{
+				instanceIDLogKey:   instanceID,
+				detailsLogKey:      details,
+				asyncAllowedLogKey: asyncAllowed,
+			})
 			return provisioningResponse, err
 		}
 	}
