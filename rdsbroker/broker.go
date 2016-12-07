@@ -169,7 +169,7 @@ func (b *RDSBroker) Update(context context.Context, instanceID string, details b
 	}
 
 	updateParameters := UpdateParameters{}
-	if b.allowUserUpdateParameters {
+	if b.allowUserUpdateParameters && len(details.RawParameters) > 0 {
 		if err := json.Unmarshal(details.RawParameters, &updateParameters); err != nil {
 			return provisioningResponse, err
 		}
@@ -259,7 +259,7 @@ func (b *RDSBroker) Bind(context context.Context, instanceID, bindingID string, 
 	bindingResponse := brokerapi.Binding{}
 
 	bindParameters := BindParameters{}
-	if b.allowUserBindParameters {
+	if b.allowUserBindParameters && len(details.RawParameters) > 0 {
 		if err := json.Unmarshal(details.RawParameters, &bindParameters); err != nil {
 			return bindingResponse, err
 		}
