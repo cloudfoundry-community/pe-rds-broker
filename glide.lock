@@ -1,12 +1,12 @@
 hash: 119b6368d4707cb2543b6bd0f185a45a11fc659f7e6d797c48a7f7fa5d44f178
-updated: 2016-12-02T09:33:40.34270475+01:00
+updated: 2016-12-08T15:39:19.958143761+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
   subpackages:
   - lagertest
 - name: github.com/aws/aws-sdk-go
-  version: 918c42e2bcdb277aa821401c906e88254501bdf4
+  version: e292ea1f7e3108c69e1406436a4103b861e03c47
   subpackages:
   - aws
   - aws/awserr
@@ -20,10 +20,10 @@ imports:
   - aws/credentials/stscreds
   - aws/defaults
   - aws/ec2metadata
+  - aws/endpoints
   - aws/request
   - aws/session
   - aws/signer/v4
-  - private/endpoints
   - private/protocol
   - private/protocol/query
   - private/protocol/query/queryutil

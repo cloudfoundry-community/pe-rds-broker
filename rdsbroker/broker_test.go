@@ -1695,7 +1695,7 @@ var _ = Describe("RDS Broker", func() {
 		It("returns the proper response", func() {
 			resp, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
 			Expect(resp.IsAsync).To(BeTrue())
-			Expect(resp.OperationData).To(Equal("Successfull deprovisinoed Instance"))
+			Expect(resp.OperationData).To(Equal("Successfull deprovisioned Instance"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 

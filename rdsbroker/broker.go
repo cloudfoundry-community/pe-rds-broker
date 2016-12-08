@@ -244,7 +244,7 @@ func (b *RDSBroker) Deprovision(context context.Context, instanceID string, deta
 		b.dbCluster.Delete(b.dbClusterIdentifier(instanceID), servicePlan.RDSProperties.SkipFinalSnapshot)
 	}
 
-	provisioningResponse.OperationData = "Successfull deprovisinoed Instance"
+	provisioningResponse.OperationData = "Successfull deprovisioned Instance"
 	return provisioningResponse, nil
 }
 
