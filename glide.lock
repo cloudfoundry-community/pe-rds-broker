@@ -1,12 +1,12 @@
 hash: 119b6368d4707cb2543b6bd0f185a45a11fc659f7e6d797c48a7f7fa5d44f178
-updated: 2016-12-08T15:39:19.958143761+01:00
+updated: 2016-12-09T10:07:51.642448655+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
   subpackages:
   - lagertest
 - name: github.com/aws/aws-sdk-go
-  version: e292ea1f7e3108c69e1406436a4103b861e03c47
+  version: 1355b456f6ba4a8453249e0dc7743f16ccac362d
   subpackages:
   - aws
   - aws/awserr
@@ -44,7 +44,7 @@ imports:
 - name: github.com/jmespath/go-jmespath
   version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/joek/brokerapi
-  version: 92549497799b8f345f80abb726abd5a0e3fcdae0
+  version: aa09bb9e0183ad1aad344b327be665fc54199740
 - name: github.com/lib/pq
   version: 4a82388ebc5138c8289fe9bc602cb0b3e32cd617
   subpackages:

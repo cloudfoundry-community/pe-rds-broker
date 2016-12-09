@@ -256,9 +256,7 @@ func (h serviceBrokerHandler) bind(w http.ResponseWriter, req *http.Request) {
 		switch err {
 		case ErrInstanceDoesNotExist:
 			logger.Error(instanceMissingErrorKey, err)
-			h.respond(w, http.StatusNotFound, ErrorResponse{
-				Description: err.Error(),
-			})
+			h.respond(w, http.StatusGone, EmptyResponse{})
 		case ErrBindingAlreadyExists:
 			logger.Error(bindingAlreadyExistsErrorKey, err)
 			h.respond(w, http.StatusConflict, ErrorResponse{
@@ -366,9 +364,7 @@ func (h serviceBrokerHandler) lastOperation(w http.ResponseWriter, req *http.Req
 		switch err {
 		case ErrInstanceDoesNotExist:
 			logger.Error(instanceMissingErrorKey, err)
-			h.respond(w, http.StatusNotFound, ErrorResponse{
-				Description: err.Error(),
-			})
+			h.respond(w, http.StatusGone, EmptyResponse{})
 		default:
 			logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{

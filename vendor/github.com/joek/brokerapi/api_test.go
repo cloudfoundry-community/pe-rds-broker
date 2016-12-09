@@ -1096,14 +1096,14 @@ var _ = Describe("Service Broker API", func() {
 					fakeServiceBroker.BindError = brokerapi.ErrInstanceDoesNotExist
 				})
 
-				It("returns a 404", func() {
+				It("returns a 410", func() {
 					response := makeBindingRequest(uniqueInstanceID(), uniqueBindingID(), details)
-					Expect(response.StatusCode).To(Equal(404))
+					Expect(response.StatusCode).To(Equal(410))
 				})
 
-				It("returns an error JSON object", func() {
+				It("returns an empty JSON object", func() {
 					response := makeBindingRequest(uniqueInstanceID(), uniqueBindingID(), details)
-					Expect(response.Body).To(MatchJSON(`{"description":"instance does not exist"}`))
+					Expect(response.Body).To(MatchJSON(`{}`))
 				})
 
 				It("logs an appropriate error", func() {
@@ -1308,7 +1308,7 @@ var _ = Describe("Service Broker API", func() {
 				Expect(response.Body).To(MatchJSON(fixture("last_operation_succeeded.json")))
 			})
 
-			It("should return a 404 and log in case the instance id is not found", func() {
+			It("should return a 410 and log in case the instance id is not found", func() {
 				fakeServiceBroker.LastOperationError = brokerapi.ErrInstanceDoesNotExist
 				instanceID := "non-existing"
 				response := makeLastOperationRequest(instanceID, "")
@@ -1316,8 +1316,8 @@ var _ = Describe("Service Broker API", func() {
 				Expect(lastLogLine().Message).To(ContainSubstring("lastOperation.instance-missing"))
 				Expect(lastLogLine().Data["error"]).To(ContainSubstring("instance does not exist"))
 
-				Expect(response.StatusCode).To(Equal(404))
-				Expect(response.Body).To(MatchJSON(`{"description": "instance does not exist"}`))
+				Expect(response.StatusCode).To(Equal(410))
+				Expect(response.Body).To(MatchJSON(`{}`))
 			})
 
 			It("should return an internal sever error for all other errors", func() {
