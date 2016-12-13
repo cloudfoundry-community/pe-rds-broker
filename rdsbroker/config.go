@@ -12,6 +12,7 @@ type Config struct {
 	AllowUserProvisionParameters bool    `json:"allow_user_provision_parameters"`
 	AllowUserUpdateParameters    bool    `json:"allow_user_update_parameters"`
 	AllowUserBindParameters      bool    `json:"allow_user_bind_parameters"`
+	MasterPasswordSalt           string  `json:"master_password_salt,omitempty"`
 	Catalog                      Catalog `json:"catalog"`
 }
 

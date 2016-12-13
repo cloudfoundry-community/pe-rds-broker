@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
@@ -39,9 +40,28 @@ func randChar(length int, chars []byte) string {
 	}
 }
 
-// GetMD5B64 get base64 encoding of string
-func GetMD5B64(text string, length int) string {
+// GetMD5B64 get base64 encoding of string add a salt as optional parameter
+func GetMD5B64(text string, length int, params ...string) string {
+	if len(params) > 0 {
+		text = saltText(text, params[0])
+	}
 	hasher := md5.New()
 	md5 := hasher.Sum([]byte(text))
 	return base64.StdEncoding.EncodeToString(md5)[0:int(math.Min(float64(length), float64(len(md5))))]
+}
+
+func saltText(text string, salt string) string {
+	var b bytes.Buffer
+	i := 0
+	for _, c := range text {
+		if i >= len(salt) {
+			i = 0
+		}
+
+		b.WriteByte(byte(c))
+		b.WriteByte(salt[i])
+		i++
+	}
+
+	return b.String()
 }

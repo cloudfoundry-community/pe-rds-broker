@@ -44,6 +44,7 @@ type RDSBroker struct {
 	allowUserProvisionParameters bool
 	allowUserUpdateParameters    bool
 	allowUserBindParameters      bool
+	masterPasswordSalt           string
 	catalog                      Catalog
 	dbInstance                   awsrds.DBInstance
 	dbCluster                    awsrds.DBCluster
@@ -60,10 +61,12 @@ func New(
 	logger lager.Logger,
 ) *RDSBroker {
 	return &RDSBroker{
-		dbPrefix:                     config.DBPrefix,
+		dbPrefix: config.DBPrefix,
+
 		allowUserProvisionParameters: config.AllowUserProvisionParameters,
 		allowUserUpdateParameters:    config.AllowUserUpdateParameters,
 		allowUserBindParameters:      config.AllowUserBindParameters,
+		masterPasswordSalt:           config.MasterPasswordSalt,
 		catalog:                      config.Catalog,
 		dbInstance:                   dbInstance,
 		dbCluster:                    dbCluster,
@@ -499,7 +502,11 @@ func (b *RDSBroker) masterUsername() string {
 	return utils.RandomAlphaNum(defaultUsernameLength)
 }
 
+// TODO: ATX-23
 func (b *RDSBroker) masterPassword(instanceID string) string {
+	if b.masterPasswordSalt != "" {
+		return utils.GetMD5B64(instanceID, defaultPasswordLength, b.masterPasswordSalt)
+	}
 	return utils.GetMD5B64(instanceID, defaultPasswordLength)
 }
 

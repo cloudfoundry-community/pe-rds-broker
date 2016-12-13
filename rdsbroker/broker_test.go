@@ -50,13 +50,15 @@ var _ = Describe("RDS Broker", func() {
 		planUpdateable               bool
 		skipFinalSnapshot            bool
 
-		instanceID           = "instance-id"
-		bindingID            = "binding-id"
-		dbInstanceIdentifier = "cf-instance-id"
-		dbClusterIdentifier  = "cf-instance-id"
-		dbName               = "cf_instance_id"
-		dbUsername           = "YmluZGluZy1pZNQd"
-		masterUserPassword   = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
+		instanceID                 = "instance-id"
+		bindingID                  = "binding-id"
+		dbInstanceIdentifier       = "cf-instance-id"
+		dbClusterIdentifier        = "cf-instance-id"
+		dbName                     = "cf_instance_id"
+		dbUsername                 = "YmluZGluZy1pZNQd"
+		masterUserPassword         = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
+		masterUserPasswordWithSalt = "aWFuV3M1dHphZG5HY0ZldS1ZaTJkVdQd"
+		masterUserSalt             = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
 	)
 
 	BeforeEach(func() {
@@ -246,6 +248,22 @@ var _ = Describe("RDS Broker", func() {
 			Expect(dbInstance.CreateDBInstanceDetails.Tags["Organization ID"]).To(Equal("organization-id"))
 			Expect(dbInstance.CreateDBInstanceDetails.Tags["Space ID"]).To(Equal("space-id"))
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("when a password salt is set", func() {
+
+			var rdsBroker *RDSBroker
+
+			BeforeEach(func() {
+				config.MasterPasswordSalt = masterUserSalt
+				rdsBroker = New(config, dbInstance, dbCluster, sqlProvider, logger)
+			})
+
+			It("uses right passwords", func() {
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
+				Expect(dbInstance.CreateDBInstanceDetails.MasterUserPassword).To(Equal(masterUserPasswordWithSalt))
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 
 		Context("when has AllocatedStorage", func() {

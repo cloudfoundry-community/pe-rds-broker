@@ -19,4 +19,9 @@ var _ = Describe("GetMD5B64", func() {
 		md5b64 := GetMD5B64("ce71b484-d542-40f7-9dd4-5526e38c81ba", 32)
 		Expect(md5b64).To(Equal("Y2U3MWI0ODQtZDU0Mi00MGY3LTlkZDQt"))
 	})
+
+	It("returns the Base64 of a string MD5 including random numbers", func() {
+		md5b64 := GetMD5B64("ce71b484-d542-40f7-9dd4-5526e38c81ba", 32, "Y2U3MWI0ODQtZDU0Mi00MGY3LTlkZDQt")
+		Expect(md5b64).To(Equal("Y1llMjdVMTNiTTRXOEk0MC1PZEQ1UTR0"))
+	})
 })
