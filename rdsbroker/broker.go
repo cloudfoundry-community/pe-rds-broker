@@ -502,7 +502,6 @@ func (b *RDSBroker) masterUsername() string {
 	return utils.RandomAlphaNum(defaultUsernameLength)
 }
 
-// TODO: ATX-23
 func (b *RDSBroker) masterPassword(instanceID string) string {
 	if b.masterPasswordSalt != "" {
 		return utils.GetMD5B64(instanceID, defaultPasswordLength, b.masterPasswordSalt)
