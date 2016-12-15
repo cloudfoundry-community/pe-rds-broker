@@ -1,12 +1,12 @@
-hash: 35d5356b511c0a143115f35458178204a3ae4d44cde4ee7b8d2018f6a24f79d8
-updated: 2016-12-13T10:16:19.50855255+01:00
+hash: e6c2901ed6cf30a40d98812da2f8c1e60234a47a9cb32afa8f02c0e3b28ca4a4
+updated: 2016-12-15T17:17:44.875493259+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
   subpackages:
   - lagertest
 - name: github.com/aws/aws-sdk-go
-  version: 1355b456f6ba4a8453249e0dc7743f16ccac362d
+  version: ad048b5f9e1187bee316f6919971c0e122d701e4
   subpackages:
   - aws
   - aws/awserr
@@ -50,7 +50,7 @@ imports:
   subpackages:
   - oid
 - name: github.com/onsi/ginkgo
-  version: 462326b1628e124b23f42e87a8f2750e3c4e2d24
+  version: 43e2af1f01ace55adbb6d7d0f30416476db1baae
   subpackages:
   - config
   - internal/codelocation
@@ -67,12 +67,13 @@ imports:
   - reporters/stenographer
   - types
 - name: github.com/onsi/gomega
-  version: a78ae492d53aad5a7a232d0d0462c14c400e3ee7
+  version: c90bd38f8da6e92f8b114953db2f0ad7361fb4b4
   subpackages:
   - format
   - gbytes
   - internal/assertion
   - internal/asyncassertion
+  - internal/oraclematcher
   - internal/testingtsupport
   - matchers
   - matchers/support/goraph/bipartitegraph
@@ -84,4 +85,10 @@ imports:
   version: 3dcb3e88faf1f81359679aa1b931df45d30f01de
   subpackages:
   - auth
-testImports: []
+- name: golang.org/x/sys
+  version: a408501be4d17ee978c04a618e7a1b22af058c0e
+  subpackages:
+  - unix
+testImports:
+- name: gopkg.in/yaml.v2
+  version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
