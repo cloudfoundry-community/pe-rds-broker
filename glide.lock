@@ -1,5 +1,5 @@
 hash: e6c2901ed6cf30a40d98812da2f8c1e60234a47a9cb32afa8f02c0e3b28ca4a4
-updated: 2016-12-15T17:17:44.875493259+01:00
+updated: 2016-12-22T10:46:09.782542619+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
@@ -34,7 +34,7 @@ imports:
   - service/rds
   - service/sts
 - name: github.com/go-ini/ini
-  version: 2ba15ac2dc9cdf88c110ec2dc0ced7fa45f5678c
+  version: 6f66b0e091edb3c7b380f7c4f0f884274d550b67
 - name: github.com/go-sql-driver/mysql
   version: a0583e0143b1624142adab07e0e97fe106d99561
 - name: github.com/gorilla/context
