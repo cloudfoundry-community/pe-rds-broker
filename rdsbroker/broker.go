@@ -45,6 +45,7 @@ type RDSBroker struct {
 	allowUserUpdateParameters    bool
 	allowUserBindParameters      bool
 	masterPasswordSalt           string
+	serviceBrokerID              string
 	catalog                      Catalog
 	dbInstance                   awsrds.DBInstance
 	dbCluster                    awsrds.DBCluster
@@ -67,6 +68,7 @@ func New(
 		allowUserUpdateParameters:    config.AllowUserUpdateParameters,
 		allowUserBindParameters:      config.AllowUserBindParameters,
 		masterPasswordSalt:           config.MasterPasswordSalt,
+		serviceBrokerID:              config.ServiceBrokerID,
 		catalog:                      config.Catalog,
 		dbInstance:                   dbInstance,
 		dbCluster:                    dbCluster,
@@ -762,7 +764,11 @@ func (b *RDSBroker) dbInstanceFromPlan(servicePlan ServicePlan) *awsrds.DBInstan
 func (b *RDSBroker) dbTags(action, serviceID, planID, organizationID, spaceID string) map[string]string {
 	tags := make(map[string]string)
 
-	tags["Owner"] = "Cloud Foundry"
+	if b.serviceBrokerID == "" {
+		tags["Owner"] = "Cloud Foundry"
+	} else {
+		tags["Owner"] = b.serviceBrokerID
+	}
 
 	tags[action+" by"] = "AWS RDS Service Broker"
 

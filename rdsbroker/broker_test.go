@@ -49,6 +49,7 @@ var _ = Describe("RDS Broker", func() {
 		serviceBindable              bool
 		planUpdateable               bool
 		skipFinalSnapshot            bool
+		serviceBrokerID              string
 
 		instanceID                 = "instance-id"
 		bindingID                  = "binding-id"
@@ -68,6 +69,7 @@ var _ = Describe("RDS Broker", func() {
 		serviceBindable = true
 		planUpdateable = true
 		skipFinalSnapshot = true
+		serviceBrokerID = ""
 
 		dbInstance = &rdsfake.FakeDBInstance{}
 		dbCluster = &rdsfake.FakeDBCluster{}
@@ -137,6 +139,7 @@ var _ = Describe("RDS Broker", func() {
 			AllowUserProvisionParameters: allowUserProvisionParameters,
 			AllowUserUpdateParameters:    allowUserUpdateParameters,
 			AllowUserBindParameters:      allowUserBindParameters,
+			ServiceBrokerID:              serviceBrokerID,
 			Catalog:                      catalog,
 		}
 
@@ -248,6 +251,18 @@ var _ = Describe("RDS Broker", func() {
 			Expect(dbInstance.CreateDBInstanceDetails.Tags["Organization ID"]).To(Equal("organization-id"))
 			Expect(dbInstance.CreateDBInstanceDetails.Tags["Space ID"]).To(Equal("space-id"))
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("wehn has ServiceBrokerID set", func() {
+			BeforeEach(func() {
+				serviceBrokerID = "AwsomeID"
+			})
+
+			It("Is setting right Owner value", func() {
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
+				Expect(dbInstance.CreateDBInstanceDetails.Tags["Owner"]).To(Equal("AwsomeID"))
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 
 		Context("when a password salt is set", func() {
@@ -947,6 +962,18 @@ var _ = Describe("RDS Broker", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 
+			Context("when has ServiceBrokerID set", func() {
+				BeforeEach(func() {
+					serviceBrokerID = "AwsomeID"
+				})
+
+				It("Is setting right Owner value", func() {
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
+					Expect(dbCluster.CreateDBClusterDetails.Tags["Owner"]).To(Equal("AwsomeID"))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+
 			Context("when has DBClusterParameterGroupName", func() {
 				BeforeEach(func() {
 					rdsProperties1.DBClusterParameterGroupName = "test-db-cluster-parameter-group-name"
@@ -1019,6 +1046,18 @@ var _ = Describe("RDS Broker", func() {
 			Expect(dbInstance.ModifyDBInstanceDetails.Tags["Service ID"]).To(Equal("Service-2"))
 			Expect(dbInstance.ModifyDBInstanceDetails.Tags["Plan ID"]).To(Equal("Plan-2"))
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("wehn has ServiceBrokerID set", func() {
+			BeforeEach(func() {
+				serviceBrokerID = "AwsomeID"
+			})
+
+			It("Is setting right Owner value", func() {
+				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
+				Expect(dbInstance.ModifyDBInstanceDetails.Tags["Owner"]).To(Equal("AwsomeID"))
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 
 		Context("when has AllocatedStorage", func() {
@@ -1680,6 +1719,18 @@ var _ = Describe("RDS Broker", func() {
 				Expect(dbCluster.ModifyDBClusterDetails.Tags["Service ID"]).To(Equal("Service-2"))
 				Expect(dbCluster.ModifyDBClusterDetails.Tags["Plan ID"]).To(Equal("Plan-2"))
 				Expect(err).ToNot(HaveOccurred())
+			})
+
+			Context("wehn has ServiceBrokerID set", func() {
+				BeforeEach(func() {
+					serviceBrokerID = "AwsomeID"
+				})
+
+				It("Is setting right Owner value", func() {
+					_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
+					Expect(dbCluster.ModifyDBClusterDetails.Tags["Owner"]).To(Equal("AwsomeID"))
+					Expect(err).ToNot(HaveOccurred())
+				})
 			})
 
 			Context("when has DBClusterParameterGroupName", func() {
