@@ -10,6 +10,7 @@ type DBCluster interface {
 	Create(ID string, dbClusterDetails DBClusterDetails) error
 	Modify(ID string, dbClusterDetails DBClusterDetails, applyImmediately bool) error
 	Delete(ID string, skipFinalSnapshot bool) error
+	List() ([]DBClusterDetails, error)
 }
 
 // DBClusterDetails struct holding information about the cluster

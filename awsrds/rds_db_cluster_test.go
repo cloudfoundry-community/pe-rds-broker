@@ -2,6 +2,7 @@ package awsrds_test
 
 import (
 	"errors"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -760,6 +761,119 @@ var _ = Describe("RDS DB Cluster", func() {
 
 				It("returns the proper error", func() {
 					err := rdsDBCluster.Delete(dbClusterIdentifier, skipFinalSnapshot)
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(ErrDBClusterDoesNotExist))
+				})
+			})
+		})
+	})
+	var _ = Describe("List", func() {
+		var (
+			reqCount                int
+			marker                  *string
+			describeDBClustersInput *rds.DescribeDBClustersInput
+			describeDBClusterError  error
+			describeDBClusterError2 error
+		)
+
+		BeforeEach(func() {
+			reqCount = 0
+			marker = nil
+			describeDBClustersInput = &rds.DescribeDBClustersInput{}
+			describeDBClusterError = nil
+			describeDBClusterError2 = nil
+
+		})
+
+		JustBeforeEach(func() {
+			rdssvc.Handlers.Clear()
+
+			rdsCall = func(r *request.Request) {
+				reqCount++
+				describeDBClusters := []*rds.DBCluster{}
+				for i := 0; i < 5; i++ {
+					id := "cf-cluster-id-" + strconv.Itoa(i)
+					describeDBCluster := &rds.DBCluster{
+						DBClusterIdentifier: aws.String(id),
+						Status:              aws.String("available"),
+						Engine:              aws.String("test-engine"),
+						EngineVersion:       aws.String("1.2.3"),
+						DatabaseName:        aws.String("test-dbname"),
+						MasterUsername:      aws.String("test-master-username"),
+						AllocatedStorage:    aws.Int64(100),
+						Endpoint:            aws.String("test-endpoint"),
+						Port:                aws.Int64(3306),
+					}
+					describeDBClusters = append(describeDBClusters, describeDBCluster)
+				}
+				Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBClustersInput{}))
+				Expect(r.Params).To(Equal(describeDBClustersInput))
+				data := r.Data.(*rds.DescribeDBClustersOutput)
+				data.DBClusters = describeDBClusters
+				if marker != nil && reqCount <= 1 {
+					data.Marker = marker
+					describeDBClustersInput.Marker = marker
+					marker = nil
+					r.Error = describeDBClusterError2
+				} else {
+					r.Error = describeDBClusterError
+				}
+
+			}
+			rdssvc.Handlers.Send.PushBack(rdsCall)
+		})
+
+		It("returns the propper DB Cluster list", func() {
+			dbClusterList, err := rdsDBCluster.List()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(dbClusterList)).To(Equal(5))
+		})
+
+		Context("With Pagination", func() {
+
+			BeforeEach(func() {
+				m := "next-page"
+				marker = &m
+			})
+
+			It("returns full DB Cluster list", func() {
+				dbClusterList, err := rdsDBCluster.List()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(dbClusterList)).To(Equal(10))
+				Expect(reqCount).To(Equal(2))
+			})
+		})
+
+		Context("when describing the DB Cluster fails", func() {
+			BeforeEach(func() {
+				describeDBClusterError = errors.New("operation failed")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsDBCluster.List()
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("operation failed"))
+			})
+
+			Context("and it is an AWS error", func() {
+				BeforeEach(func() {
+					describeDBClusterError = awserr.New("code", "message", errors.New("operation failed"))
+				})
+
+				It("returns the proper error", func() {
+					_, err := rdsDBCluster.List()
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(Equal("code: message"))
+				})
+			})
+
+			Context("and it is a 404 error", func() {
+				BeforeEach(func() {
+					awsError := awserr.New("code", "message", errors.New("operation failed"))
+					describeDBClusterError = awserr.NewRequestFailure(awsError, 404, "request-id")
+				})
+				It("it is send propper response", func() {
+					_, err := rdsDBCluster.List()
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(ErrDBClusterDoesNotExist))
 				})

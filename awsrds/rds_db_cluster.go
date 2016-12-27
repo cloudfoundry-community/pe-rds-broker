@@ -144,6 +144,47 @@ func (r *RDSDBCluster) Delete(ID string, skipFinalSnapshot bool) error {
 
 	return nil
 }
+
+// List all available Instances
+func (r *RDSDBCluster) List() ([]DBClusterDetails, error) {
+	return r.listClusters(nil)
+}
+func (r *RDSDBCluster) listClusters(marker *string) ([]DBClusterDetails, error) {
+
+	describeDBClustersInput := &rds.DescribeDBClustersInput{
+		Marker: marker,
+	}
+
+	r.logger.Debug("describe-db-clusters", lager.Data{"input": describeDBClustersInput})
+
+	dbClusters, err := r.rdssvc.DescribeDBClusters(describeDBClustersInput)
+	if err != nil {
+		r.logger.Error("aws-rds-error", err)
+		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return nil, ErrDBClusterDoesNotExist
+				}
+			}
+			return nil, errors.New(awsErr.Code() + ": " + awsErr.Message())
+		}
+		return nil, err
+	}
+
+	dbClustersDetails := []DBClusterDetails{}
+
+	if dbClusters.Marker != nil {
+		dbClustersDetails, err = r.listClusters(dbClusters.Marker)
+	}
+
+	for _, dbCluster := range dbClusters.DBClusters {
+		r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbCluster})
+		dbClustersDetails = append(dbClustersDetails, r.buildDBCluster(dbCluster))
+	}
+
+	return dbClustersDetails, nil
+}
+
 func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster) DBClusterDetails {
 	dbClusterDetails := DBClusterDetails{
 		Identifier:       aws.StringValue(dbCluster.DBClusterIdentifier),
