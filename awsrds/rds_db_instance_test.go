@@ -2,6 +2,7 @@ package awsrds_test
 
 import (
 	"errors"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -1095,6 +1096,117 @@ var _ = Describe("RDS DB Instance", func() {
 
 				It("returns the proper error", func() {
 					err := rdsDBInstance.Delete(dbInstanceIdentifier, skipFinalSnapshot)
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(ErrDBInstanceDoesNotExist))
+				})
+			})
+		})
+	})
+	var _ = Describe("List", func() {
+		var (
+			reqCount                 int
+			marker                   *string
+			describeDBInstancesInput *rds.DescribeDBInstancesInput
+			describeDBInstanceError  error
+			describeDBInstanceError2 error
+		)
+
+		BeforeEach(func() {
+			reqCount = 0
+			marker = nil
+			describeDBInstancesInput = &rds.DescribeDBInstancesInput{}
+			describeDBInstanceError = nil
+			describeDBInstanceError2 = nil
+
+		})
+
+		JustBeforeEach(func() {
+			rdssvc.Handlers.Clear()
+
+			rdsCall = func(r *request.Request) {
+				reqCount++
+				describeDBInstances := []*rds.DBInstance{}
+				for i := 0; i < 5; i++ {
+					id := "cf-instance-id-" + strconv.Itoa(i)
+					describeDBInstance := &rds.DBInstance{
+						DBInstanceIdentifier: aws.String(id),
+						DBInstanceStatus:     aws.String("available"),
+						Engine:               aws.String("test-engine"),
+						EngineVersion:        aws.String("1.2.3"),
+						DBName:               aws.String("test-dbname"),
+						MasterUsername:       aws.String("test-master-username"),
+						AllocatedStorage:     aws.Int64(100),
+					}
+					describeDBInstances = append(describeDBInstances, describeDBInstance)
+				}
+				Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBInstancesInput{}))
+				Expect(r.Params).To(Equal(describeDBInstancesInput))
+				data := r.Data.(*rds.DescribeDBInstancesOutput)
+				data.DBInstances = describeDBInstances
+				if marker != nil && reqCount <= 1 {
+					data.Marker = marker
+					describeDBInstancesInput.Marker = marker
+					marker = nil
+					r.Error = describeDBInstanceError2
+				} else {
+					r.Error = describeDBInstanceError
+				}
+
+			}
+			rdssvc.Handlers.Send.PushBack(rdsCall)
+		})
+
+		It("returns the propper DB Cluster list", func() {
+			dbInstanceList, err := rdsDBInstance.List()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(dbInstanceList)).To(Equal(5))
+		})
+
+		Context("With Pagination", func() {
+
+			BeforeEach(func() {
+				m := "next-page"
+				marker = &m
+			})
+
+			It("returns full DB Instance list", func() {
+				dbInstanceList, err := rdsDBInstance.List()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(dbInstanceList)).To(Equal(10))
+				Expect(reqCount).To(Equal(2))
+			})
+		})
+
+		Context("when describing the DB Instance fails", func() {
+			BeforeEach(func() {
+				describeDBInstanceError = errors.New("operation failed")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsDBInstance.List()
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("operation failed"))
+			})
+
+			Context("and it is an AWS error", func() {
+				BeforeEach(func() {
+					describeDBInstanceError = awserr.New("code", "message", errors.New("operation failed"))
+				})
+
+				It("returns the proper error", func() {
+					_, err := rdsDBInstance.List()
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(Equal("code: message"))
+				})
+			})
+
+			Context("and it is a 404 error", func() {
+				BeforeEach(func() {
+					awsError := awserr.New("code", "message", errors.New("operation failed"))
+					describeDBInstanceError = awserr.NewRequestFailure(awsError, 404, "request-id")
+				})
+				It("it is send propper response", func() {
+					_, err := rdsDBInstance.List()
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(ErrDBInstanceDoesNotExist))
 				})

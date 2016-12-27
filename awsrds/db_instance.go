@@ -10,6 +10,7 @@ type DBInstance interface {
 	Create(ID string, dbInstanceDetails DBInstanceDetails) error
 	Modify(ID string, dbInstanceDetails DBInstanceDetails, applyImmediately bool) error
 	Delete(ID string, skipFinalSnapshot bool) error
+	List() ([]DBInstanceDetails, error)
 }
 
 // DBInstanceDetails struct to store information about instance. See AWS RDBS Documentation for details.

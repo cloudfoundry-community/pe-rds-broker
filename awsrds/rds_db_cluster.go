@@ -175,6 +175,9 @@ func (r *RDSDBCluster) listClusters(marker *string) ([]DBClusterDetails, error) 
 
 	if dbClusters.Marker != nil {
 		dbClustersDetails, err = r.listClusters(dbClusters.Marker)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	for _, dbCluster := range dbClusters.DBClusters {

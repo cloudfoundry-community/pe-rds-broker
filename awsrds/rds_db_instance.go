@@ -160,6 +160,49 @@ func (r *RDSDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	return nil
 }
 
+// List all available Instances
+func (r *RDSDBInstance) List() ([]DBInstanceDetails, error) {
+	return r.listInstances(nil)
+}
+func (r *RDSDBInstance) listInstances(marker *string) ([]DBInstanceDetails, error) {
+
+	describeDBInstancesInput := &rds.DescribeDBInstancesInput{
+		Marker: marker,
+	}
+
+	r.logger.Debug("describe-db-clusters", lager.Data{"input": describeDBInstancesInput})
+
+	dbInstances, err := r.rdssvc.DescribeDBInstances(describeDBInstancesInput)
+	if err != nil {
+		r.logger.Error("aws-rds-error", err)
+		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return nil, ErrDBInstanceDoesNotExist
+				}
+			}
+			return nil, errors.New(awsErr.Code() + ": " + awsErr.Message())
+		}
+		return nil, err
+	}
+
+	dbInstancesDetails := []DBInstanceDetails{}
+
+	if dbInstances.Marker != nil {
+		dbInstancesDetails, err = r.listInstances(dbInstances.Marker)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, dbInstance := range dbInstances.DBInstances {
+		r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbInstance})
+		dbInstancesDetails = append(dbInstancesDetails, r.buildDBInstance(dbInstance))
+	}
+
+	return dbInstancesDetails, nil
+}
+
 func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance) DBInstanceDetails {
 	dbInstanceDetails := DBInstanceDetails{
 		Identifier:       aws.StringValue(dbInstance.DBInstanceIdentifier),
