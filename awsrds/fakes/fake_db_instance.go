@@ -25,6 +25,10 @@ type FakeDBInstance struct {
 	DeleteID                string
 	DeleteSkipFinalSnapshot bool
 	DeleteError             error
+
+	ListCalled             bool
+	ListDBInstancesDetails []awsrds.DBInstanceDetails
+	ListError              error
 }
 
 func (f *FakeDBInstance) Describe(ID string) (awsrds.DBInstanceDetails, error) {
@@ -57,4 +61,10 @@ func (f *FakeDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	f.DeleteSkipFinalSnapshot = skipFinalSnapshot
 
 	return f.DeleteError
+}
+
+func (f *FakeDBInstance) List() ([]awsrds.DBInstanceDetails, error) {
+	f.ListCalled = true
+
+	return f.ListDBInstancesDetails, f.ListError
 }
