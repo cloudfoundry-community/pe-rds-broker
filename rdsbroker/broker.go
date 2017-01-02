@@ -114,7 +114,6 @@ func (b *RDSBroker) Provision(context context.Context, instanceID string, detail
 		detailsLogKey:      details,
 		asyncAllowedLogKey: asyncAllowed,
 	})
-	//TODO: Print propper ops message
 
 	provisioningResponse := brokerapi.ProvisionedServiceSpec{
 		IsAsync: true,
@@ -363,6 +362,33 @@ func (b *RDSBroker) Bind(context context.Context, instanceID, bindingID string, 
 	return bindingResponse, nil
 }
 
+// List Broker managed services
+func (b *RDSBroker) List(context context.Context) ([]string, error) {
+	var l []string
+	clusters, err := b.dbCluster.List()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, c := range clusters {
+		if b.filterDBCluster(c) {
+			l = append(l, b.dbClusterInstanceID(c.Identifier))
+		}
+	}
+
+	instances, err := b.dbInstance.List()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, i := range instances {
+		if b.filterDBInstance(i) {
+			l = append(l, b.dbInstanceInstanceID(i.Identifier))
+		}
+	}
+	return l, nil
+}
+
 // Unbind RDSBroker service
 func (b *RDSBroker) Unbind(context context.Context, instanceID, bindingID string, details brokerapi.UnbindDetails) error {
 	b.logger.Debug("unbind", lager.Data{
@@ -500,6 +526,14 @@ func (b *RDSBroker) dbInstanceIdentifier(instanceID string) string {
 	return fmt.Sprintf("%s-%s", b.dbPrefix, strings.Replace(instanceID, "_", "-", -1))
 }
 
+func (b *RDSBroker) dbClusterInstanceID(dbClusterIdentifier string) string {
+	return strings.TrimPrefix(dbClusterIdentifier, b.dbPrefix+"-")
+}
+
+func (b *RDSBroker) dbInstanceInstanceID(dbInstanceIdentifier string) string {
+	return strings.TrimPrefix(dbInstanceIdentifier, b.dbPrefix+"-")
+}
+
 func (b *RDSBroker) masterUsername() string {
 	return utils.RandomAlphaNum(defaultUsernameLength)
 }
@@ -612,6 +646,28 @@ func (b *RDSBroker) dbClusterFromPlan(servicePlan ServicePlan) *awsrds.DBCluster
 	}
 
 	return dbClusterDetails
+}
+
+func (b *RDSBroker) filterDBInstance(instance awsrds.DBInstanceDetails) bool {
+	if !(strings.HasPrefix(instance.Identifier, b.dbPrefix)) {
+		return false
+	}
+
+	if instance.Tags["Owner"] == b.serviceBrokerID || (b.serviceBrokerID == "" && instance.Tags["Owner"] == "Cloud Foundry") {
+		return true
+	}
+	return false
+}
+
+func (b *RDSBroker) filterDBCluster(cluster awsrds.DBClusterDetails) bool {
+	if !(strings.HasPrefix(cluster.Identifier, b.dbPrefix)) {
+		return false
+	}
+
+	if cluster.Tags["Owner"] == b.serviceBrokerID || (b.serviceBrokerID == "" && cluster.Tags["Owner"] == "Cloud Foundry") {
+		return true
+	}
+	return false
 }
 
 func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan, provisionParameters ProvisionParameters, details brokerapi.ProvisionDetails) *awsrds.DBInstanceDetails {

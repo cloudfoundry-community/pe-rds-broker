@@ -1747,6 +1747,116 @@ var _ = Describe("RDS Broker", func() {
 		})
 	})
 
+	var _ = Describe("List", func() {
+
+		BeforeEach(func() {
+			dbCluster.ListDBClustersDetails = []awsrds.DBClusterDetails{
+				{
+					Identifier:     "cf-cluster-1",
+					Endpoint:       "endpoint-address",
+					Port:           3306,
+					DatabaseName:   "test-db",
+					MasterUsername: "master-username",
+					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				},
+				{
+					Identifier:     "cf-cluster-2",
+					Endpoint:       "endpoint-address",
+					Port:           3306,
+					DatabaseName:   "test-db",
+					MasterUsername: "master-username",
+					Tags:           map[string]string{"Owner": "Custom", "Foo": "BAR"},
+				},
+				{
+					Identifier:     "FOO-cluster-3",
+					Endpoint:       "endpoint-address",
+					Port:           3306,
+					DatabaseName:   "test-db",
+					MasterUsername: "master-username",
+					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				},
+			}
+			dbInstance.ListDBInstancesDetails = []awsrds.DBInstanceDetails{
+				{
+					Identifier:     "cf-instance-1",
+					Address:        "endpoint-address",
+					Port:           3306,
+					DBName:         "test-db",
+					MasterUsername: "master-username",
+					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				},
+				{
+					Identifier:     "cf-instance-2",
+					Address:        "endpoint-address",
+					Port:           3306,
+					DBName:         "test-db",
+					MasterUsername: "master-username",
+					Tags:           map[string]string{"Owner": "Custom", "Foo": "BAR"},
+				},
+				{
+					Identifier:     "FOO-instance-3",
+					Address:        "endpoint-address",
+					Port:           3306,
+					DBName:         "test-db",
+					MasterUsername: "master-username",
+					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				},
+			}
+		})
+
+		It("Will return list of instance and cluster IDs", func() {
+			list, err := rdsBroker.List(context)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(list).Should(ContainElement("cluster-1"))
+			Expect(list).Should(ContainElement("instance-1"))
+			Expect(list).ShouldNot(ContainElement("cluster-2"))
+			Expect(list).ShouldNot(ContainElement("instance-2"))
+			Expect(list).ShouldNot(ContainElement("FOO-cluster-3"))
+			Expect(list).ShouldNot(ContainElement("FOO-instance-3"))
+			Expect(list).Should(HaveLen(2))
+		})
+
+		Describe("On custom broker id", func() {
+			BeforeEach(func() {
+				serviceBrokerID = "Custom"
+			})
+
+			It("Will return services of custom broker", func() {
+				list, err := rdsBroker.List(context)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(list).Should(ContainElement("cluster-2"))
+				Expect(list).Should(ContainElement("instance-2"))
+				Expect(list).ShouldNot(ContainElement("cluster-1"))
+				Expect(list).ShouldNot(ContainElement("instance-1"))
+				Expect(list).ShouldNot(ContainElement("FOO-cluster-3"))
+				Expect(list).ShouldNot(ContainElement("FOO-instance-3"))
+				Expect(list).Should(HaveLen(2))
+			})
+		})
+
+		Describe("On Cluster List Error", func() {
+			BeforeEach(func() {
+				dbCluster.ListError = errors.New("some-failure")
+			})
+
+			It("Will return error", func() {
+				_, err := rdsBroker.List(context)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+
+		Describe("On Instance List Error", func() {
+			BeforeEach(func() {
+				dbInstance.ListError = errors.New("some-failure")
+			})
+
+			It("Will return error", func() {
+				_, err := rdsBroker.List(context)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+
 	var _ = Describe("Deprovision", func() {
 		var (
 			DeprovisionDetails brokerapi.DeprovisionDetails
