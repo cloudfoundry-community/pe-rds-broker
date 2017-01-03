@@ -79,7 +79,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error setting passwords: %s", err)
 		}
-		return
 
 	} else {
 		credentials := brokerapi.BrokerCredentials{
