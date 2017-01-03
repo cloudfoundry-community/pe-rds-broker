@@ -16,6 +16,7 @@ type FakeDBInstance struct {
 	CreateError             error
 
 	ModifyCalled            bool
+	ModifyCount             int
 	ModifyID                string
 	ModifyDBInstanceDetails awsrds.DBInstanceDetails
 	ModifyApplyImmediately  bool
@@ -48,6 +49,7 @@ func (f *FakeDBInstance) Create(ID string, dbInstanceDetails awsrds.DBInstanceDe
 
 func (f *FakeDBInstance) Modify(ID string, dbInstanceDetails awsrds.DBInstanceDetails, applyImmediately bool) error {
 	f.ModifyCalled = true
+	f.ModifyCount++
 	f.ModifyID = ID
 	f.ModifyDBInstanceDetails = dbInstanceDetails
 	f.ModifyApplyImmediately = applyImmediately

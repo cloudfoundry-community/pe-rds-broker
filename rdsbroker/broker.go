@@ -362,31 +362,30 @@ func (b *RDSBroker) Bind(context context.Context, instanceID, bindingID string, 
 	return bindingResponse, nil
 }
 
-// List Broker managed services
-func (b *RDSBroker) List(context context.Context) ([]string, error) {
-	var l []string
+// BulkUpdate Broker managed services
+func (b *RDSBroker) BulkUpdate(context context.Context, modifyCluster func(string, awsrds.DBClusterDetails) error, modifyInstance func(string, awsrds.DBInstanceDetails) error) error {
 	clusters, err := b.dbCluster.List()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, c := range clusters {
 		if b.filterDBCluster(c) {
-			l = append(l, b.dbClusterInstanceID(c.Identifier))
+			modifyCluster(strings.TrimPrefix(c.Identifier, b.dbPrefix+"-"), c)
 		}
 	}
 
 	instances, err := b.dbInstance.List()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, i := range instances {
 		if b.filterDBInstance(i) {
-			l = append(l, b.dbInstanceInstanceID(i.Identifier))
+			modifyInstance(strings.TrimPrefix(i.Identifier, b.dbPrefix+"-"), i)
 		}
 	}
-	return l, nil
+	return nil
 }
 
 // Unbind RDSBroker service
@@ -524,14 +523,6 @@ func (b *RDSBroker) dbClusterIdentifier(instanceID string) string {
 
 func (b *RDSBroker) dbInstanceIdentifier(instanceID string) string {
 	return fmt.Sprintf("%s-%s", b.dbPrefix, strings.Replace(instanceID, "_", "-", -1))
-}
-
-func (b *RDSBroker) dbClusterInstanceID(dbClusterIdentifier string) string {
-	return strings.TrimPrefix(dbClusterIdentifier, b.dbPrefix+"-")
-}
-
-func (b *RDSBroker) dbInstanceInstanceID(dbInstanceIdentifier string) string {
-	return strings.TrimPrefix(dbInstanceIdentifier, b.dbPrefix+"-")
 }
 
 func (b *RDSBroker) masterUsername() string {

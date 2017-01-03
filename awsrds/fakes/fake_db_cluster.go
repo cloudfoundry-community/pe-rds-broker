@@ -16,6 +16,7 @@ type FakeDBCluster struct {
 	CreateError            error
 
 	ModifyCalled           bool
+	ModifyCount            int
 	ModifyID               string
 	ModifyDBClusterDetails awsrds.DBClusterDetails
 	ModifyApplyImmediately bool
@@ -48,6 +49,7 @@ func (f *FakeDBCluster) Create(ID string, dbClusterDetails awsrds.DBClusterDetai
 
 func (f *FakeDBCluster) Modify(ID string, dbClusterDetails awsrds.DBClusterDetails, applyImmediately bool) error {
 	f.ModifyCalled = true
+	f.ModifyCount++
 	f.ModifyID = ID
 	f.ModifyDBClusterDetails = dbClusterDetails
 	f.ModifyApplyImmediately = applyImmediately

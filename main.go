@@ -23,6 +23,7 @@ import (
 var (
 	configFilePath string
 	port           string
+	setPasswords   bool
 
 	logLevels = map[string]lager.LogLevel{
 		"DEBUG": lager.DEBUG,
@@ -35,6 +36,7 @@ var (
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
 	flag.StringVar(&port, "port", "3000", "Listen port")
+	flag.BoolVar(&setPasswords, "setPasswords", false, "Will update all master passwords. Use this if you like to change the master generation method or update the salt.")
 }
 
 func buildLogger(logLevel string) lager.Logger {
@@ -71,14 +73,24 @@ func main() {
 
 	serviceBroker := rdsbroker.New(config.RDSConfig, dbInstance, dbCluster, sqlProvider, logger)
 
-	credentials := brokerapi.BrokerCredentials{
-		Username: config.Username,
-		Password: config.Password,
+	if setPasswords {
+		log.Println("SetPasswords started")
+		err := rdsbroker.UpdatePasswords(serviceBroker)
+		if err != nil {
+			log.Fatalf("Error setting passwords: %s", err)
+		}
+		return
+
+	} else {
+		credentials := brokerapi.BrokerCredentials{
+			Username: config.Username,
+			Password: config.Password,
+		}
+
+		brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
+		http.Handle("/", brokerAPI)
+
+		fmt.Println("RDS Service Broker started on port " + port + "...")
+		http.ListenAndServe(":"+port, nil)
 	}
-
-	brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
-	http.Handle("/", brokerAPI)
-
-	fmt.Println("RDS Service Broker started on port " + port + "...")
-	http.ListenAndServe(":"+port, nil)
 }

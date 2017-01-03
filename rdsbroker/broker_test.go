@@ -1747,9 +1747,19 @@ var _ = Describe("RDS Broker", func() {
 		})
 	})
 
-	var _ = Describe("List", func() {
+	var _ = Describe("BulkUpdate", func() {
+		var modifyCluster func(string, awsrds.DBClusterDetails) error
+		var modifyInstance func(string, awsrds.DBInstanceDetails) error
 
 		BeforeEach(func() {
+			modifyCluster = func(instanceID string, cluster awsrds.DBClusterDetails) error {
+				return nil
+			}
+
+			modifyInstance = func(instanceID string, cluster awsrds.DBInstanceDetails) error {
+				return nil
+			}
+
 			dbCluster.ListDBClustersDetails = []awsrds.DBClusterDetails{
 				{
 					Identifier:     "cf-cluster-1",
@@ -1804,16 +1814,36 @@ var _ = Describe("RDS Broker", func() {
 			}
 		})
 
-		It("Will return list of instance and cluster IDs", func() {
-			list, err := rdsBroker.List(context)
+		It("Will call modifyCluster and modifyInstance", func() {
+			mc := 0
+			modifyCluster = func(instanceID string, cluster awsrds.DBClusterDetails) error {
+				mc++
+				Expect(instanceID).Should(Equal("cluster-1"))
+				Expect(cluster.Identifier).Should(Equal("cf-cluster-1"))
+				Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-2"))
+				Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
+				Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-1"))
+				Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-2"))
+				Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
+				return nil
+			}
+
+			mi := 0
+			modifyInstance = func(instanceID string, cluster awsrds.DBInstanceDetails) error {
+				mi++
+				Expect(instanceID).Should(Equal("instance-1"))
+				Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-1"))
+				Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-2"))
+				Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
+				Expect(cluster.Identifier).Should(Equal("cf-instance-1"))
+				Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-2"))
+				Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
+				return nil
+			}
+			err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
+			Expect(mc).Should(Equal(1))
+			Expect(mi).Should(Equal(1))
 			Expect(err).ToNot(HaveOccurred())
-			Expect(list).Should(ContainElement("cluster-1"))
-			Expect(list).Should(ContainElement("instance-1"))
-			Expect(list).ShouldNot(ContainElement("cluster-2"))
-			Expect(list).ShouldNot(ContainElement("instance-2"))
-			Expect(list).ShouldNot(ContainElement("FOO-cluster-3"))
-			Expect(list).ShouldNot(ContainElement("FOO-instance-3"))
-			Expect(list).Should(HaveLen(2))
 		})
 
 		Describe("On custom broker id", func() {
@@ -1822,15 +1852,35 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("Will return services of custom broker", func() {
-				list, err := rdsBroker.List(context)
+				mc := 0
+				modifyCluster = func(instanceID string, cluster awsrds.DBClusterDetails) error {
+					mc++
+					Expect(instanceID).Should(Equal("cluster-2"))
+					Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-1"))
+					Expect(cluster.Identifier).Should(Equal("cf-cluster-2"))
+					Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
+					Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-1"))
+					Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-2"))
+					Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
+					return nil
+				}
+
+				mi := 0
+				modifyInstance = func(instanceID string, cluster awsrds.DBInstanceDetails) error {
+					mi++
+					Expect(instanceID).Should(Equal("instance-2"))
+					Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-1"))
+					Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-2"))
+					Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
+					Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-1"))
+					Expect(cluster.Identifier).Should(Equal("cf-instance-2"))
+					Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
+					return nil
+				}
+				err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
+				Expect(mc).Should(Equal(1))
+				Expect(mi).Should(Equal(1))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(list).Should(ContainElement("cluster-2"))
-				Expect(list).Should(ContainElement("instance-2"))
-				Expect(list).ShouldNot(ContainElement("cluster-1"))
-				Expect(list).ShouldNot(ContainElement("instance-1"))
-				Expect(list).ShouldNot(ContainElement("FOO-cluster-3"))
-				Expect(list).ShouldNot(ContainElement("FOO-instance-3"))
-				Expect(list).Should(HaveLen(2))
 			})
 		})
 
@@ -1840,7 +1890,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("Will return error", func() {
-				_, err := rdsBroker.List(context)
+				err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
 				Expect(err).To(HaveOccurred())
 			})
 		})
@@ -1851,7 +1901,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("Will return error", func() {
-				_, err := rdsBroker.List(context)
+				err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
 				Expect(err).To(HaveOccurred())
 			})
 		})
