@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"io"
 	"math"
@@ -40,9 +41,21 @@ func randChar(length int, chars []byte) string {
 	}
 }
 
+// GetSHA256B64 get base64 encoding of sting SHA2 hash and add a salt as optional parameter
+func GetSHA256B64(text string, length int, params ...string) string {
+	if len(params) > 0 && params[0] != "" {
+		text = saltText(text, params[0])
+	}
+
+	hasher := sha256.New()
+	hasher.Write([]byte(text))
+	sha := hasher.Sum(nil)
+	return base64.StdEncoding.EncodeToString(sha)[0:int(math.Min(float64(length), float64(len(sha))))]
+}
+
 // GetMD5B64 get base64 encoding of string add a salt as optional parameter
 func GetMD5B64(text string, length int, params ...string) string {
-	if len(params) > 0 {
+	if len(params) > 0 && params[0] != "" {
 		text = saltText(text, params[0])
 	}
 	hasher := md5.New()

@@ -13,6 +13,7 @@ type Config struct {
 	AllowUserUpdateParameters    bool    `json:"allow_user_update_parameters"`
 	AllowUserBindParameters      bool    `json:"allow_user_bind_parameters"`
 	MasterPasswordSalt           string  `json:"master_password_salt,omitempty"`
+	MasterPasswordSHA2           bool    `json:"master_password_sha2,omitempty"`
 	ServiceBrokerID              string  `json:"service_broker_id,omitempty"`
 	Catalog                      Catalog `json:"catalog"`
 }

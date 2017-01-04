@@ -51,15 +51,17 @@ var _ = Describe("RDS Broker", func() {
 		skipFinalSnapshot            bool
 		serviceBrokerID              string
 
-		instanceID                 = "instance-id"
-		bindingID                  = "binding-id"
-		dbInstanceIdentifier       = "cf-instance-id"
-		dbClusterIdentifier        = "cf-instance-id"
-		dbName                     = "cf_instance_id"
-		dbUsername                 = "YmluZGluZy1pZNQd"
-		masterUserPassword         = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
-		masterUserPasswordWithSalt = "aWFuV3M1dHphZG5HY0ZldS1ZaTJkVdQd"
-		masterUserSalt             = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
+		instanceID                     = "instance-id"
+		bindingID                      = "binding-id"
+		dbInstanceIdentifier           = "cf-instance-id"
+		dbClusterIdentifier            = "cf-instance-id"
+		dbName                         = "cf_instance_id"
+		dbUsername                     = "YmluZGluZy1pZNQd"
+		masterUserPassword             = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
+		masterUserPasswordWithSalt     = "aWFuV3M1dHphZG5HY0ZldS1ZaTJkVdQd"
+		masterUserPasswordSHA2         = "xWAlaiUlLgZZv0v5vXqd7GsUENhU06tj"
+		masterUserPasswordWithSaltSHA2 = "CT45/lEILP83HUUflyn6wDWnWqNU3zAl"
+		masterUserSalt                 = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
 	)
 
 	BeforeEach(func() {
@@ -278,6 +280,34 @@ var _ = Describe("RDS Broker", func() {
 				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(dbInstance.CreateDBInstanceDetails.MasterUserPassword).To(Equal(masterUserPasswordWithSalt))
 				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when master_password_sha2 is set to true", func() {
+
+			var rdsBroker *RDSBroker
+
+			BeforeEach(func() {
+				config.MasterPasswordSHA2 = true
+				rdsBroker = New(config, dbInstance, dbCluster, sqlProvider, logger)
+			})
+
+			It("uses right passwords", func() {
+				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
+				Expect(dbInstance.CreateDBInstanceDetails.MasterUserPassword).To(Equal(masterUserPasswordSHA2))
+				Expect(err).ToNot(HaveOccurred())
+			})
+			Context("when a password salt is set", func() {
+				BeforeEach(func() {
+					config.MasterPasswordSalt = masterUserSalt
+					rdsBroker = New(config, dbInstance, dbCluster, sqlProvider, logger)
+				})
+
+				It("uses right passwords", func() {
+					_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
+					Expect(dbInstance.CreateDBInstanceDetails.MasterUserPassword).To(Equal(masterUserPasswordWithSaltSHA2))
+					Expect(err).ToNot(HaveOccurred())
+				})
 			})
 		})
 

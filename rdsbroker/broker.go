@@ -44,6 +44,7 @@ type RDSBroker struct {
 	allowUserProvisionParameters bool
 	allowUserUpdateParameters    bool
 	allowUserBindParameters      bool
+	masterPasswordSHA2           bool
 	masterPasswordSalt           string
 	serviceBrokerID              string
 	catalog                      Catalog
@@ -68,6 +69,7 @@ func New(
 		allowUserUpdateParameters:    config.AllowUserUpdateParameters,
 		allowUserBindParameters:      config.AllowUserBindParameters,
 		masterPasswordSalt:           config.MasterPasswordSalt,
+		masterPasswordSHA2:           config.MasterPasswordSHA2,
 		serviceBrokerID:              config.ServiceBrokerID,
 		catalog:                      config.Catalog,
 		dbInstance:                   dbInstance,
@@ -530,10 +532,10 @@ func (b *RDSBroker) masterUsername() string {
 }
 
 func (b *RDSBroker) masterPassword(instanceID string) string {
-	if b.masterPasswordSalt != "" {
-		return utils.GetMD5B64(instanceID, defaultPasswordLength, b.masterPasswordSalt)
+	if b.masterPasswordSHA2 {
+		return utils.GetSHA256B64(instanceID, defaultPasswordLength, b.masterPasswordSalt)
 	}
-	return utils.GetMD5B64(instanceID, defaultPasswordLength)
+	return utils.GetMD5B64(instanceID, defaultPasswordLength, b.masterPasswordSalt)
 }
 
 func (b *RDSBroker) dbUsername(bindingID string) string {
