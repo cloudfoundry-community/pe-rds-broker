@@ -50,7 +50,7 @@ func GetSHA256B64(text string, length int, params ...string) string {
 	hasher := sha256.New()
 	hasher.Write([]byte(text))
 	sha := hasher.Sum(nil)
-	return base64.StdEncoding.EncodeToString(sha)[0:int(math.Min(float64(length), float64(len(sha))))]
+	return base64.URLEncoding.EncodeToString(sha)[0:int(math.Min(float64(length), float64(len(sha))))]
 }
 
 // GetMD5B64 get base64 encoding of string add a salt as optional parameter

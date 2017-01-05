@@ -43,6 +43,6 @@ var _ = Describe("GetSHA256B64", func() {
 
 	It("returns the Base64 of a string SHA256 including random numbers", func() {
 		sha256b64 := GetSHA256B64("ce71b484-d542-40f7-9dd4-5526e38c81ba", 32, "Y2U3MWI0ODQtZDU0Mi00MGY3LTlkZDQt")
-		Expect(sha256b64).To(Equal("i7ewNrLEglx+z0sDbKmM/dfhU9VQtkZk"))
+		Expect(sha256b64).To(Equal("i7ewNrLEglx-z0sDbKmM_dfhU9VQtkZk"))
 	})
 })
