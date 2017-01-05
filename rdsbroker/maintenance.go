@@ -2,29 +2,39 @@ package rdsbroker
 
 import (
 	"context"
+	"encoding/json"
 
-	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
+	"github.com/joek/brokerapi"
 )
 
-// UpdatePasswords based on configuration
-func UpdatePasswords(b *RDSBroker) error {
+// UpdateServices is appliying changes to the plan config on all instances.
+func UpdateServices(b *RDSBroker) error {
 	context := context.Background()
 
-	updateCluster := func(instanceID string, cluster awsrds.DBClusterDetails) error {
-		cluster.MasterUserPassword = b.masterPassword(instanceID)
+	parameters := UpdateParameters{
+		ApplyImmediately: true,
+	}
 
-		err := b.dbCluster.Modify(cluster.Identifier, cluster, true)
+	parametersJSON, _ := json.Marshal(parameters)
+
+	update := func(instanceID string, details ServiceDetails) error {
+
+		d := brokerapi.UpdateDetails{
+			ServiceID:     details.ServiceID,
+			PlanID:        details.PlanID,
+			RawParameters: parametersJSON,
+			PreviousValues: brokerapi.PreviousValues{
+				PlanID:    details.PlanID,
+				ServiceID: details.ServiceID,
+				OrgID:     details.OrgID,
+				SpaceID:   details.SpaceID,
+			},
+		}
+		_, err := b.Update(context, instanceID, d, true)
+
 		return err
 	}
 
-	updateInstance := func(instanceID string, instance awsrds.DBInstanceDetails) error {
-		instance.MasterUserPassword = b.masterPassword(instanceID)
-
-		err := b.dbInstance.Modify(instance.Identifier, instance, true)
-		return err
-
-	}
-
-	err := b.BulkUpdate(context, updateCluster, updateInstance)
+	err := b.BulkUpdate(context, update)
 	return err
 }

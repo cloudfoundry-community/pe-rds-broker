@@ -69,16 +69,36 @@ var _ = Describe("Maintenance", func() {
 			DBInstanceClass:   "db.m1.test",
 			Engine:            "test-engine-1",
 			EngineVersion:     "1.2.3",
+			MultiAZ:           true,
 			AllocatedStorage:  100,
 			SkipFinalSnapshot: skipFinalSnapshot,
 		}
 
 		rdsProperties2 = RDSProperties{
 			DBInstanceClass:   "db.m2.test",
-			Engine:            "test-engine-2",
+			Engine:            "aurora",
 			EngineVersion:     "4.5.6",
+			MultiAZ:           true,
 			AllocatedStorage:  200,
 			SkipFinalSnapshot: skipFinalSnapshot,
+		}
+
+		tags1 := map[string]string{
+			"Owner":           "Cloud Foundry",
+			"Foo":             "BAR",
+			"Plan ID":         "Plan-1",
+			"Service ID":      "Service-1",
+			"Organization ID": "org-id",
+			"Space ID":        "space-id",
+		}
+
+		tags2 := map[string]string{
+			"Owner":           "Cloud Foundry",
+			"Foo":             "BAR",
+			"Plan ID":         "Plan-2",
+			"Service ID":      "Service-2",
+			"Organization ID": "org-id",
+			"Space ID":        "space-id",
 		}
 
 		dbCluster.ListDBClustersDetails = []awsrds.DBClusterDetails{
@@ -88,7 +108,7 @@ var _ = Describe("Maintenance", func() {
 				Port:           3306,
 				DatabaseName:   "test-db",
 				MasterUsername: "master-username",
-				Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				Tags:           tags2,
 			},
 			{
 				Identifier:     "cf-cluster-2",
@@ -96,7 +116,7 @@ var _ = Describe("Maintenance", func() {
 				Port:           3306,
 				DatabaseName:   "test-db",
 				MasterUsername: "master-username",
-				Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				Tags:           tags2,
 			},
 		}
 		dbInstance.ListDBInstancesDetails = []awsrds.DBInstanceDetails{
@@ -107,7 +127,7 @@ var _ = Describe("Maintenance", func() {
 				DBName:         "test-db",
 				MasterUsername: "master-username",
 				MultiAZ:        true,
-				Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				Tags:           tags1,
 			},
 			{
 				Identifier:     "cf-instance-2",
@@ -116,7 +136,7 @@ var _ = Describe("Maintenance", func() {
 				DBName:         "test-db",
 				MasterUsername: "master-username",
 				MultiAZ:        true,
-				Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+				Tags:           tags1,
 			},
 		}
 	})
@@ -177,23 +197,21 @@ var _ = Describe("Maintenance", func() {
 	var _ = Describe("UpdatePasswords", func() {
 
 		It("Is updating cluster passwords", func() {
-			err := UpdatePasswords(rdsBroker)
+			err := UpdateServices(rdsBroker)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(dbCluster.ModifyCount).Should(Equal(2))
 			Expect(dbCluster.ModifyApplyImmediately).Should(BeTrue())
 			Expect(dbCluster.ModifyCalled).Should(BeTrue())
 			Expect(dbCluster.ModifyDBClusterDetails.MasterUserPassword).Should(Equal("Y1NsdXVwc2V0cmVTcmUtYzJ11B2M2Y8A"))
-			Expect(dbCluster.ModifyDBClusterDetails.DatabaseName).Should(Equal("test-db"))
 		})
 
 		It("Is updating instance passwords", func() {
-			err := UpdatePasswords(rdsBroker)
+			err := UpdateServices(rdsBroker)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(dbInstance.ModifyCount).Should(Equal(2))
+			Expect(dbInstance.ModifyCount).Should(Equal(4))
 			Expect(dbInstance.ModifyApplyImmediately).Should(BeTrue())
 			Expect(dbInstance.ModifyCalled).Should(BeTrue())
 			Expect(dbInstance.ModifyDBInstanceDetails.MasterUserPassword).Should(Equal("aVNudXNwdGVhcm5TY2VlYy11MnLUHYzZ"))
-			Expect(dbInstance.ModifyDBInstanceDetails.DBName).Should(Equal("test-db"))
 			Expect(dbInstance.ModifyDBInstanceDetails.MultiAZ).Should(BeTrue())
 		})
 	})

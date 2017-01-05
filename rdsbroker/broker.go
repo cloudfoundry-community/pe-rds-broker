@@ -54,6 +54,14 @@ type RDSBroker struct {
 	logger                       lager.Logger
 }
 
+// ServiceDetails of a deployed service
+type ServiceDetails struct {
+	PlanID    string `json:"plan_id"`
+	ServiceID string `json:"service_id"`
+	OrgID     string `json:"organization_id"`
+	SpaceID   string `json:"space_id"`
+}
+
 // New create new RDSBroker object
 func New(
 	config Config,
@@ -209,7 +217,6 @@ func (b *RDSBroker) Update(context context.Context, instanceID string, details b
 		}
 		return provisioningResponse, err
 	}
-
 	return provisioningResponse, nil
 }
 
@@ -365,7 +372,7 @@ func (b *RDSBroker) Bind(context context.Context, instanceID, bindingID string, 
 }
 
 // BulkUpdate Broker managed services
-func (b *RDSBroker) BulkUpdate(context context.Context, modifyCluster func(string, awsrds.DBClusterDetails) error, modifyInstance func(string, awsrds.DBInstanceDetails) error) error {
+func (b *RDSBroker) BulkUpdate(context context.Context, modify func(string, ServiceDetails) error) error {
 	clusters, err := b.dbCluster.List()
 	if err != nil {
 		return err
@@ -373,7 +380,16 @@ func (b *RDSBroker) BulkUpdate(context context.Context, modifyCluster func(strin
 
 	for _, c := range clusters {
 		if b.filterDBCluster(c) {
-			modifyCluster(strings.TrimPrefix(c.Identifier, b.dbPrefix+"-"), c)
+			d := ServiceDetails{
+				PlanID:    c.Tags["Plan ID"],
+				ServiceID: c.Tags["Service ID"],
+				OrgID:     c.Tags["Organization ID"],
+				SpaceID:   c.Tags["Space ID"],
+			}
+			err := modify(strings.TrimPrefix(c.Identifier, b.dbPrefix+"-"), d)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -384,7 +400,16 @@ func (b *RDSBroker) BulkUpdate(context context.Context, modifyCluster func(strin
 
 	for _, i := range instances {
 		if b.filterDBInstance(i) {
-			modifyInstance(strings.TrimPrefix(i.Identifier, b.dbPrefix+"-"), i)
+			d := ServiceDetails{
+				PlanID:    i.Tags["Plan ID"],
+				ServiceID: i.Tags["Service ID"],
+				OrgID:     i.Tags["Organization ID"],
+				SpaceID:   i.Tags["Space ID"],
+			}
+			err := modify(strings.TrimPrefix(i.Identifier, b.dbPrefix+"-"), d)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -579,6 +604,7 @@ func (b *RDSBroker) createDBCluster(instanceID string, servicePlan ServicePlan, 
 
 func (b *RDSBroker) modifyDBCluster(instanceID string, servicePlan ServicePlan, updateParameters UpdateParameters, details brokerapi.UpdateDetails) *awsrds.DBClusterDetails {
 	dbClusterDetails := b.dbClusterFromPlan(servicePlan)
+	dbClusterDetails.MasterUserPassword = b.masterPassword(instanceID)
 
 	if updateParameters.BackupRetentionPeriod > 0 {
 		dbClusterDetails.BackupRetentionPeriod = updateParameters.BackupRetentionPeriod
@@ -701,6 +727,7 @@ func (b *RDSBroker) createDBInstance(instanceID string, servicePlan ServicePlan,
 
 func (b *RDSBroker) modifyDBInstance(instanceID string, servicePlan ServicePlan, updateParameters UpdateParameters, details brokerapi.UpdateDetails) *awsrds.DBInstanceDetails {
 	dbInstanceDetails := b.dbInstanceFromPlan(servicePlan)
+	dbInstanceDetails.MasterUserPassword = b.masterPassword(instanceID)
 
 	if strings.ToLower(servicePlan.RDSProperties.Engine) != aurora {
 		if updateParameters.BackupRetentionPeriod > 0 {

@@ -1,8 +1,6 @@
 package fakes
 
-import (
-	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
-)
+import "github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 
 type FakeDBInstance struct {
 	DescribeCalled            bool

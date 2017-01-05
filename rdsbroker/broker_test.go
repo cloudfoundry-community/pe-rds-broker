@@ -1778,16 +1778,28 @@ var _ = Describe("RDS Broker", func() {
 	})
 
 	var _ = Describe("BulkUpdate", func() {
-		var modifyCluster func(string, awsrds.DBClusterDetails) error
-		var modifyInstance func(string, awsrds.DBInstanceDetails) error
+		var modify func(string, ServiceDetails) error
 
 		BeforeEach(func() {
-			modifyCluster = func(instanceID string, cluster awsrds.DBClusterDetails) error {
+			modify = func(instanceID string, t ServiceDetails) error {
 				return nil
 			}
 
-			modifyInstance = func(instanceID string, cluster awsrds.DBInstanceDetails) error {
-				return nil
+			t := map[string]string{
+				"Owner":           "Cloud Foundry",
+				"Foo":             "BAR",
+				"Plan ID":         "plan-id",
+				"Service ID":      "service-id",
+				"Organization ID": "org-id",
+				"Space ID":        "space-id",
+			}
+			tc := map[string]string{
+				"Owner":           "Custom",
+				"Foo":             "BAR",
+				"Plan ID":         "plan-id",
+				"Service ID":      "service-id",
+				"Organization ID": "org-id",
+				"Space ID":        "space-id",
 			}
 
 			dbCluster.ListDBClustersDetails = []awsrds.DBClusterDetails{
@@ -1797,7 +1809,7 @@ var _ = Describe("RDS Broker", func() {
 					Port:           3306,
 					DatabaseName:   "test-db",
 					MasterUsername: "master-username",
-					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+					Tags:           t,
 				},
 				{
 					Identifier:     "cf-cluster-2",
@@ -1805,7 +1817,7 @@ var _ = Describe("RDS Broker", func() {
 					Port:           3306,
 					DatabaseName:   "test-db",
 					MasterUsername: "master-username",
-					Tags:           map[string]string{"Owner": "Custom", "Foo": "BAR"},
+					Tags:           tc,
 				},
 				{
 					Identifier:     "FOO-cluster-3",
@@ -1813,7 +1825,7 @@ var _ = Describe("RDS Broker", func() {
 					Port:           3306,
 					DatabaseName:   "test-db",
 					MasterUsername: "master-username",
-					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+					Tags:           t,
 				},
 			}
 			dbInstance.ListDBInstancesDetails = []awsrds.DBInstanceDetails{
@@ -1823,7 +1835,7 @@ var _ = Describe("RDS Broker", func() {
 					Port:           3306,
 					DBName:         "test-db",
 					MasterUsername: "master-username",
-					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+					Tags:           t,
 				},
 				{
 					Identifier:     "cf-instance-2",
@@ -1831,7 +1843,7 @@ var _ = Describe("RDS Broker", func() {
 					Port:           3306,
 					DBName:         "test-db",
 					MasterUsername: "master-username",
-					Tags:           map[string]string{"Owner": "Custom", "Foo": "BAR"},
+					Tags:           tc,
 				},
 				{
 					Identifier:     "FOO-instance-3",
@@ -1839,40 +1851,30 @@ var _ = Describe("RDS Broker", func() {
 					Port:           3306,
 					DBName:         "test-db",
 					MasterUsername: "master-username",
-					Tags:           map[string]string{"Owner": "Cloud Foundry", "Foo": "BAR"},
+					Tags:           t,
 				},
 			}
 		})
 
 		It("Will call modifyCluster and modifyInstance", func() {
-			mc := 0
-			modifyCluster = func(instanceID string, cluster awsrds.DBClusterDetails) error {
-				mc++
-				Expect(instanceID).Should(Equal("cluster-1"))
-				Expect(cluster.Identifier).Should(Equal("cf-cluster-1"))
-				Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-2"))
-				Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
-				Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-1"))
-				Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-2"))
-				Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
+			m := 0
+			i := "cluster-1"
+			modify := func(instanceID string, t ServiceDetails) error {
+				m++
+				Expect(instanceID).Should(Equal(i))
+				Expect(instanceID).ShouldNot(Equal("cluster-2"))
+				Expect(instanceID).ShouldNot(Equal("FOO-cluster-3"))
+				Expect(instanceID).ShouldNot(Equal("instance-2"))
+				Expect(instanceID).ShouldNot(Equal("FOO-instance-3"))
+				Expect(t.OrgID).Should(Equal("org-id"))
+				Expect(t.PlanID).Should(Equal("plan-id"))
+				Expect(t.ServiceID).Should(Equal("service-id"))
+				Expect(t.SpaceID).Should(Equal("space-id"))
+				i = "instance-1"
 				return nil
 			}
-
-			mi := 0
-			modifyInstance = func(instanceID string, cluster awsrds.DBInstanceDetails) error {
-				mi++
-				Expect(instanceID).Should(Equal("instance-1"))
-				Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-1"))
-				Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-2"))
-				Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
-				Expect(cluster.Identifier).Should(Equal("cf-instance-1"))
-				Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-2"))
-				Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
-				return nil
-			}
-			err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
-			Expect(mc).Should(Equal(1))
-			Expect(mi).Should(Equal(1))
+			err := rdsBroker.BulkUpdate(context, modify)
+			Expect(m).Should(Equal(2))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -1882,34 +1884,24 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("Will return services of custom broker", func() {
-				mc := 0
-				modifyCluster = func(instanceID string, cluster awsrds.DBClusterDetails) error {
-					mc++
-					Expect(instanceID).Should(Equal("cluster-2"))
-					Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-1"))
-					Expect(cluster.Identifier).Should(Equal("cf-cluster-2"))
-					Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
-					Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-1"))
-					Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-2"))
-					Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
+				m := 0
+				i := "cluster-2"
+				modify := func(instanceID string, t ServiceDetails) error {
+					m++
+					Expect(instanceID).Should(Equal(i))
+					Expect(instanceID).ShouldNot(Equal("cluster-1"))
+					Expect(instanceID).ShouldNot(Equal("FOO-cluster-3"))
+					Expect(instanceID).ShouldNot(Equal("instance-1"))
+					Expect(instanceID).ShouldNot(Equal("FOO-instance-3"))
+					Expect(t.OrgID).Should(Equal("org-id"))
+					Expect(t.PlanID).Should(Equal("plan-id"))
+					Expect(t.ServiceID).Should(Equal("service-id"))
+					Expect(t.SpaceID).Should(Equal("space-id"))
+					i = "instance-2"
 					return nil
 				}
-
-				mi := 0
-				modifyInstance = func(instanceID string, cluster awsrds.DBInstanceDetails) error {
-					mi++
-					Expect(instanceID).Should(Equal("instance-2"))
-					Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-1"))
-					Expect(cluster.Identifier).ShouldNot(Equal("cf-cluster-2"))
-					Expect(cluster.Identifier).ShouldNot(Equal("FOO-cluster-3"))
-					Expect(cluster.Identifier).ShouldNot(Equal("cf-instance-1"))
-					Expect(cluster.Identifier).Should(Equal("cf-instance-2"))
-					Expect(cluster.Identifier).ShouldNot(Equal("FOO-instance-3"))
-					return nil
-				}
-				err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
-				Expect(mc).Should(Equal(1))
-				Expect(mi).Should(Equal(1))
+				err := rdsBroker.BulkUpdate(context, modify)
+				Expect(m).Should(Equal(2))
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
@@ -1920,7 +1912,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("Will return error", func() {
-				err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
+				err := rdsBroker.BulkUpdate(context, modify)
 				Expect(err).To(HaveOccurred())
 			})
 		})
@@ -1931,7 +1923,20 @@ var _ = Describe("RDS Broker", func() {
 			})
 
 			It("Will return error", func() {
-				err := rdsBroker.BulkUpdate(context, modifyCluster, modifyInstance)
+				err := rdsBroker.BulkUpdate(context, modify)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+
+		Describe("On Broken modify return Error", func() {
+			BeforeEach(func() {
+				modify = func(instanceID string, t ServiceDetails) error {
+					return errors.New("Super error")
+				}
+			})
+
+			It("Will return error", func() {
+				err := rdsBroker.BulkUpdate(context, modify)
 				Expect(err).To(HaveOccurred())
 			})
 		})
