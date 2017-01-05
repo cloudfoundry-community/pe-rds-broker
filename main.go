@@ -21,9 +21,9 @@ import (
 )
 
 var (
-	configFilePath string
-	port           string
-	setPasswords   bool
+	configFilePath     string
+	port               string
+	updateServicePlans bool
 
 	logLevels = map[string]lager.LogLevel{
 		"DEBUG": lager.DEBUG,
@@ -36,7 +36,7 @@ var (
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
 	flag.StringVar(&port, "port", "3000", "Listen port")
-	flag.BoolVar(&setPasswords, "setPasswords", false, "Will update all master passwords. Use this if you like to change the master generation method or update the salt.")
+	flag.BoolVar(&updateServicePlans, "updateServicePlans", false, "Will update all master passwords. Use this if you like to change the master generation method or update the salt.")
 }
 
 func buildLogger(logLevel string) lager.Logger {
@@ -73,9 +73,9 @@ func main() {
 
 	serviceBroker := rdsbroker.New(config.RDSConfig, dbInstance, dbCluster, sqlProvider, logger)
 
-	if setPasswords {
-		log.Println("SetPasswords started")
-		err := rdsbroker.UpdatePasswords(serviceBroker)
+	if updateServicePlans {
+		log.Println("UpdateServicePlans started")
+		err := rdsbroker.UpdateServices(serviceBroker)
 		if err != nil {
 			log.Fatalf("Error setting passwords: %s", err)
 		}
