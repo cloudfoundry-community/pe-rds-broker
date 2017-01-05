@@ -60,7 +60,7 @@ var _ = Describe("RDS Broker", func() {
 		masterUserPassword             = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
 		masterUserPasswordWithSalt     = "aWFuV3M1dHphZG5HY0ZldS1ZaTJkVdQd"
 		masterUserPasswordSHA2         = "xWAlaiUlLgZZv0v5vXqd7GsUENhU06tj"
-		masterUserPasswordWithSaltSHA2 = "CT45/lEILP83HUUflyn6wDWnWqNU3zAl"
+		masterUserPasswordWithSaltSHA2 = "CT45_lEILP83HUUflyn6wDWnWqNU3zAl"
 		masterUserSalt                 = "aW5zdGFuY2UtaWTUHYzZjwCyBOm"
 	)
 
