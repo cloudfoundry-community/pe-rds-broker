@@ -65,9 +65,18 @@ var _ = Describe("RDS DB Instance", func() {
 
 			describeDBInstancesInput *rds.DescribeDBInstancesInput
 			describeDBInstanceError  error
+			describeIsCalled         bool
+
+			listTagsForResourceInput *rds.ListTagsForResourceInput
+			tagList                  []*rds.Tag
+			listTagsForResourceError error
+			listIsCalled             bool
+
+			tags map[string]string
 		)
 
 		BeforeEach(func() {
+			tags = map[string]string{"Owner": "Cloud Foundry"}
 			properDBInstanceDetails = DBInstanceDetails{
 				Identifier:       dbInstanceIdentifier,
 				Status:           "available",
@@ -76,11 +85,13 @@ var _ = Describe("RDS DB Instance", func() {
 				DBName:           "test-dbname",
 				MasterUsername:   "test-master-username",
 				AllocatedStorage: int64(100),
+				Tags:             tags,
 			}
 
 			describeDBInstance = &rds.DBInstance{
 				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 				DBInstanceStatus:     aws.String("available"),
+				DBInstanceArn:        aws.String("superARN"),
 				Engine:               aws.String("test-engine"),
 				EngineVersion:        aws.String("1.2.3"),
 				DBName:               aws.String("test-dbname"),
@@ -93,18 +104,42 @@ var _ = Describe("RDS DB Instance", func() {
 				DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 			}
 			describeDBInstanceError = nil
+
+			listTagsForResourceInput = &rds.ListTagsForResourceInput{
+				ResourceName: describeDBInstance.DBInstanceArn,
+			}
+
+			tagList = []*rds.Tag{
+				&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
+			}
+
+			listTagsForResourceError = nil
+
+			listIsCalled = false
+			describeIsCalled = false
 		})
 
 		JustBeforeEach(func() {
 			rdssvc.Handlers.Clear()
 
 			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
-				Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBInstancesInput{}))
-				Expect(r.Params).To(Equal(describeDBInstancesInput))
-				data := r.Data.(*rds.DescribeDBInstancesOutput)
-				data.DBInstances = describeDBInstances
-				r.Error = describeDBInstanceError
+				Expect(r.Operation.Name).To(Or(Equal("DescribeDBInstances"), Equal("ListTagsForResource")))
+				switch r.Operation.Name {
+				case "DescribeDBInstances":
+					describeIsCalled = true
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBInstancesInput{}))
+					Expect(r.Params).To(Equal(describeDBInstancesInput))
+					data := r.Data.(*rds.DescribeDBInstancesOutput)
+					data.DBInstances = describeDBInstances
+					r.Error = describeDBInstanceError
+				case "ListTagsForResource":
+					listIsCalled = true
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ListTagsForResourceInput{}))
+					Expect(r.Params).To(Equal(listTagsForResourceInput))
+					data := r.Data.(*rds.ListTagsForResourceOutput)
+					data.TagList = tagList
+					r.Error = listTagsForResourceError
+				}
 			}
 			rdssvc.Handlers.Send.PushBack(rdsCall)
 		})
@@ -113,6 +148,21 @@ var _ = Describe("RDS DB Instance", func() {
 			dbInstanceDetails, err := rdsDBInstance.Describe(dbInstanceIdentifier)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(dbInstanceDetails).To(Equal(properDBInstanceDetails))
+			Expect(listIsCalled).To(BeTrue())
+			Expect(describeIsCalled).To(BeTrue())
+		})
+
+		Context("when getTags is failing", func() {
+			BeforeEach(func() {
+				listTagsForResourceError = errors.New("Error")
+			})
+
+			It("is returning error", func() {
+				_, err := rdsDBInstance.Describe(dbInstanceIdentifier)
+				Expect(err).To(HaveOccurred())
+				Expect(describeIsCalled).To(BeTrue())
+				Expect(listIsCalled).To(BeTrue())
+			})
 		})
 
 		Context("when RDS DB Instance has an Endpoint", func() {
@@ -625,9 +675,17 @@ var _ = Describe("RDS DB Instance", func() {
 			user         *iam.User
 			getUserInput *iam.GetUserInput
 			getUserError error
+
+			listTagsForResourceInput *rds.ListTagsForResourceInput
+			tagList                  []*rds.Tag
+			listTagsForResourceError error
+
+			tags map[string]string
 		)
 
 		BeforeEach(func() {
+			tags = map[string]string{"Owner": "Cloud Foundry"}
+
 			dbInstanceDetails = DBInstanceDetails{}
 			applyImmediately = false
 
@@ -672,13 +730,23 @@ var _ = Describe("RDS DB Instance", func() {
 			}
 			getUserInput = &iam.GetUserInput{}
 			getUserError = nil
+
+			listTagsForResourceInput = &rds.ListTagsForResourceInput{
+				ResourceName: describeDBInstance.DBInstanceArn,
+			}
+
+			tagList = []*rds.Tag{
+				&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
+			}
+
+			listTagsForResourceError = nil
 		})
 
 		JustBeforeEach(func() {
 			rdssvc.Handlers.Clear()
 
 			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(MatchRegexp("DescribeDBInstances|ModifyDBInstance|AddTagsToResource"))
+				Expect(r.Operation.Name).To(MatchRegexp("DescribeDBInstances|ModifyDBInstance|AddTagsToResource|ListTagsForResource"))
 				switch r.Operation.Name {
 				case "DescribeDBInstances":
 					Expect(r.Operation.Name).To(Equal("DescribeDBInstances"))
@@ -695,6 +763,12 @@ var _ = Describe("RDS DB Instance", func() {
 					Expect(r.Params).To(BeAssignableToTypeOf(&rds.AddTagsToResourceInput{}))
 					Expect(r.Params).To(Equal(addTagsToResourceInput))
 					r.Error = addTagsToResourceError
+				case "ListTagsForResource":
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ListTagsForResourceInput{}))
+					Expect(r.Params).To(Equal(listTagsForResourceInput))
+					data := r.Data.(*rds.ListTagsForResourceOutput)
+					data.TagList = tagList
+					r.Error = listTagsForResourceError
 				}
 			}
 			rdssvc.Handlers.Send.PushBack(rdsCall)
@@ -1109,6 +1183,11 @@ var _ = Describe("RDS DB Instance", func() {
 			describeDBInstancesInput *rds.DescribeDBInstancesInput
 			describeDBInstanceError  error
 			describeDBInstanceError2 error
+
+			listTagsForResourceInput *rds.ListTagsForResourceInput
+			tagList                  []*rds.Tag
+			listTagsForResourceError error
+			listIsCalled             bool
 		)
 
 		BeforeEach(func() {
@@ -1118,18 +1197,29 @@ var _ = Describe("RDS DB Instance", func() {
 			describeDBInstanceError = nil
 			describeDBInstanceError2 = nil
 
+			listTagsForResourceInput = &rds.ListTagsForResourceInput{
+				ResourceName: aws.String("superARN"),
+			}
+
+			tagList = []*rds.Tag{
+				&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
+			}
+
+			listTagsForResourceError = nil
+
+			listIsCalled = false
 		})
 
 		JustBeforeEach(func() {
 			rdssvc.Handlers.Clear()
 
 			rdsCall = func(r *request.Request) {
-				reqCount++
 				describeDBInstances := []*rds.DBInstance{}
 				for i := 0; i < 5; i++ {
 					id := "cf-instance-id-" + strconv.Itoa(i)
 					describeDBInstance := &rds.DBInstance{
 						DBInstanceIdentifier: aws.String(id),
+						DBInstanceArn:        aws.String("superARN"),
 						DBInstanceStatus:     aws.String("available"),
 						Engine:               aws.String("test-engine"),
 						EngineVersion:        aws.String("1.2.3"),
@@ -1139,17 +1229,30 @@ var _ = Describe("RDS DB Instance", func() {
 					}
 					describeDBInstances = append(describeDBInstances, describeDBInstance)
 				}
-				Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBInstancesInput{}))
-				Expect(r.Params).To(Equal(describeDBInstancesInput))
-				data := r.Data.(*rds.DescribeDBInstancesOutput)
-				data.DBInstances = describeDBInstances
-				if marker != nil && reqCount <= 1 {
-					data.Marker = marker
-					describeDBInstancesInput.Marker = marker
-					marker = nil
-					r.Error = describeDBInstanceError2
-				} else {
-					r.Error = describeDBInstanceError
+
+				Expect(r.Operation.Name).To(Or(Equal("DescribeDBInstances"), Equal("ListTagsForResource")))
+				switch r.Operation.Name {
+				case "DescribeDBInstances":
+					reqCount++
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBInstancesInput{}))
+					Expect(r.Params).To(Equal(describeDBInstancesInput))
+					data := r.Data.(*rds.DescribeDBInstancesOutput)
+					data.DBInstances = describeDBInstances
+					if marker != nil && reqCount <= 1 {
+						data.Marker = marker
+						describeDBInstancesInput.Marker = marker
+						marker = nil
+						r.Error = describeDBInstanceError2
+					} else {
+						r.Error = describeDBInstanceError
+					}
+				case "ListTagsForResource":
+					listIsCalled = true
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ListTagsForResourceInput{}))
+					Expect(r.Params).To(Equal(listTagsForResourceInput))
+					data := r.Data.(*rds.ListTagsForResourceOutput)
+					data.TagList = tagList
+					r.Error = listTagsForResourceError
 				}
 
 			}

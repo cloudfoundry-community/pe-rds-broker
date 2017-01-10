@@ -63,7 +63,11 @@ func (r *RDSDBInstance) Describe(ID string) (DBInstanceDetails, error) {
 	for _, dbInstance := range dbInstances.DBInstances {
 		if aws.StringValue(dbInstance.DBInstanceIdentifier) == ID {
 			r.logger.Debug("describe-db-instances", lager.Data{"db-instance": dbInstance})
-			return r.buildDBInstance(dbInstance), nil
+			t, err := GetTags(dbInstance.DBInstanceArn, r.rdssvc)
+			if err != nil {
+				return dbInstanceDetails, err
+			}
+			return r.buildDBInstance(dbInstance, t), nil
 		}
 	}
 
@@ -197,13 +201,17 @@ func (r *RDSDBInstance) listInstances(marker *string) ([]DBInstanceDetails, erro
 
 	for _, dbInstance := range dbInstances.DBInstances {
 		r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbInstance})
-		dbInstancesDetails = append(dbInstancesDetails, r.buildDBInstance(dbInstance))
+		t, err := GetTags(dbInstance.DBInstanceArn, r.rdssvc)
+		if err != nil {
+			return dbInstancesDetails, err
+		}
+		dbInstancesDetails = append(dbInstancesDetails, r.buildDBInstance(dbInstance, t))
 	}
 
 	return dbInstancesDetails, nil
 }
 
-func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance) DBInstanceDetails {
+func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance, tags map[string]string) DBInstanceDetails {
 	dbInstanceDetails := DBInstanceDetails{
 		Identifier:       aws.StringValue(dbInstance.DBInstanceIdentifier),
 		Status:           aws.StringValue(dbInstance.DBInstanceStatus),
@@ -212,6 +220,7 @@ func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance) DBInstanceDe
 		DBName:           aws.StringValue(dbInstance.DBName),
 		MasterUsername:   aws.StringValue(dbInstance.MasterUsername),
 		AllocatedStorage: aws.Int64Value(dbInstance.AllocatedStorage),
+		Tags:             tags,
 	}
 
 	if dbInstance.Endpoint != nil {

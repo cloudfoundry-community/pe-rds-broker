@@ -62,7 +62,11 @@ func (r *RDSDBCluster) Describe(ID string) (DBClusterDetails, error) {
 	for _, dbCluster := range dbClusters.DBClusters {
 		if aws.StringValue(dbCluster.DBClusterIdentifier) == ID {
 			r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbCluster})
-			return r.buildDBCluster(dbCluster), nil
+			t, err := GetTags(dbCluster.DBClusterArn, r.rdssvc)
+			if err != nil {
+				return dbClusterDetails, err
+			}
+			return r.buildDBCluster(dbCluster, t), nil
 		}
 	}
 
@@ -182,13 +186,18 @@ func (r *RDSDBCluster) listClusters(marker *string) ([]DBClusterDetails, error) 
 
 	for _, dbCluster := range dbClusters.DBClusters {
 		r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbCluster})
-		dbClustersDetails = append(dbClustersDetails, r.buildDBCluster(dbCluster))
+		t, err := GetTags(dbCluster.DBClusterArn, r.rdssvc)
+		if err != nil {
+			return dbClustersDetails, err
+		}
+		dbClustersDetails = append(dbClustersDetails, r.buildDBCluster(dbCluster, t))
 	}
 
 	return dbClustersDetails, nil
 }
 
-func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster) DBClusterDetails {
+func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster, tags map[string]string) DBClusterDetails {
+
 	dbClusterDetails := DBClusterDetails{
 		Identifier:       aws.StringValue(dbCluster.DBClusterIdentifier),
 		Status:           aws.StringValue(dbCluster.Status),
@@ -199,6 +208,7 @@ func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster) DBClusterDetails
 		AllocatedStorage: aws.Int64Value(dbCluster.AllocatedStorage),
 		Endpoint:         aws.StringValue(dbCluster.Endpoint),
 		Port:             aws.Int64Value(dbCluster.Port),
+		Tags:             tags,
 	}
 
 	return dbClusterDetails

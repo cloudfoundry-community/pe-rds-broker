@@ -43,6 +43,81 @@ var _ = Describe("RDS Utils", func() {
 		logger.RegisterSink(testSink)
 	})
 
+	var _ = Describe("tagHelper", func() {
+		var (
+			listTagsForResourceInput *rds.ListTagsForResourceInput
+			tagList                  []*rds.Tag
+			listTagsForResourceError error
+			listIsCalled             bool
+		)
+
+		BeforeEach(func() {
+			listTagsForResourceInput = &rds.ListTagsForResourceInput{
+				ResourceName: aws.String("awsomeARN"),
+			}
+
+			tagList = []*rds.Tag{
+				&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
+			}
+
+			listTagsForResourceError = nil
+
+			listIsCalled = false
+		})
+
+		JustBeforeEach(func() {
+			awsSession = session.New(nil)
+			rdssvc = rds.New(awsSession)
+
+			rdssvc.Handlers.Clear()
+
+			rdsCall = func(r *request.Request) {
+				Expect(r.Operation.Name).To(Or(Equal("DescribeDBClusters"), Equal("ListTagsForResource")))
+				listIsCalled = true
+				Expect(r.Params).To(BeAssignableToTypeOf(&rds.ListTagsForResourceInput{}))
+				Expect(r.Params).To(Equal(listTagsForResourceInput))
+				data := r.Data.(*rds.ListTagsForResourceOutput)
+				data.TagList = tagList
+				r.Error = listTagsForResourceError
+			}
+			rdssvc.Handlers.Send.PushBack(rdsCall)
+		})
+
+		It("Is calling list resources", func() {
+			t, err := GetTags(aws.String("awsomeARN"), rdssvc)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(t).To(Equal(map[string]string{"Owner": "Cloud Foundry"}))
+			Expect(listIsCalled).To(BeTrue())
+		})
+
+		Describe("On AWS Error", func() {
+			BeforeEach(func() {
+				listTagsForResourceError = awserr.New("code", "message", errors.New("operation failed"))
+			})
+
+			It("Is handling aws error", func() {
+				_, err := GetTags(aws.String("awsomeARN"), rdssvc)
+				Expect(err).To(HaveOccurred())
+				Expect(listIsCalled).To(BeTrue())
+				Expect(err.Error()).To(Equal("code: message"))
+			})
+		})
+
+		Describe("On none AWS Error", func() {
+			BeforeEach(func() {
+				listTagsForResourceError = errors.New("operation failed")
+			})
+
+			It("Is handling none aws errors", func() {
+				_, err := GetTags(aws.String("awsomeARN"), rdssvc)
+				Expect(err).To(HaveOccurred())
+				Expect(listIsCalled).To(BeTrue())
+				Expect(err.Error()).To(Equal("operation failed"))
+			})
+		})
+
+	})
+
 	var _ = Describe("UserAccount", func() {
 		var (
 			user         *iam.User

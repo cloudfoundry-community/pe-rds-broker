@@ -35,6 +35,24 @@ func BuilRDSTags(tags map[string]string) []*rds.Tag {
 	return rdsTags
 }
 
+// GetTags is getting tags based on Arn
+func GetTags(arn *string, rdssvc *rds.RDS) (map[string]string, error) {
+	tags := make(map[string]string)
+
+	i := &rds.ListTagsForResourceInput{ResourceName: arn}
+	tagOutput, err := rdssvc.ListTagsForResource(i)
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			return tags, errors.New(awsErr.Code() + ": " + awsErr.Message())
+		}
+		return tags, err
+	}
+	for _, t := range tagOutput.TagList {
+		tags[aws.StringValue(t.Key)] = aws.StringValue(t.Value)
+	}
+	return tags, nil
+}
+
 // AddTagsToResource  for RDS Objects
 func AddTagsToResource(resourceARN string, tags []*rds.Tag, rdssvc *rds.RDS, logger lager.Logger) error {
 	addTagsToResourceInput := &rds.AddTagsToResourceInput{
