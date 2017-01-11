@@ -1,12 +1,12 @@
-hash: e6c2901ed6cf30a40d98812da2f8c1e60234a47a9cb32afa8f02c0e3b28ca4a4
-updated: 2017-01-11T10:52:00.606839441+01:00
+hash: 24cc1cf32bef1912392a2a8e959e503fe836b5bc57f4d27e180f1ab4ce3ab4e0
+updated: 2017-01-11T15:14:59.443564752+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
   subpackages:
   - lagertest
 - name: github.com/aws/aws-sdk-go
-  version: ad048b5f9e1187bee316f6919971c0e122d701e4
+  version: 8649d278323ebf6bd20c9cd56ecb152b1c617375
   subpackages:
   - aws
   - aws/awserr
@@ -36,7 +36,7 @@ imports:
 - name: github.com/go-ini/ini
   version: 6f66b0e091edb3c7b380f7c4f0f884274d550b67
 - name: github.com/go-sql-driver/mysql
-  version: a0583e0143b1624142adab07e0e97fe106d99561
+  version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
@@ -46,7 +46,7 @@ imports:
 - name: github.com/joek/brokerapi
   version: aa09bb9e0183ad1aad344b327be665fc54199740
 - name: github.com/lib/pq
-  version: 4a82388ebc5138c8289fe9bc602cb0b3e32cd617
+  version: 8df6253d1317616f36b0c3740eb30c239a7372cb
   subpackages:
   - oid
 - name: github.com/onsi/ginkgo
