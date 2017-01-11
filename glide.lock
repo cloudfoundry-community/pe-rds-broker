@@ -1,5 +1,5 @@
 hash: e6c2901ed6cf30a40d98812da2f8c1e60234a47a9cb32afa8f02c0e3b28ca4a4
-updated: 2016-12-22T10:46:09.782542619+01:00
+updated: 2017-01-11T10:52:00.606839441+01:00
 imports:
 - name: code.cloudfoundry.org/lager
   version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
@@ -82,7 +82,7 @@ imports:
   - matchers/support/goraph/util
   - types
 - name: github.com/pivotal-cf/brokerapi
-  version: 3dcb3e88faf1f81359679aa1b931df45d30f01de
+  version: 11f4623ec2604f34502f6af8048b5f0162ca17eb
   subpackages:
   - auth
 - name: golang.org/x/sys
