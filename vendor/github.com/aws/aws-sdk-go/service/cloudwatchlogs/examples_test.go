@@ -82,10 +82,6 @@ func ExampleCloudWatchLogs_CreateLogGroup() {
 
 	params := &cloudwatchlogs.CreateLogGroupInput{
 		LogGroupName: aws.String("LogGroupName"), // Required
-		Tags: map[string]*string{
-			"Key": aws.String("TagValue"), // Required
-			// More values...
-		},
 	}
 	resp, err := svc.CreateLogGroup(params)
 
@@ -515,31 +511,6 @@ func ExampleCloudWatchLogs_GetLogEvents() {
 	fmt.Println(resp)
 }
 
-func ExampleCloudWatchLogs_ListTagsLogGroup() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
-
-	svc := cloudwatchlogs.New(sess)
-
-	params := &cloudwatchlogs.ListTagsLogGroupInput{
-		LogGroupName: aws.String("LogGroupName"), // Required
-	}
-	resp, err := svc.ListTagsLogGroup(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleCloudWatchLogs_PutDestination() {
 	sess, err := session.NewSession()
 	if err != nil {
@@ -703,39 +674,9 @@ func ExampleCloudWatchLogs_PutSubscriptionFilter() {
 		FilterName:     aws.String("FilterName"),     // Required
 		FilterPattern:  aws.String("FilterPattern"),  // Required
 		LogGroupName:   aws.String("LogGroupName"),   // Required
-		Distribution:   aws.String("Distribution"),
 		RoleArn:        aws.String("RoleArn"),
 	}
 	resp, err := svc.PutSubscriptionFilter(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleCloudWatchLogs_TagLogGroup() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
-
-	svc := cloudwatchlogs.New(sess)
-
-	params := &cloudwatchlogs.TagLogGroupInput{
-		LogGroupName: aws.String("LogGroupName"), // Required
-		Tags: map[string]*string{ // Required
-			"Key": aws.String("TagValue"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.TagLogGroup(params)
 
 	if err != nil {
 		// Print the error, cast err to awserr.Error to get the Code and
@@ -765,35 +706,6 @@ func ExampleCloudWatchLogs_TestMetricFilter() {
 		},
 	}
 	resp, err := svc.TestMetricFilter(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleCloudWatchLogs_UntagLogGroup() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
-
-	svc := cloudwatchlogs.New(sess)
-
-	params := &cloudwatchlogs.UntagLogGroupInput{
-		LogGroupName: aws.String("LogGroupName"), // Required
-		Tags: []*string{ // Required
-			aws.String("TagKey"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.UntagLogGroup(params)
 
 	if err != nil {
 		// Print the error, cast err to awserr.Error to get the Code and

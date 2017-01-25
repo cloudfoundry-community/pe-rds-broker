@@ -36,8 +36,7 @@
         {"shape":"ResourceAlreadyExistsFault"},
         {"shape":"ResourceQuotaExceededFault"},
         {"shape":"InvalidResourceStateFault"},
-        {"shape":"ResourceNotFoundFault"},
-        {"shape":"AccessDeniedFault"}
+        {"shape":"ResourceNotFoundFault"}
       ]
     },
     "CreateReplicationInstance":{
@@ -371,21 +370,6 @@
         {"shape":"InvalidSubnet"}
       ]
     },
-    "ModifyReplicationTask":{
-      "name":"ModifyReplicationTask",
-      "http":{
-        "method":"POST",
-        "requestUri":"/"
-      },
-      "input":{"shape":"ModifyReplicationTaskMessage"},
-      "output":{"shape":"ModifyReplicationTaskResponse"},
-      "errors":[
-        {"shape":"InvalidResourceStateFault"},
-        {"shape":"ResourceNotFoundFault"},
-        {"shape":"ResourceAlreadyExistsFault"},
-        {"shape":"KMSKeyNotAccessibleFault"}
-      ]
-    },
     "RefreshSchemas":{
       "name":"RefreshSchemas",
       "http":{
@@ -508,7 +492,6 @@
         "CertificateIdentifier":{"shape":"String"},
         "CertificateCreationDate":{"shape":"TStamp"},
         "CertificatePem":{"shape":"String"},
-        "CertificateWallet":{"shape":"CertificateWallet"},
         "CertificateArn":{"shape":"String"},
         "CertificateOwner":{"shape":"String"},
         "ValidFromDate":{"shape":"TStamp"},
@@ -524,7 +507,6 @@
         "locationName":"Certificate"
       }
     },
-    "CertificateWallet":{"type":"blob"},
     "Connection":{
       "type":"structure",
       "members":{
@@ -548,7 +530,11 @@
       "required":[
         "EndpointIdentifier",
         "EndpointType",
-        "EngineName"
+        "EngineName",
+        "Username",
+        "Password",
+        "ServerName",
+        "Port"
       ],
       "members":{
         "EndpointIdentifier":{"shape":"String"},
@@ -953,8 +939,7 @@
       "required":["CertificateIdentifier"],
       "members":{
         "CertificateIdentifier":{"shape":"String"},
-        "CertificatePem":{"shape":"String"},
-        "CertificateWallet":{"shape":"CertificateWallet"}
+        "CertificatePem":{"shape":"String"}
       }
     },
     "ImportCertificateResponse":{
@@ -1091,24 +1076,6 @@
         "ReplicationSubnetGroup":{"shape":"ReplicationSubnetGroup"}
       }
     },
-    "ModifyReplicationTaskMessage":{
-      "type":"structure",
-      "required":["ReplicationTaskArn"],
-      "members":{
-        "ReplicationTaskArn":{"shape":"String"},
-        "ReplicationTaskIdentifier":{"shape":"String"},
-        "MigrationType":{"shape":"MigrationTypeValue"},
-        "TableMappings":{"shape":"String"},
-        "ReplicationTaskSettings":{"shape":"String"},
-        "CdcStartTime":{"shape":"TStamp"}
-      }
-    },
-    "ModifyReplicationTaskResponse":{
-      "type":"structure",
-      "members":{
-        "ReplicationTask":{"shape":"ReplicationTask"}
-      }
-    },
     "OrderableReplicationInstance":{
       "type":"structure",
       "members":{
@@ -1214,8 +1181,7 @@
         },
         "ReplicationInstancePublicIpAddresses":{"shape":"ReplicationInstancePublicIpAddressList"},
         "ReplicationInstancePrivateIpAddresses":{"shape":"ReplicationInstancePrivateIpAddressList"},
-        "PubliclyAccessible":{"shape":"Boolean"},
-        "SecondaryAvailabilityZone":{"shape":"String"}
+        "PubliclyAccessible":{"shape":"Boolean"}
       }
     },
     "ReplicationInstanceList":{
@@ -1278,7 +1244,6 @@
         "ReplicationTaskSettings":{"shape":"String"},
         "Status":{"shape":"String"},
         "LastFailureMessage":{"shape":"String"},
-        "StopReason":{"shape":"String"},
         "ReplicationTaskCreationDate":{"shape":"TStamp"},
         "ReplicationTaskStartDate":{"shape":"TStamp"},
         "ReplicationTaskArn":{"shape":"String"},

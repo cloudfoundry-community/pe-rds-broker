@@ -433,21 +433,6 @@
         "resultWrapper":"UpdateApplicationResult"
       }
     },
-    "UpdateApplicationResourceLifecycle":{
-      "name":"UpdateApplicationResourceLifecycle",
-      "http":{
-        "method":"POST",
-        "requestUri":"/"
-      },
-      "input":{"shape":"UpdateApplicationResourceLifecycleMessage"},
-      "output":{
-        "shape":"ApplicationResourceLifecycleDescriptionMessage",
-        "resultWrapper":"UpdateApplicationResourceLifecycleResult"
-      },
-      "errors":[
-        {"shape":"InsufficientPrivilegesException"}
-      ]
-    },
     "UpdateApplicationVersion":{
       "name":"UpdateApplicationVersion",
       "http":{
@@ -551,8 +536,7 @@
         "DateCreated":{"shape":"CreationDate"},
         "DateUpdated":{"shape":"UpdateDate"},
         "Versions":{"shape":"VersionLabelsList"},
-        "ConfigurationTemplates":{"shape":"ConfigurationTemplateNamesList"},
-        "ResourceLifecycleConfig":{"shape":"ApplicationResourceLifecycleConfig"}
+        "ConfigurationTemplates":{"shape":"ConfigurationTemplateNamesList"}
       }
     },
     "ApplicationDescriptionList":{
@@ -589,20 +573,6 @@
       "type":"list",
       "member":{"shape":"ApplicationName"}
     },
-    "ApplicationResourceLifecycleConfig":{
-      "type":"structure",
-      "members":{
-        "ServiceRole":{"shape":"String"},
-        "VersionLifecycleConfig":{"shape":"ApplicationVersionLifecycleConfig"}
-      }
-    },
-    "ApplicationResourceLifecycleDescriptionMessage":{
-      "type":"structure",
-      "members":{
-        "ApplicationName":{"shape":"ApplicationName"},
-        "ResourceLifecycleConfig":{"shape":"ApplicationResourceLifecycleConfig"}
-      }
-    },
     "ApplicationVersionDescription":{
       "type":"structure",
       "members":{
@@ -632,13 +602,6 @@
       "members":{
         "ApplicationVersions":{"shape":"ApplicationVersionDescriptionList"},
         "NextToken":{"shape":"Token"}
-      }
-    },
-    "ApplicationVersionLifecycleConfig":{
-      "type":"structure",
-      "members":{
-        "MaxCountRule":{"shape":"MaxCountRule"},
-        "MaxAgeRule":{"shape":"MaxAgeRule"}
       }
     },
     "ApplicationVersionProccess":{"type":"boolean"},
@@ -689,7 +652,6 @@
       "type":"list",
       "member":{"shape":"SolutionStackName"}
     },
-    "BoxedBoolean":{"type":"boolean"},
     "BoxedInt":{"type":"integer"},
     "BuildConfiguration":{
       "type":"structure",
@@ -876,8 +838,7 @@
       "required":["ApplicationName"],
       "members":{
         "ApplicationName":{"shape":"ApplicationName"},
-        "Description":{"shape":"Description"},
-        "ResourceLifecycleConfig":{"shape":"ApplicationResourceLifecycleConfig"}
+        "Description":{"shape":"Description"}
       }
     },
     "CreateApplicationVersionMessage":{
@@ -1558,24 +1519,6 @@
       "max":100,
       "min":1
     },
-    "MaxAgeRule":{
-      "type":"structure",
-      "required":["Enabled"],
-      "members":{
-        "Enabled":{"shape":"BoxedBoolean"},
-        "MaxAgeInDays":{"shape":"BoxedInt"},
-        "DeleteSourceFromS3":{"shape":"BoxedBoolean"}
-      }
-    },
-    "MaxCountRule":{
-      "type":"structure",
-      "required":["Enabled"],
-      "members":{
-        "Enabled":{"shape":"BoxedBoolean"},
-        "MaxCount":{"shape":"BoxedInt"},
-        "DeleteSourceFromS3":{"shape":"BoxedBoolean"}
-      }
-    },
     "MaxRecords":{
       "type":"integer",
       "max":1000,
@@ -1935,17 +1878,6 @@
       "members":{
         "ApplicationName":{"shape":"ApplicationName"},
         "Description":{"shape":"Description"}
-      }
-    },
-    "UpdateApplicationResourceLifecycleMessage":{
-      "type":"structure",
-      "required":[
-        "ApplicationName",
-        "ResourceLifecycleConfig"
-      ],
-      "members":{
-        "ApplicationName":{"shape":"ApplicationName"},
-        "ResourceLifecycleConfig":{"shape":"ApplicationResourceLifecycleConfig"}
       }
     },
     "UpdateApplicationVersionMessage":{

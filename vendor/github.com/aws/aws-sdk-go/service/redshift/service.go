@@ -35,9 +35,8 @@ import (
 // (http://docs.aws.amazon.com/redshift/latest/dg/welcome.html) explains how
 // to design, build, query, and maintain the databases that make up your data
 // warehouse.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/redshift-2012-12-01
 type Redshift struct {
 	*client.Client
 }
@@ -48,11 +47,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "redshift"  // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "redshift"
 
 // New creates a new instance of the Redshift client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -65,7 +61,7 @@ const (
 //     // Create a Redshift client with additional configuration
 //     svc := redshift.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *Redshift {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

@@ -41,9 +41,8 @@ import (
 //    The CloudWatch Logs agent makes it easy to quickly send both rotated and
 //    non-rotated log data off of a host and into the log service. You can then
 //    access the raw log data when you need it.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/logs-2014-03-28
 type CloudWatchLogs struct {
 	*client.Client
 }
@@ -54,11 +53,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "logs"      // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "logs"
 
 // New creates a new instance of the CloudWatchLogs client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -71,7 +67,7 @@ const (
 //     // Create a CloudWatchLogs client with additional configuration
 //     svc := cloudwatchlogs.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *CloudWatchLogs {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

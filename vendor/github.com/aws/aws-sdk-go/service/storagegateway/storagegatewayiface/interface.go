@@ -91,10 +91,6 @@ type StorageGatewayAPI interface {
 
 	CreateCachediSCSIVolume(*storagegateway.CreateCachediSCSIVolumeInput) (*storagegateway.CreateCachediSCSIVolumeOutput, error)
 
-	CreateNFSFileShareRequest(*storagegateway.CreateNFSFileShareInput) (*request.Request, *storagegateway.CreateNFSFileShareOutput)
-
-	CreateNFSFileShare(*storagegateway.CreateNFSFileShareInput) (*storagegateway.CreateNFSFileShareOutput, error)
-
 	CreateSnapshotRequest(*storagegateway.CreateSnapshotInput) (*request.Request, *storagegateway.CreateSnapshotOutput)
 
 	CreateSnapshot(*storagegateway.CreateSnapshotInput) (*storagegateway.CreateSnapshotOutput, error)
@@ -122,10 +118,6 @@ type StorageGatewayAPI interface {
 	DeleteChapCredentialsRequest(*storagegateway.DeleteChapCredentialsInput) (*request.Request, *storagegateway.DeleteChapCredentialsOutput)
 
 	DeleteChapCredentials(*storagegateway.DeleteChapCredentialsInput) (*storagegateway.DeleteChapCredentialsOutput, error)
-
-	DeleteFileShareRequest(*storagegateway.DeleteFileShareInput) (*request.Request, *storagegateway.DeleteFileShareOutput)
-
-	DeleteFileShare(*storagegateway.DeleteFileShareInput) (*storagegateway.DeleteFileShareOutput, error)
 
 	DeleteGatewayRequest(*storagegateway.DeleteGatewayInput) (*request.Request, *storagegateway.DeleteGatewayOutput)
 
@@ -171,10 +163,6 @@ type StorageGatewayAPI interface {
 
 	DescribeMaintenanceStartTime(*storagegateway.DescribeMaintenanceStartTimeInput) (*storagegateway.DescribeMaintenanceStartTimeOutput, error)
 
-	DescribeNFSFileSharesRequest(*storagegateway.DescribeNFSFileSharesInput) (*request.Request, *storagegateway.DescribeNFSFileSharesOutput)
-
-	DescribeNFSFileShares(*storagegateway.DescribeNFSFileSharesInput) (*storagegateway.DescribeNFSFileSharesOutput, error)
-
 	DescribeSnapshotScheduleRequest(*storagegateway.DescribeSnapshotScheduleInput) (*request.Request, *storagegateway.DescribeSnapshotScheduleOutput)
 
 	DescribeSnapshotSchedule(*storagegateway.DescribeSnapshotScheduleInput) (*storagegateway.DescribeSnapshotScheduleOutput, error)
@@ -218,10 +206,6 @@ type StorageGatewayAPI interface {
 	DisableGatewayRequest(*storagegateway.DisableGatewayInput) (*request.Request, *storagegateway.DisableGatewayOutput)
 
 	DisableGateway(*storagegateway.DisableGatewayInput) (*storagegateway.DisableGatewayOutput, error)
-
-	ListFileSharesRequest(*storagegateway.ListFileSharesInput) (*request.Request, *storagegateway.ListFileSharesOutput)
-
-	ListFileShares(*storagegateway.ListFileSharesInput) (*storagegateway.ListFileSharesOutput, error)
 
 	ListGatewaysRequest(*storagegateway.ListGatewaysInput) (*request.Request, *storagegateway.ListGatewaysOutput)
 
@@ -302,10 +286,6 @@ type StorageGatewayAPI interface {
 	UpdateMaintenanceStartTimeRequest(*storagegateway.UpdateMaintenanceStartTimeInput) (*request.Request, *storagegateway.UpdateMaintenanceStartTimeOutput)
 
 	UpdateMaintenanceStartTime(*storagegateway.UpdateMaintenanceStartTimeInput) (*storagegateway.UpdateMaintenanceStartTimeOutput, error)
-
-	UpdateNFSFileShareRequest(*storagegateway.UpdateNFSFileShareInput) (*request.Request, *storagegateway.UpdateNFSFileShareOutput)
-
-	UpdateNFSFileShare(*storagegateway.UpdateNFSFileShareInput) (*storagegateway.UpdateNFSFileShareOutput, error)
 
 	UpdateSnapshotScheduleRequest(*storagegateway.UpdateSnapshotScheduleInput) (*request.Request, *storagegateway.UpdateSnapshotScheduleOutput)
 

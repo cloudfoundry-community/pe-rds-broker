@@ -38,6 +38,7 @@ const opCountClosedWorkflowExecutions = "CountClosedWorkflowExecutions"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) CountClosedWorkflowExecutionsRequest(input *CountClosedWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionCount) {
 	op := &request.Operation{
 		Name:       opCountClosedWorkflowExecutions,
@@ -49,8 +50,9 @@ func (c *SWF) CountClosedWorkflowExecutionsRequest(input *CountClosedWorkflowExe
 		input = &CountClosedWorkflowExecutionsInput{}
 	}
 
-	output = &WorkflowExecutionCount{}
 	req = c.newRequest(op, input, output)
+	output = &WorkflowExecutionCount{}
+	req.Data = output
 	return
 }
 
@@ -129,6 +131,7 @@ const opCountOpenWorkflowExecutions = "CountOpenWorkflowExecutions"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) CountOpenWorkflowExecutionsRequest(input *CountOpenWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionCount) {
 	op := &request.Operation{
 		Name:       opCountOpenWorkflowExecutions,
@@ -140,8 +143,9 @@ func (c *SWF) CountOpenWorkflowExecutionsRequest(input *CountOpenWorkflowExecuti
 		input = &CountOpenWorkflowExecutionsInput{}
 	}
 
-	output = &WorkflowExecutionCount{}
 	req = c.newRequest(op, input, output)
+	output = &WorkflowExecutionCount{}
+	req.Data = output
 	return
 }
 
@@ -220,6 +224,7 @@ const opCountPendingActivityTasks = "CountPendingActivityTasks"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) CountPendingActivityTasksRequest(input *CountPendingActivityTasksInput) (req *request.Request, output *PendingTaskCount) {
 	op := &request.Operation{
 		Name:       opCountPendingActivityTasks,
@@ -231,8 +236,9 @@ func (c *SWF) CountPendingActivityTasksRequest(input *CountPendingActivityTasksI
 		input = &CountPendingActivityTasksInput{}
 	}
 
-	output = &PendingTaskCount{}
 	req = c.newRequest(op, input, output)
+	output = &PendingTaskCount{}
+	req.Data = output
 	return
 }
 
@@ -309,6 +315,7 @@ const opCountPendingDecisionTasks = "CountPendingDecisionTasks"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) CountPendingDecisionTasksRequest(input *CountPendingDecisionTasksInput) (req *request.Request, output *PendingTaskCount) {
 	op := &request.Operation{
 		Name:       opCountPendingDecisionTasks,
@@ -320,8 +327,9 @@ func (c *SWF) CountPendingDecisionTasksRequest(input *CountPendingDecisionTasksI
 		input = &CountPendingDecisionTasksInput{}
 	}
 
-	output = &PendingTaskCount{}
 	req = c.newRequest(op, input, output)
+	output = &PendingTaskCount{}
+	req.Data = output
 	return
 }
 
@@ -398,6 +406,7 @@ const opDeprecateActivityType = "DeprecateActivityType"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DeprecateActivityTypeRequest(input *DeprecateActivityTypeInput) (req *request.Request, output *DeprecateActivityTypeOutput) {
 	op := &request.Operation{
 		Name:       opDeprecateActivityType,
@@ -409,10 +418,11 @@ func (c *SWF) DeprecateActivityTypeRequest(input *DeprecateActivityTypeInput) (r
 		input = &DeprecateActivityTypeInput{}
 	}
 
-	output = &DeprecateActivityTypeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeprecateActivityTypeOutput{}
+	req.Data = output
 	return
 }
 
@@ -494,6 +504,7 @@ const opDeprecateDomain = "DeprecateDomain"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DeprecateDomainRequest(input *DeprecateDomainInput) (req *request.Request, output *DeprecateDomainOutput) {
 	op := &request.Operation{
 		Name:       opDeprecateDomain,
@@ -505,10 +516,11 @@ func (c *SWF) DeprecateDomainRequest(input *DeprecateDomainInput) (req *request.
 		input = &DeprecateDomainInput{}
 	}
 
-	output = &DeprecateDomainOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeprecateDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -590,6 +602,7 @@ const opDeprecateWorkflowType = "DeprecateWorkflowType"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DeprecateWorkflowTypeRequest(input *DeprecateWorkflowTypeInput) (req *request.Request, output *DeprecateWorkflowTypeOutput) {
 	op := &request.Operation{
 		Name:       opDeprecateWorkflowType,
@@ -601,10 +614,11 @@ func (c *SWF) DeprecateWorkflowTypeRequest(input *DeprecateWorkflowTypeInput) (r
 		input = &DeprecateWorkflowTypeInput{}
 	}
 
-	output = &DeprecateWorkflowTypeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeprecateWorkflowTypeOutput{}
+	req.Data = output
 	return
 }
 
@@ -687,6 +701,7 @@ const opDescribeActivityType = "DescribeActivityType"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DescribeActivityTypeRequest(input *DescribeActivityTypeInput) (req *request.Request, output *DescribeActivityTypeOutput) {
 	op := &request.Operation{
 		Name:       opDescribeActivityType,
@@ -698,8 +713,9 @@ func (c *SWF) DescribeActivityTypeRequest(input *DescribeActivityTypeInput) (req
 		input = &DescribeActivityTypeInput{}
 	}
 
-	output = &DescribeActivityTypeOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeActivityTypeOutput{}
+	req.Data = output
 	return
 }
 
@@ -777,6 +793,7 @@ const opDescribeDomain = "DescribeDomain"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DescribeDomainRequest(input *DescribeDomainInput) (req *request.Request, output *DescribeDomainOutput) {
 	op := &request.Operation{
 		Name:       opDescribeDomain,
@@ -788,8 +805,9 @@ func (c *SWF) DescribeDomainRequest(input *DescribeDomainInput) (req *request.Re
 		input = &DescribeDomainInput{}
 	}
 
-	output = &DescribeDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -863,6 +881,7 @@ const opDescribeWorkflowExecution = "DescribeWorkflowExecution"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DescribeWorkflowExecutionRequest(input *DescribeWorkflowExecutionInput) (req *request.Request, output *DescribeWorkflowExecutionOutput) {
 	op := &request.Operation{
 		Name:       opDescribeWorkflowExecution,
@@ -874,8 +893,9 @@ func (c *SWF) DescribeWorkflowExecutionRequest(input *DescribeWorkflowExecutionI
 		input = &DescribeWorkflowExecutionInput{}
 	}
 
-	output = &DescribeWorkflowExecutionOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeWorkflowExecutionOutput{}
+	req.Data = output
 	return
 }
 
@@ -950,6 +970,7 @@ const opDescribeWorkflowType = "DescribeWorkflowType"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) DescribeWorkflowTypeRequest(input *DescribeWorkflowTypeInput) (req *request.Request, output *DescribeWorkflowTypeOutput) {
 	op := &request.Operation{
 		Name:       opDescribeWorkflowType,
@@ -961,8 +982,9 @@ func (c *SWF) DescribeWorkflowTypeRequest(input *DescribeWorkflowTypeInput) (req
 		input = &DescribeWorkflowTypeInput{}
 	}
 
-	output = &DescribeWorkflowTypeOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeWorkflowTypeOutput{}
+	req.Data = output
 	return
 }
 
@@ -1040,6 +1062,7 @@ const opGetWorkflowExecutionHistory = "GetWorkflowExecutionHistory"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) GetWorkflowExecutionHistoryRequest(input *GetWorkflowExecutionHistoryInput) (req *request.Request, output *GetWorkflowExecutionHistoryOutput) {
 	op := &request.Operation{
 		Name:       opGetWorkflowExecutionHistory,
@@ -1057,8 +1080,9 @@ func (c *SWF) GetWorkflowExecutionHistoryRequest(input *GetWorkflowExecutionHist
 		input = &GetWorkflowExecutionHistoryInput{}
 	}
 
-	output = &GetWorkflowExecutionHistoryOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetWorkflowExecutionHistoryOutput{}
+	req.Data = output
 	return
 }
 
@@ -1159,6 +1183,7 @@ const opListActivityTypes = "ListActivityTypes"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) ListActivityTypesRequest(input *ListActivityTypesInput) (req *request.Request, output *ListActivityTypesOutput) {
 	op := &request.Operation{
 		Name:       opListActivityTypes,
@@ -1176,8 +1201,9 @@ func (c *SWF) ListActivityTypesRequest(input *ListActivityTypesInput) (req *requ
 		input = &ListActivityTypesInput{}
 	}
 
-	output = &ListActivityTypesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListActivityTypesOutput{}
+	req.Data = output
 	return
 }
 
@@ -1279,6 +1305,7 @@ const opListClosedWorkflowExecutions = "ListClosedWorkflowExecutions"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) ListClosedWorkflowExecutionsRequest(input *ListClosedWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionInfos) {
 	op := &request.Operation{
 		Name:       opListClosedWorkflowExecutions,
@@ -1296,8 +1323,9 @@ func (c *SWF) ListClosedWorkflowExecutionsRequest(input *ListClosedWorkflowExecu
 		input = &ListClosedWorkflowExecutionsInput{}
 	}
 
-	output = &WorkflowExecutionInfos{}
 	req = c.newRequest(op, input, output)
+	output = &WorkflowExecutionInfos{}
+	req.Data = output
 	return
 }
 
@@ -1403,6 +1431,7 @@ const opListDomains = "ListDomains"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) ListDomainsRequest(input *ListDomainsInput) (req *request.Request, output *ListDomainsOutput) {
 	op := &request.Operation{
 		Name:       opListDomains,
@@ -1420,8 +1449,9 @@ func (c *SWF) ListDomainsRequest(input *ListDomainsInput) (req *request.Request,
 		input = &ListDomainsInput{}
 	}
 
-	output = &ListDomainsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListDomainsOutput{}
+	req.Data = output
 	return
 }
 
@@ -1518,6 +1548,7 @@ const opListOpenWorkflowExecutions = "ListOpenWorkflowExecutions"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) ListOpenWorkflowExecutionsRequest(input *ListOpenWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionInfos) {
 	op := &request.Operation{
 		Name:       opListOpenWorkflowExecutions,
@@ -1535,8 +1566,9 @@ func (c *SWF) ListOpenWorkflowExecutionsRequest(input *ListOpenWorkflowExecution
 		input = &ListOpenWorkflowExecutionsInput{}
 	}
 
-	output = &WorkflowExecutionInfos{}
 	req = c.newRequest(op, input, output)
+	output = &WorkflowExecutionInfos{}
+	req.Data = output
 	return
 }
 
@@ -1642,6 +1674,7 @@ const opListWorkflowTypes = "ListWorkflowTypes"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) ListWorkflowTypesRequest(input *ListWorkflowTypesInput) (req *request.Request, output *ListWorkflowTypesOutput) {
 	op := &request.Operation{
 		Name:       opListWorkflowTypes,
@@ -1659,8 +1692,9 @@ func (c *SWF) ListWorkflowTypesRequest(input *ListWorkflowTypesInput) (req *requ
 		input = &ListWorkflowTypesInput{}
 	}
 
-	output = &ListWorkflowTypesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListWorkflowTypesOutput{}
+	req.Data = output
 	return
 }
 
@@ -1760,6 +1794,7 @@ const opPollForActivityTask = "PollForActivityTask"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) PollForActivityTaskRequest(input *PollForActivityTaskInput) (req *request.Request, output *PollForActivityTaskOutput) {
 	op := &request.Operation{
 		Name:       opPollForActivityTask,
@@ -1771,8 +1806,9 @@ func (c *SWF) PollForActivityTaskRequest(input *PollForActivityTaskInput) (req *
 		input = &PollForActivityTaskInput{}
 	}
 
-	output = &PollForActivityTaskOutput{}
 	req = c.newRequest(op, input, output)
+	output = &PollForActivityTaskOutput{}
+	req.Data = output
 	return
 }
 
@@ -1859,6 +1895,7 @@ const opPollForDecisionTask = "PollForDecisionTask"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) PollForDecisionTaskRequest(input *PollForDecisionTaskInput) (req *request.Request, output *PollForDecisionTaskOutput) {
 	op := &request.Operation{
 		Name:       opPollForDecisionTask,
@@ -1876,8 +1913,9 @@ func (c *SWF) PollForDecisionTaskRequest(input *PollForDecisionTaskInput) (req *
 		input = &PollForDecisionTaskInput{}
 	}
 
-	output = &PollForDecisionTaskOutput{}
 	req = c.newRequest(op, input, output)
+	output = &PollForDecisionTaskOutput{}
+	req.Data = output
 	return
 }
 
@@ -1997,6 +2035,7 @@ const opRecordActivityTaskHeartbeat = "RecordActivityTaskHeartbeat"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RecordActivityTaskHeartbeatRequest(input *RecordActivityTaskHeartbeatInput) (req *request.Request, output *RecordActivityTaskHeartbeatOutput) {
 	op := &request.Operation{
 		Name:       opRecordActivityTaskHeartbeat,
@@ -2008,8 +2047,9 @@ func (c *SWF) RecordActivityTaskHeartbeatRequest(input *RecordActivityTaskHeartb
 		input = &RecordActivityTaskHeartbeatInput{}
 	}
 
-	output = &RecordActivityTaskHeartbeatOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RecordActivityTaskHeartbeatOutput{}
+	req.Data = output
 	return
 }
 
@@ -2101,6 +2141,7 @@ const opRegisterActivityType = "RegisterActivityType"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RegisterActivityTypeRequest(input *RegisterActivityTypeInput) (req *request.Request, output *RegisterActivityTypeOutput) {
 	op := &request.Operation{
 		Name:       opRegisterActivityType,
@@ -2112,10 +2153,11 @@ func (c *SWF) RegisterActivityTypeRequest(input *RegisterActivityTypeInput) (req
 		input = &RegisterActivityTypeInput{}
 	}
 
-	output = &RegisterActivityTypeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RegisterActivityTypeOutput{}
+	req.Data = output
 	return
 }
 
@@ -2206,6 +2248,7 @@ const opRegisterDomain = "RegisterDomain"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RegisterDomainRequest(input *RegisterDomainInput) (req *request.Request, output *RegisterDomainOutput) {
 	op := &request.Operation{
 		Name:       opRegisterDomain,
@@ -2217,10 +2260,11 @@ func (c *SWF) RegisterDomainRequest(input *RegisterDomainInput) (req *request.Re
 		input = &RegisterDomainInput{}
 	}
 
-	output = &RegisterDomainOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RegisterDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -2298,6 +2342,7 @@ const opRegisterWorkflowType = "RegisterWorkflowType"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RegisterWorkflowTypeRequest(input *RegisterWorkflowTypeInput) (req *request.Request, output *RegisterWorkflowTypeOutput) {
 	op := &request.Operation{
 		Name:       opRegisterWorkflowType,
@@ -2309,10 +2354,11 @@ func (c *SWF) RegisterWorkflowTypeRequest(input *RegisterWorkflowTypeInput) (req
 		input = &RegisterWorkflowTypeInput{}
 	}
 
-	output = &RegisterWorkflowTypeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RegisterWorkflowTypeOutput{}
+	req.Data = output
 	return
 }
 
@@ -2406,6 +2452,7 @@ const opRequestCancelWorkflowExecution = "RequestCancelWorkflowExecution"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RequestCancelWorkflowExecutionRequest(input *RequestCancelWorkflowExecutionInput) (req *request.Request, output *RequestCancelWorkflowExecutionOutput) {
 	op := &request.Operation{
 		Name:       opRequestCancelWorkflowExecution,
@@ -2417,10 +2464,11 @@ func (c *SWF) RequestCancelWorkflowExecutionRequest(input *RequestCancelWorkflow
 		input = &RequestCancelWorkflowExecutionInput{}
 	}
 
-	output = &RequestCancelWorkflowExecutionOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RequestCancelWorkflowExecutionOutput{}
+	req.Data = output
 	return
 }
 
@@ -2500,6 +2548,7 @@ const opRespondActivityTaskCanceled = "RespondActivityTaskCanceled"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RespondActivityTaskCanceledRequest(input *RespondActivityTaskCanceledInput) (req *request.Request, output *RespondActivityTaskCanceledOutput) {
 	op := &request.Operation{
 		Name:       opRespondActivityTaskCanceled,
@@ -2511,10 +2560,11 @@ func (c *SWF) RespondActivityTaskCanceledRequest(input *RespondActivityTaskCance
 		input = &RespondActivityTaskCanceledInput{}
 	}
 
-	output = &RespondActivityTaskCanceledOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RespondActivityTaskCanceledOutput{}
+	req.Data = output
 	return
 }
 
@@ -2599,6 +2649,7 @@ const opRespondActivityTaskCompleted = "RespondActivityTaskCompleted"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RespondActivityTaskCompletedRequest(input *RespondActivityTaskCompletedInput) (req *request.Request, output *RespondActivityTaskCompletedOutput) {
 	op := &request.Operation{
 		Name:       opRespondActivityTaskCompleted,
@@ -2610,10 +2661,11 @@ func (c *SWF) RespondActivityTaskCompletedRequest(input *RespondActivityTaskComp
 		input = &RespondActivityTaskCompletedInput{}
 	}
 
-	output = &RespondActivityTaskCompletedOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RespondActivityTaskCompletedOutput{}
+	req.Data = output
 	return
 }
 
@@ -2697,6 +2749,7 @@ const opRespondActivityTaskFailed = "RespondActivityTaskFailed"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RespondActivityTaskFailedRequest(input *RespondActivityTaskFailedInput) (req *request.Request, output *RespondActivityTaskFailedOutput) {
 	op := &request.Operation{
 		Name:       opRespondActivityTaskFailed,
@@ -2708,10 +2761,11 @@ func (c *SWF) RespondActivityTaskFailedRequest(input *RespondActivityTaskFailedI
 		input = &RespondActivityTaskFailedInput{}
 	}
 
-	output = &RespondActivityTaskFailedOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RespondActivityTaskFailedOutput{}
+	req.Data = output
 	return
 }
 
@@ -2792,6 +2846,7 @@ const opRespondDecisionTaskCompleted = "RespondDecisionTaskCompleted"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) RespondDecisionTaskCompletedRequest(input *RespondDecisionTaskCompletedInput) (req *request.Request, output *RespondDecisionTaskCompletedOutput) {
 	op := &request.Operation{
 		Name:       opRespondDecisionTaskCompleted,
@@ -2803,10 +2858,11 @@ func (c *SWF) RespondDecisionTaskCompletedRequest(input *RespondDecisionTaskComp
 		input = &RespondDecisionTaskCompletedInput{}
 	}
 
-	output = &RespondDecisionTaskCompletedOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RespondDecisionTaskCompletedOutput{}
+	req.Data = output
 	return
 }
 
@@ -2877,6 +2933,7 @@ const opSignalWorkflowExecution = "SignalWorkflowExecution"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) SignalWorkflowExecutionRequest(input *SignalWorkflowExecutionInput) (req *request.Request, output *SignalWorkflowExecutionOutput) {
 	op := &request.Operation{
 		Name:       opSignalWorkflowExecution,
@@ -2888,10 +2945,11 @@ func (c *SWF) SignalWorkflowExecutionRequest(input *SignalWorkflowExecutionInput
 		input = &SignalWorkflowExecutionInput{}
 	}
 
-	output = &SignalWorkflowExecutionOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &SignalWorkflowExecutionOutput{}
+	req.Data = output
 	return
 }
 
@@ -2969,6 +3027,7 @@ const opStartWorkflowExecution = "StartWorkflowExecution"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) StartWorkflowExecutionRequest(input *StartWorkflowExecutionInput) (req *request.Request, output *StartWorkflowExecutionOutput) {
 	op := &request.Operation{
 		Name:       opStartWorkflowExecution,
@@ -2980,8 +3039,9 @@ func (c *SWF) StartWorkflowExecutionRequest(input *StartWorkflowExecutionInput) 
 		input = &StartWorkflowExecutionInput{}
 	}
 
-	output = &StartWorkflowExecutionOutput{}
 	req = c.newRequest(op, input, output)
+	output = &StartWorkflowExecutionOutput{}
+	req.Data = output
 	return
 }
 
@@ -3081,6 +3141,7 @@ const opTerminateWorkflowExecution = "TerminateWorkflowExecution"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *SWF) TerminateWorkflowExecutionRequest(input *TerminateWorkflowExecutionInput) (req *request.Request, output *TerminateWorkflowExecutionOutput) {
 	op := &request.Operation{
 		Name:       opTerminateWorkflowExecution,
@@ -3092,10 +3153,11 @@ func (c *SWF) TerminateWorkflowExecutionRequest(input *TerminateWorkflowExecutio
 		input = &TerminateWorkflowExecutionInput{}
 	}
 
-	output = &TerminateWorkflowExecutionOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &TerminateWorkflowExecutionOutput{}
+	req.Data = output
 	return
 }
 

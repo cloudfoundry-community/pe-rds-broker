@@ -35,6 +35,7 @@ const opCancelJob = "CancelJob"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) CancelJobRequest(input *CancelJobInput) (req *request.Request, output *CancelJobOutput) {
 	op := &request.Operation{
 		Name:       opCancelJob,
@@ -46,8 +47,9 @@ func (c *ElasticTranscoder) CancelJobRequest(input *CancelJobInput) (req *reques
 		input = &CancelJobInput{}
 	}
 
-	output = &CancelJobOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CancelJobOutput{}
+	req.Data = output
 	return
 }
 
@@ -120,6 +122,7 @@ const opCreateJob = "CreateJob"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) CreateJobRequest(input *CreateJobInput) (req *request.Request, output *CreateJobResponse) {
 	op := &request.Operation{
 		Name:       opCreateJob,
@@ -131,8 +134,9 @@ func (c *ElasticTranscoder) CreateJobRequest(input *CreateJobInput) (req *reques
 		input = &CreateJobInput{}
 	}
 
-	output = &CreateJobResponse{}
 	req = c.newRequest(op, input, output)
+	output = &CreateJobResponse{}
+	req.Data = output
 	return
 }
 
@@ -207,6 +211,7 @@ const opCreatePipeline = "CreatePipeline"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) CreatePipelineRequest(input *CreatePipelineInput) (req *request.Request, output *CreatePipelineOutput) {
 	op := &request.Operation{
 		Name:       opCreatePipeline,
@@ -218,8 +223,9 @@ func (c *ElasticTranscoder) CreatePipelineRequest(input *CreatePipelineInput) (r
 		input = &CreatePipelineInput{}
 	}
 
-	output = &CreatePipelineOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreatePipelineOutput{}
+	req.Data = output
 	return
 }
 
@@ -288,6 +294,7 @@ const opCreatePreset = "CreatePreset"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) CreatePresetRequest(input *CreatePresetInput) (req *request.Request, output *CreatePresetOutput) {
 	op := &request.Operation{
 		Name:       opCreatePreset,
@@ -299,8 +306,9 @@ func (c *ElasticTranscoder) CreatePresetRequest(input *CreatePresetInput) (req *
 		input = &CreatePresetInput{}
 	}
 
-	output = &CreatePresetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreatePresetOutput{}
+	req.Data = output
 	return
 }
 
@@ -378,6 +386,7 @@ const opDeletePipeline = "DeletePipeline"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) DeletePipelineRequest(input *DeletePipelineInput) (req *request.Request, output *DeletePipelineOutput) {
 	op := &request.Operation{
 		Name:       opDeletePipeline,
@@ -389,8 +398,9 @@ func (c *ElasticTranscoder) DeletePipelineRequest(input *DeletePipelineInput) (r
 		input = &DeletePipelineInput{}
 	}
 
-	output = &DeletePipelineOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeletePipelineOutput{}
+	req.Data = output
 	return
 }
 
@@ -463,6 +473,7 @@ const opDeletePreset = "DeletePreset"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) DeletePresetRequest(input *DeletePresetInput) (req *request.Request, output *DeletePresetOutput) {
 	op := &request.Operation{
 		Name:       opDeletePreset,
@@ -474,8 +485,9 @@ func (c *ElasticTranscoder) DeletePresetRequest(input *DeletePresetInput) (req *
 		input = &DeletePresetInput{}
 	}
 
-	output = &DeletePresetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeletePresetOutput{}
+	req.Data = output
 	return
 }
 
@@ -542,6 +554,7 @@ const opListJobsByPipeline = "ListJobsByPipeline"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ListJobsByPipelineRequest(input *ListJobsByPipelineInput) (req *request.Request, output *ListJobsByPipelineOutput) {
 	op := &request.Operation{
 		Name:       opListJobsByPipeline,
@@ -559,8 +572,9 @@ func (c *ElasticTranscoder) ListJobsByPipelineRequest(input *ListJobsByPipelineI
 		input = &ListJobsByPipelineInput{}
 	}
 
-	output = &ListJobsByPipelineOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListJobsByPipelineOutput{}
+	req.Data = output
 	return
 }
 
@@ -654,6 +668,7 @@ const opListJobsByStatus = "ListJobsByStatus"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ListJobsByStatusRequest(input *ListJobsByStatusInput) (req *request.Request, output *ListJobsByStatusOutput) {
 	op := &request.Operation{
 		Name:       opListJobsByStatus,
@@ -671,8 +686,9 @@ func (c *ElasticTranscoder) ListJobsByStatusRequest(input *ListJobsByStatusInput
 		input = &ListJobsByStatusInput{}
 	}
 
-	output = &ListJobsByStatusOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListJobsByStatusOutput{}
+	req.Data = output
 	return
 }
 
@@ -764,6 +780,7 @@ const opListPipelines = "ListPipelines"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ListPipelinesRequest(input *ListPipelinesInput) (req *request.Request, output *ListPipelinesOutput) {
 	op := &request.Operation{
 		Name:       opListPipelines,
@@ -781,8 +798,9 @@ func (c *ElasticTranscoder) ListPipelinesRequest(input *ListPipelinesInput) (req
 		input = &ListPipelinesInput{}
 	}
 
-	output = &ListPipelinesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListPipelinesOutput{}
+	req.Data = output
 	return
 }
 
@@ -868,6 +886,7 @@ const opListPresets = "ListPresets"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ListPresetsRequest(input *ListPresetsInput) (req *request.Request, output *ListPresetsOutput) {
 	op := &request.Operation{
 		Name:       opListPresets,
@@ -885,8 +904,9 @@ func (c *ElasticTranscoder) ListPresetsRequest(input *ListPresetsInput) (req *re
 		input = &ListPresetsInput{}
 	}
 
-	output = &ListPresetsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListPresetsOutput{}
+	req.Data = output
 	return
 }
 
@@ -972,6 +992,7 @@ const opReadJob = "ReadJob"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ReadJobRequest(input *ReadJobInput) (req *request.Request, output *ReadJobOutput) {
 	op := &request.Operation{
 		Name:       opReadJob,
@@ -983,8 +1004,9 @@ func (c *ElasticTranscoder) ReadJobRequest(input *ReadJobInput) (req *request.Re
 		input = &ReadJobInput{}
 	}
 
-	output = &ReadJobOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ReadJobOutput{}
+	req.Data = output
 	return
 }
 
@@ -1049,6 +1071,7 @@ const opReadPipeline = "ReadPipeline"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ReadPipelineRequest(input *ReadPipelineInput) (req *request.Request, output *ReadPipelineOutput) {
 	op := &request.Operation{
 		Name:       opReadPipeline,
@@ -1060,8 +1083,9 @@ func (c *ElasticTranscoder) ReadPipelineRequest(input *ReadPipelineInput) (req *
 		input = &ReadPipelineInput{}
 	}
 
-	output = &ReadPipelineOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ReadPipelineOutput{}
+	req.Data = output
 	return
 }
 
@@ -1126,6 +1150,7 @@ const opReadPreset = "ReadPreset"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) ReadPresetRequest(input *ReadPresetInput) (req *request.Request, output *ReadPresetOutput) {
 	op := &request.Operation{
 		Name:       opReadPreset,
@@ -1137,8 +1162,9 @@ func (c *ElasticTranscoder) ReadPresetRequest(input *ReadPresetInput) (req *requ
 		input = &ReadPresetInput{}
 	}
 
-	output = &ReadPresetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ReadPresetOutput{}
+	req.Data = output
 	return
 }
 
@@ -1203,6 +1229,7 @@ const opTestRole = "TestRole"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) TestRoleRequest(input *TestRoleInput) (req *request.Request, output *TestRoleOutput) {
 	if c.Client.Config.Logger != nil {
 		c.Client.Config.Logger.Log("This operation, TestRole, has been deprecated")
@@ -1217,8 +1244,9 @@ func (c *ElasticTranscoder) TestRoleRequest(input *TestRoleInput) (req *request.
 		input = &TestRoleInput{}
 	}
 
-	output = &TestRoleOutput{}
 	req = c.newRequest(op, input, output)
+	output = &TestRoleOutput{}
+	req.Data = output
 	return
 }
 
@@ -1289,6 +1317,7 @@ const opUpdatePipeline = "UpdatePipeline"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) UpdatePipelineRequest(input *UpdatePipelineInput) (req *request.Request, output *UpdatePipelineOutput) {
 	op := &request.Operation{
 		Name:       opUpdatePipeline,
@@ -1300,8 +1329,9 @@ func (c *ElasticTranscoder) UpdatePipelineRequest(input *UpdatePipelineInput) (r
 		input = &UpdatePipelineInput{}
 	}
 
-	output = &UpdatePipelineOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdatePipelineOutput{}
+	req.Data = output
 	return
 }
 
@@ -1375,6 +1405,7 @@ const opUpdatePipelineNotifications = "UpdatePipelineNotifications"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) UpdatePipelineNotificationsRequest(input *UpdatePipelineNotificationsInput) (req *request.Request, output *UpdatePipelineNotificationsOutput) {
 	op := &request.Operation{
 		Name:       opUpdatePipelineNotifications,
@@ -1386,8 +1417,9 @@ func (c *ElasticTranscoder) UpdatePipelineNotificationsRequest(input *UpdatePipe
 		input = &UpdatePipelineNotificationsInput{}
 	}
 
-	output = &UpdatePipelineNotificationsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdatePipelineNotificationsOutput{}
+	req.Data = output
 	return
 }
 
@@ -1460,6 +1492,7 @@ const opUpdatePipelineStatus = "UpdatePipelineStatus"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *ElasticTranscoder) UpdatePipelineStatusRequest(input *UpdatePipelineStatusInput) (req *request.Request, output *UpdatePipelineStatusOutput) {
 	op := &request.Operation{
 		Name:       opUpdatePipelineStatus,
@@ -1471,8 +1504,9 @@ func (c *ElasticTranscoder) UpdatePipelineStatusRequest(input *UpdatePipelineSta
 		input = &UpdatePipelineStatusInput{}
 	}
 
-	output = &UpdatePipelineStatusOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdatePipelineStatusOutput{}
+	req.Data = output
 	return
 }
 

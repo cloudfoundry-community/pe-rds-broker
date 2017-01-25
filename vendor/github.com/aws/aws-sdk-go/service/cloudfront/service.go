@@ -15,9 +15,8 @@ import (
 // who need detailed information about the CloudFront API actions, data types,
 // and errors. For detailed information about CloudFront features and their
 // associated API calls, see the Amazon CloudFront Developer Guide.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/cloudfront-2016-11-25
 type CloudFront struct {
 	*client.Client
 }
@@ -28,11 +27,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "cloudfront" // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName  // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "cloudfront"
 
 // New creates a new instance of the CloudFront client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -45,7 +41,7 @@ const (
 //     // Create a CloudFront client with additional configuration
 //     svc := cloudfront.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *CloudFront {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

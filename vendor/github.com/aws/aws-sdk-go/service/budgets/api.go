@@ -36,6 +36,7 @@ const opCreateBudget = "CreateBudget"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) CreateBudgetRequest(input *CreateBudgetInput) (req *request.Request, output *CreateBudgetOutput) {
 	op := &request.Operation{
 		Name:       opCreateBudget,
@@ -47,8 +48,9 @@ func (c *Budgets) CreateBudgetRequest(input *CreateBudgetInput) (req *request.Re
 		input = &CreateBudgetInput{}
 	}
 
-	output = &CreateBudgetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateBudgetOutput{}
+	req.Data = output
 	return
 }
 
@@ -110,6 +112,7 @@ const opCreateNotification = "CreateNotification"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) CreateNotificationRequest(input *CreateNotificationInput) (req *request.Request, output *CreateNotificationOutput) {
 	op := &request.Operation{
 		Name:       opCreateNotification,
@@ -121,8 +124,9 @@ func (c *Budgets) CreateNotificationRequest(input *CreateNotificationInput) (req
 		input = &CreateNotificationInput{}
 	}
 
-	output = &CreateNotificationOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateNotificationOutput{}
+	req.Data = output
 	return
 }
 
@@ -188,6 +192,7 @@ const opCreateSubscriber = "CreateSubscriber"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) CreateSubscriberRequest(input *CreateSubscriberInput) (req *request.Request, output *CreateSubscriberOutput) {
 	op := &request.Operation{
 		Name:       opCreateSubscriber,
@@ -199,8 +204,9 @@ func (c *Budgets) CreateSubscriberRequest(input *CreateSubscriberInput) (req *re
 		input = &CreateSubscriberInput{}
 	}
 
-	output = &CreateSubscriberOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateSubscriberOutput{}
+	req.Data = output
 	return
 }
 
@@ -262,6 +268,7 @@ const opDeleteBudget = "DeleteBudget"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DeleteBudgetRequest(input *DeleteBudgetInput) (req *request.Request, output *DeleteBudgetOutput) {
 	op := &request.Operation{
 		Name:       opDeleteBudget,
@@ -273,8 +280,9 @@ func (c *Budgets) DeleteBudgetRequest(input *DeleteBudgetInput) (req *request.Re
 		input = &DeleteBudgetInput{}
 	}
 
-	output = &DeleteBudgetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteBudgetOutput{}
+	req.Data = output
 	return
 }
 
@@ -332,6 +340,7 @@ const opDeleteNotification = "DeleteNotification"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DeleteNotificationRequest(input *DeleteNotificationInput) (req *request.Request, output *DeleteNotificationOutput) {
 	op := &request.Operation{
 		Name:       opDeleteNotification,
@@ -343,8 +352,9 @@ func (c *Budgets) DeleteNotificationRequest(input *DeleteNotificationInput) (req
 		input = &DeleteNotificationInput{}
 	}
 
-	output = &DeleteNotificationOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteNotificationOutput{}
+	req.Data = output
 	return
 }
 
@@ -402,6 +412,7 @@ const opDeleteSubscriber = "DeleteSubscriber"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DeleteSubscriberRequest(input *DeleteSubscriberInput) (req *request.Request, output *DeleteSubscriberOutput) {
 	op := &request.Operation{
 		Name:       opDeleteSubscriber,
@@ -413,8 +424,9 @@ func (c *Budgets) DeleteSubscriberRequest(input *DeleteSubscriberInput) (req *re
 		input = &DeleteSubscriberInput{}
 	}
 
-	output = &DeleteSubscriberOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteSubscriberOutput{}
+	req.Data = output
 	return
 }
 
@@ -472,6 +484,7 @@ const opDescribeBudget = "DescribeBudget"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DescribeBudgetRequest(input *DescribeBudgetInput) (req *request.Request, output *DescribeBudgetOutput) {
 	op := &request.Operation{
 		Name:       opDescribeBudget,
@@ -483,8 +496,9 @@ func (c *Budgets) DescribeBudgetRequest(input *DescribeBudgetInput) (req *reques
 		input = &DescribeBudgetInput{}
 	}
 
-	output = &DescribeBudgetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeBudgetOutput{}
+	req.Data = output
 	return
 }
 
@@ -542,6 +556,7 @@ const opDescribeBudgets = "DescribeBudgets"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DescribeBudgetsRequest(input *DescribeBudgetsInput) (req *request.Request, output *DescribeBudgetsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeBudgets,
@@ -553,8 +568,9 @@ func (c *Budgets) DescribeBudgetsRequest(input *DescribeBudgetsInput) (req *requ
 		input = &DescribeBudgetsInput{}
 	}
 
-	output = &DescribeBudgetsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeBudgetsOutput{}
+	req.Data = output
 	return
 }
 
@@ -619,6 +635,7 @@ const opDescribeNotificationsForBudget = "DescribeNotificationsForBudget"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DescribeNotificationsForBudgetRequest(input *DescribeNotificationsForBudgetInput) (req *request.Request, output *DescribeNotificationsForBudgetOutput) {
 	op := &request.Operation{
 		Name:       opDescribeNotificationsForBudget,
@@ -630,8 +647,9 @@ func (c *Budgets) DescribeNotificationsForBudgetRequest(input *DescribeNotificat
 		input = &DescribeNotificationsForBudgetInput{}
 	}
 
-	output = &DescribeNotificationsForBudgetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeNotificationsForBudgetOutput{}
+	req.Data = output
 	return
 }
 
@@ -696,6 +714,7 @@ const opDescribeSubscribersForNotification = "DescribeSubscribersForNotification
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) DescribeSubscribersForNotificationRequest(input *DescribeSubscribersForNotificationInput) (req *request.Request, output *DescribeSubscribersForNotificationOutput) {
 	op := &request.Operation{
 		Name:       opDescribeSubscribersForNotification,
@@ -707,8 +726,9 @@ func (c *Budgets) DescribeSubscribersForNotificationRequest(input *DescribeSubsc
 		input = &DescribeSubscribersForNotificationInput{}
 	}
 
-	output = &DescribeSubscribersForNotificationOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeSubscribersForNotificationOutput{}
+	req.Data = output
 	return
 }
 
@@ -773,6 +793,7 @@ const opUpdateBudget = "UpdateBudget"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) UpdateBudgetRequest(input *UpdateBudgetInput) (req *request.Request, output *UpdateBudgetOutput) {
 	op := &request.Operation{
 		Name:       opUpdateBudget,
@@ -784,8 +805,9 @@ func (c *Budgets) UpdateBudgetRequest(input *UpdateBudgetInput) (req *request.Re
 		input = &UpdateBudgetInput{}
 	}
 
-	output = &UpdateBudgetOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateBudgetOutput{}
+	req.Data = output
 	return
 }
 
@@ -843,6 +865,7 @@ const opUpdateNotification = "UpdateNotification"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) UpdateNotificationRequest(input *UpdateNotificationInput) (req *request.Request, output *UpdateNotificationOutput) {
 	op := &request.Operation{
 		Name:       opUpdateNotification,
@@ -854,8 +877,9 @@ func (c *Budgets) UpdateNotificationRequest(input *UpdateNotificationInput) (req
 		input = &UpdateNotificationInput{}
 	}
 
-	output = &UpdateNotificationOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateNotificationOutput{}
+	req.Data = output
 	return
 }
 
@@ -913,6 +937,7 @@ const opUpdateSubscriber = "UpdateSubscriber"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
+//
 func (c *Budgets) UpdateSubscriberRequest(input *UpdateSubscriberInput) (req *request.Request, output *UpdateSubscriberOutput) {
 	op := &request.Operation{
 		Name:       opUpdateSubscriber,
@@ -924,8 +949,9 @@ func (c *Budgets) UpdateSubscriberRequest(input *UpdateSubscriberInput) (req *re
 		input = &UpdateSubscriberInput{}
 	}
 
-	output = &UpdateSubscriberOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateSubscriberOutput{}
+	req.Data = output
 	return
 }
 

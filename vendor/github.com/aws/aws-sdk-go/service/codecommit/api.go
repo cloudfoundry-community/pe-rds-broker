@@ -38,7 +38,6 @@ const opBatchGetRepositories = "BatchGetRepositories"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/BatchGetRepositories
 func (c *CodeCommit) BatchGetRepositoriesRequest(input *BatchGetRepositoriesInput) (req *request.Request, output *BatchGetRepositoriesOutput) {
 	op := &request.Operation{
 		Name:       opBatchGetRepositories,
@@ -50,8 +49,9 @@ func (c *CodeCommit) BatchGetRepositoriesRequest(input *BatchGetRepositoriesInpu
 		input = &BatchGetRepositoriesInput{}
 	}
 
-	output = &BatchGetRepositoriesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &BatchGetRepositoriesOutput{}
+	req.Data = output
 	return
 }
 
@@ -102,7 +102,6 @@ func (c *CodeCommit) BatchGetRepositoriesRequest(input *BatchGetRepositoriesInpu
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/BatchGetRepositories
 func (c *CodeCommit) BatchGetRepositories(input *BatchGetRepositoriesInput) (*BatchGetRepositoriesOutput, error) {
 	req, out := c.BatchGetRepositoriesRequest(input)
 	err := req.Send()
@@ -135,7 +134,6 @@ const opCreateBranch = "CreateBranch"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateBranch
 func (c *CodeCommit) CreateBranchRequest(input *CreateBranchInput) (req *request.Request, output *CreateBranchOutput) {
 	op := &request.Operation{
 		Name:       opCreateBranch,
@@ -147,10 +145,11 @@ func (c *CodeCommit) CreateBranchRequest(input *CreateBranchInput) (req *request
 		input = &CreateBranchInput{}
 	}
 
-	output = &CreateBranchOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &CreateBranchOutput{}
+	req.Data = output
 	return
 }
 
@@ -216,7 +215,6 @@ func (c *CodeCommit) CreateBranchRequest(input *CreateBranchInput) (req *request
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateBranch
 func (c *CodeCommit) CreateBranch(input *CreateBranchInput) (*CreateBranchOutput, error) {
 	req, out := c.CreateBranchRequest(input)
 	err := req.Send()
@@ -249,7 +247,6 @@ const opCreateRepository = "CreateRepository"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateRepository
 func (c *CodeCommit) CreateRepositoryRequest(input *CreateRepositoryInput) (req *request.Request, output *CreateRepositoryOutput) {
 	op := &request.Operation{
 		Name:       opCreateRepository,
@@ -261,8 +258,9 @@ func (c *CodeCommit) CreateRepositoryRequest(input *CreateRepositoryInput) (req 
 		input = &CreateRepositoryInput{}
 	}
 
-	output = &CreateRepositoryOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateRepositoryOutput{}
+	req.Data = output
 	return
 }
 
@@ -312,7 +310,6 @@ func (c *CodeCommit) CreateRepositoryRequest(input *CreateRepositoryInput) (req 
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateRepository
 func (c *CodeCommit) CreateRepository(input *CreateRepositoryInput) (*CreateRepositoryOutput, error) {
 	req, out := c.CreateRepositoryRequest(input)
 	err := req.Send()
@@ -345,7 +342,6 @@ const opDeleteRepository = "DeleteRepository"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/DeleteRepository
 func (c *CodeCommit) DeleteRepositoryRequest(input *DeleteRepositoryInput) (req *request.Request, output *DeleteRepositoryOutput) {
 	op := &request.Operation{
 		Name:       opDeleteRepository,
@@ -357,8 +353,9 @@ func (c *CodeCommit) DeleteRepositoryRequest(input *DeleteRepositoryInput) (req 
 		input = &DeleteRepositoryInput{}
 	}
 
-	output = &DeleteRepositoryOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteRepositoryOutput{}
+	req.Data = output
 	return
 }
 
@@ -404,7 +401,6 @@ func (c *CodeCommit) DeleteRepositoryRequest(input *DeleteRepositoryInput) (req 
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/DeleteRepository
 func (c *CodeCommit) DeleteRepository(input *DeleteRepositoryInput) (*DeleteRepositoryOutput, error) {
 	req, out := c.DeleteRepositoryRequest(input)
 	err := req.Send()
@@ -437,7 +433,6 @@ const opGetBranch = "GetBranch"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetBranch
 func (c *CodeCommit) GetBranchRequest(input *GetBranchInput) (req *request.Request, output *GetBranchOutput) {
 	op := &request.Operation{
 		Name:       opGetBranch,
@@ -449,8 +444,9 @@ func (c *CodeCommit) GetBranchRequest(input *GetBranchInput) (req *request.Reque
 		input = &GetBranchInput{}
 	}
 
-	output = &GetBranchOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetBranchOutput{}
+	req.Data = output
 	return
 }
 
@@ -504,7 +500,6 @@ func (c *CodeCommit) GetBranchRequest(input *GetBranchInput) (req *request.Reque
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetBranch
 func (c *CodeCommit) GetBranch(input *GetBranchInput) (*GetBranchOutput, error) {
 	req, out := c.GetBranchRequest(input)
 	err := req.Send()
@@ -537,7 +532,6 @@ const opGetCommit = "GetCommit"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetCommit
 func (c *CodeCommit) GetCommitRequest(input *GetCommitInput) (req *request.Request, output *GetCommitOutput) {
 	op := &request.Operation{
 		Name:       opGetCommit,
@@ -549,8 +543,9 @@ func (c *CodeCommit) GetCommitRequest(input *GetCommitInput) (req *request.Reque
 		input = &GetCommitInput{}
 	}
 
-	output = &GetCommitOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetCommitOutput{}
+	req.Data = output
 	return
 }
 
@@ -604,7 +599,6 @@ func (c *CodeCommit) GetCommitRequest(input *GetCommitInput) (req *request.Reque
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetCommit
 func (c *CodeCommit) GetCommit(input *GetCommitInput) (*GetCommitOutput, error) {
 	req, out := c.GetCommitRequest(input)
 	err := req.Send()
@@ -637,7 +631,6 @@ const opGetRepository = "GetRepository"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepository
 func (c *CodeCommit) GetRepositoryRequest(input *GetRepositoryInput) (req *request.Request, output *GetRepositoryOutput) {
 	op := &request.Operation{
 		Name:       opGetRepository,
@@ -649,8 +642,9 @@ func (c *CodeCommit) GetRepositoryRequest(input *GetRepositoryInput) (req *reque
 		input = &GetRepositoryInput{}
 	}
 
-	output = &GetRepositoryOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetRepositoryOutput{}
+	req.Data = output
 	return
 }
 
@@ -700,7 +694,6 @@ func (c *CodeCommit) GetRepositoryRequest(input *GetRepositoryInput) (req *reque
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepository
 func (c *CodeCommit) GetRepository(input *GetRepositoryInput) (*GetRepositoryOutput, error) {
 	req, out := c.GetRepositoryRequest(input)
 	err := req.Send()
@@ -733,7 +726,6 @@ const opGetRepositoryTriggers = "GetRepositoryTriggers"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepositoryTriggers
 func (c *CodeCommit) GetRepositoryTriggersRequest(input *GetRepositoryTriggersInput) (req *request.Request, output *GetRepositoryTriggersOutput) {
 	op := &request.Operation{
 		Name:       opGetRepositoryTriggers,
@@ -745,8 +737,9 @@ func (c *CodeCommit) GetRepositoryTriggersRequest(input *GetRepositoryTriggersIn
 		input = &GetRepositoryTriggersInput{}
 	}
 
-	output = &GetRepositoryTriggersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetRepositoryTriggersOutput{}
+	req.Data = output
 	return
 }
 
@@ -790,7 +783,6 @@ func (c *CodeCommit) GetRepositoryTriggersRequest(input *GetRepositoryTriggersIn
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepositoryTriggers
 func (c *CodeCommit) GetRepositoryTriggers(input *GetRepositoryTriggersInput) (*GetRepositoryTriggersOutput, error) {
 	req, out := c.GetRepositoryTriggersRequest(input)
 	err := req.Send()
@@ -823,7 +815,6 @@ const opListBranches = "ListBranches"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListBranches
 func (c *CodeCommit) ListBranchesRequest(input *ListBranchesInput) (req *request.Request, output *ListBranchesOutput) {
 	op := &request.Operation{
 		Name:       opListBranches,
@@ -841,8 +832,9 @@ func (c *CodeCommit) ListBranchesRequest(input *ListBranchesInput) (req *request
 		input = &ListBranchesInput{}
 	}
 
-	output = &ListBranchesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListBranchesOutput{}
+	req.Data = output
 	return
 }
 
@@ -889,7 +881,6 @@ func (c *CodeCommit) ListBranchesRequest(input *ListBranchesInput) (req *request
 //   * InvalidContinuationTokenException
 //   The specified continuation token is not valid.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListBranches
 func (c *CodeCommit) ListBranches(input *ListBranchesInput) (*ListBranchesOutput, error) {
 	req, out := c.ListBranchesRequest(input)
 	err := req.Send()
@@ -947,7 +938,6 @@ const opListRepositories = "ListRepositories"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListRepositories
 func (c *CodeCommit) ListRepositoriesRequest(input *ListRepositoriesInput) (req *request.Request, output *ListRepositoriesOutput) {
 	op := &request.Operation{
 		Name:       opListRepositories,
@@ -965,8 +955,9 @@ func (c *CodeCommit) ListRepositoriesRequest(input *ListRepositoriesInput) (req 
 		input = &ListRepositoriesInput{}
 	}
 
-	output = &ListRepositoriesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListRepositoriesOutput{}
+	req.Data = output
 	return
 }
 
@@ -991,7 +982,6 @@ func (c *CodeCommit) ListRepositoriesRequest(input *ListRepositoriesInput) (req 
 //   * InvalidContinuationTokenException
 //   The specified continuation token is not valid.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListRepositories
 func (c *CodeCommit) ListRepositories(input *ListRepositoriesInput) (*ListRepositoriesOutput, error) {
 	req, out := c.ListRepositoriesRequest(input)
 	err := req.Send()
@@ -1049,7 +1039,6 @@ const opPutRepositoryTriggers = "PutRepositoryTriggers"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/PutRepositoryTriggers
 func (c *CodeCommit) PutRepositoryTriggersRequest(input *PutRepositoryTriggersInput) (req *request.Request, output *PutRepositoryTriggersOutput) {
 	op := &request.Operation{
 		Name:       opPutRepositoryTriggers,
@@ -1061,8 +1050,9 @@ func (c *CodeCommit) PutRepositoryTriggersRequest(input *PutRepositoryTriggersIn
 		input = &PutRepositoryTriggersInput{}
 	}
 
-	output = &PutRepositoryTriggersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &PutRepositoryTriggersOutput{}
+	req.Data = output
 	return
 }
 
@@ -1152,7 +1142,6 @@ func (c *CodeCommit) PutRepositoryTriggersRequest(input *PutRepositoryTriggersIn
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/PutRepositoryTriggers
 func (c *CodeCommit) PutRepositoryTriggers(input *PutRepositoryTriggersInput) (*PutRepositoryTriggersOutput, error) {
 	req, out := c.PutRepositoryTriggersRequest(input)
 	err := req.Send()
@@ -1185,7 +1174,6 @@ const opTestRepositoryTriggers = "TestRepositoryTriggers"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/TestRepositoryTriggers
 func (c *CodeCommit) TestRepositoryTriggersRequest(input *TestRepositoryTriggersInput) (req *request.Request, output *TestRepositoryTriggersOutput) {
 	op := &request.Operation{
 		Name:       opTestRepositoryTriggers,
@@ -1197,8 +1185,9 @@ func (c *CodeCommit) TestRepositoryTriggersRequest(input *TestRepositoryTriggers
 		input = &TestRepositoryTriggersInput{}
 	}
 
-	output = &TestRepositoryTriggersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &TestRepositoryTriggersOutput{}
+	req.Data = output
 	return
 }
 
@@ -1290,7 +1279,6 @@ func (c *CodeCommit) TestRepositoryTriggersRequest(input *TestRepositoryTriggers
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/TestRepositoryTriggers
 func (c *CodeCommit) TestRepositoryTriggers(input *TestRepositoryTriggersInput) (*TestRepositoryTriggersOutput, error) {
 	req, out := c.TestRepositoryTriggersRequest(input)
 	err := req.Send()
@@ -1323,7 +1311,6 @@ const opUpdateDefaultBranch = "UpdateDefaultBranch"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateDefaultBranch
 func (c *CodeCommit) UpdateDefaultBranchRequest(input *UpdateDefaultBranchInput) (req *request.Request, output *UpdateDefaultBranchOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDefaultBranch,
@@ -1335,10 +1322,11 @@ func (c *CodeCommit) UpdateDefaultBranchRequest(input *UpdateDefaultBranchInput)
 		input = &UpdateDefaultBranchInput{}
 	}
 
-	output = &UpdateDefaultBranchOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateDefaultBranchOutput{}
+	req.Data = output
 	return
 }
 
@@ -1395,7 +1383,6 @@ func (c *CodeCommit) UpdateDefaultBranchRequest(input *UpdateDefaultBranchInput)
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateDefaultBranch
 func (c *CodeCommit) UpdateDefaultBranch(input *UpdateDefaultBranchInput) (*UpdateDefaultBranchOutput, error) {
 	req, out := c.UpdateDefaultBranchRequest(input)
 	err := req.Send()
@@ -1428,7 +1415,6 @@ const opUpdateRepositoryDescription = "UpdateRepositoryDescription"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryDescription
 func (c *CodeCommit) UpdateRepositoryDescriptionRequest(input *UpdateRepositoryDescriptionInput) (req *request.Request, output *UpdateRepositoryDescriptionOutput) {
 	op := &request.Operation{
 		Name:       opUpdateRepositoryDescription,
@@ -1440,10 +1426,11 @@ func (c *CodeCommit) UpdateRepositoryDescriptionRequest(input *UpdateRepositoryD
 		input = &UpdateRepositoryDescriptionInput{}
 	}
 
-	output = &UpdateRepositoryDescriptionOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateRepositoryDescriptionOutput{}
+	req.Data = output
 	return
 }
 
@@ -1496,7 +1483,6 @@ func (c *CodeCommit) UpdateRepositoryDescriptionRequest(input *UpdateRepositoryD
 //   * EncryptionKeyUnavailableException
 //   The encryption key is not available.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryDescription
 func (c *CodeCommit) UpdateRepositoryDescription(input *UpdateRepositoryDescriptionInput) (*UpdateRepositoryDescriptionOutput, error) {
 	req, out := c.UpdateRepositoryDescriptionRequest(input)
 	err := req.Send()
@@ -1529,7 +1515,6 @@ const opUpdateRepositoryName = "UpdateRepositoryName"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryName
 func (c *CodeCommit) UpdateRepositoryNameRequest(input *UpdateRepositoryNameInput) (req *request.Request, output *UpdateRepositoryNameOutput) {
 	op := &request.Operation{
 		Name:       opUpdateRepositoryName,
@@ -1541,10 +1526,11 @@ func (c *CodeCommit) UpdateRepositoryNameRequest(input *UpdateRepositoryNameInpu
 		input = &UpdateRepositoryNameInput{}
 	}
 
-	output = &UpdateRepositoryNameOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateRepositoryNameOutput{}
+	req.Data = output
 	return
 }
 
@@ -1581,7 +1567,6 @@ func (c *CodeCommit) UpdateRepositoryNameRequest(input *UpdateRepositoryNameInpu
 //   Other exceptions occur when a required repository parameter is missing, or
 //   when a specified repository does not exist.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryName
 func (c *CodeCommit) UpdateRepositoryName(input *UpdateRepositoryNameInput) (*UpdateRepositoryNameOutput, error) {
 	req, out := c.UpdateRepositoryNameRequest(input)
 	err := req.Send()
@@ -1589,7 +1574,6 @@ func (c *CodeCommit) UpdateRepositoryName(input *UpdateRepositoryNameInput) (*Up
 }
 
 // Represents the input of a batch get repositories operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/BatchGetRepositoriesInput
 type BatchGetRepositoriesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1629,7 +1613,6 @@ func (s *BatchGetRepositoriesInput) SetRepositoryNames(v []*string) *BatchGetRep
 }
 
 // Represents the output of a batch get repositories operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/BatchGetRepositoriesOutput
 type BatchGetRepositoriesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1663,7 +1646,6 @@ func (s *BatchGetRepositoriesOutput) SetRepositoriesNotFound(v []*string) *Batch
 }
 
 // Returns information about a branch.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/BranchInfo
 type BranchInfo struct {
 	_ struct{} `type:"structure"`
 
@@ -1697,7 +1679,6 @@ func (s *BranchInfo) SetCommitId(v string) *BranchInfo {
 }
 
 // Returns information about a specific commit.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/Commit
 type Commit struct {
 	_ struct{} `type:"structure"`
 
@@ -1770,7 +1751,6 @@ func (s *Commit) SetTreeId(v string) *Commit {
 }
 
 // Represents the input of a create branch operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateBranchInput
 type CreateBranchInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1843,7 +1823,6 @@ func (s *CreateBranchInput) SetRepositoryName(v string) *CreateBranchInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateBranchOutput
 type CreateBranchOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1859,7 +1838,6 @@ func (s CreateBranchOutput) GoString() string {
 }
 
 // Represents the input of a create repository operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateRepositoryInput
 type CreateRepositoryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1923,7 +1901,6 @@ func (s *CreateRepositoryInput) SetRepositoryName(v string) *CreateRepositoryInp
 }
 
 // Represents the output of a create repository operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/CreateRepositoryOutput
 type CreateRepositoryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1948,7 +1925,6 @@ func (s *CreateRepositoryOutput) SetRepositoryMetadata(v *RepositoryMetadata) *C
 }
 
 // Represents the input of a delete repository operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/DeleteRepositoryInput
 type DeleteRepositoryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1991,7 +1967,6 @@ func (s *DeleteRepositoryInput) SetRepositoryName(v string) *DeleteRepositoryInp
 }
 
 // Represents the output of a delete repository operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/DeleteRepositoryOutput
 type DeleteRepositoryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2016,7 +1991,6 @@ func (s *DeleteRepositoryOutput) SetRepositoryId(v string) *DeleteRepositoryOutp
 }
 
 // Represents the input of a get branch operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetBranchInput
 type GetBranchInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2067,7 +2041,6 @@ func (s *GetBranchInput) SetRepositoryName(v string) *GetBranchInput {
 }
 
 // Represents the output of a get branch operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetBranchOutput
 type GetBranchOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2092,7 +2065,6 @@ func (s *GetBranchOutput) SetBranch(v *BranchInfo) *GetBranchOutput {
 }
 
 // Represents the input of a get commit operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetCommitInput
 type GetCommitInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2149,7 +2121,6 @@ func (s *GetCommitInput) SetRepositoryName(v string) *GetCommitInput {
 }
 
 // Represents the output of a get commit operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetCommitOutput
 type GetCommitOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2176,7 +2147,6 @@ func (s *GetCommitOutput) SetCommit(v *Commit) *GetCommitOutput {
 }
 
 // Represents the input of a get repository operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepositoryInput
 type GetRepositoryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2219,7 +2189,6 @@ func (s *GetRepositoryInput) SetRepositoryName(v string) *GetRepositoryInput {
 }
 
 // Represents the output of a get repository operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepositoryOutput
 type GetRepositoryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2244,7 +2213,6 @@ func (s *GetRepositoryOutput) SetRepositoryMetadata(v *RepositoryMetadata) *GetR
 }
 
 // Represents the input of a get repository triggers operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepositoryTriggersInput
 type GetRepositoryTriggersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2282,7 +2250,6 @@ func (s *GetRepositoryTriggersInput) SetRepositoryName(v string) *GetRepositoryT
 }
 
 // Represents the output of a get repository triggers operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/GetRepositoryTriggersOutput
 type GetRepositoryTriggersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2316,7 +2283,6 @@ func (s *GetRepositoryTriggersOutput) SetTriggers(v []*RepositoryTrigger) *GetRe
 }
 
 // Represents the input of a list branches operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListBranchesInput
 type ListBranchesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2368,7 +2334,6 @@ func (s *ListBranchesInput) SetRepositoryName(v string) *ListBranchesInput {
 }
 
 // Represents the output of a list branches operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListBranchesOutput
 type ListBranchesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2402,7 +2367,6 @@ func (s *ListBranchesOutput) SetNextToken(v string) *ListBranchesOutput {
 }
 
 // Represents the input of a list repositories operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListRepositoriesInput
 type ListRepositoriesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2448,7 +2412,6 @@ func (s *ListRepositoriesInput) SetSortBy(v string) *ListRepositoriesInput {
 }
 
 // Represents the output of a list repositories operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/ListRepositoriesOutput
 type ListRepositoriesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2485,7 +2448,6 @@ func (s *ListRepositoriesOutput) SetRepositories(v []*RepositoryNameIdPair) *Lis
 }
 
 // Represents the input ofa put repository triggers operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/PutRepositoryTriggersInput
 type PutRepositoryTriggersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2532,7 +2494,6 @@ func (s *PutRepositoryTriggersInput) SetTriggers(v []*RepositoryTrigger) *PutRep
 }
 
 // Represents the output of a put repository triggers operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/PutRepositoryTriggersOutput
 type PutRepositoryTriggersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2557,7 +2518,6 @@ func (s *PutRepositoryTriggersOutput) SetConfigurationId(v string) *PutRepositor
 }
 
 // Information about a repository.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/RepositoryMetadata
 type RepositoryMetadata struct {
 	_ struct{} `type:"structure"`
 
@@ -2663,7 +2623,6 @@ func (s *RepositoryMetadata) SetRepositoryName(v string) *RepositoryMetadata {
 }
 
 // Information about a repository name and ID.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/RepositoryNameIdPair
 type RepositoryNameIdPair struct {
 	_ struct{} `type:"structure"`
 
@@ -2697,7 +2656,6 @@ func (s *RepositoryNameIdPair) SetRepositoryName(v string) *RepositoryNameIdPair
 }
 
 // Information about a trigger for a repository.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/RepositoryTrigger
 type RepositoryTrigger struct {
 	_ struct{} `type:"structure"`
 
@@ -2764,7 +2722,6 @@ func (s *RepositoryTrigger) SetName(v string) *RepositoryTrigger {
 }
 
 // A trigger failed to run.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/RepositoryTriggerExecutionFailure
 type RepositoryTriggerExecutionFailure struct {
 	_ struct{} `type:"structure"`
 
@@ -2798,7 +2755,6 @@ func (s *RepositoryTriggerExecutionFailure) SetTrigger(v string) *RepositoryTrig
 }
 
 // Represents the input of a test repository triggers operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/TestRepositoryTriggersInput
 type TestRepositoryTriggersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2845,7 +2801,6 @@ func (s *TestRepositoryTriggersInput) SetTriggers(v []*RepositoryTrigger) *TestR
 }
 
 // Represents the output of a test repository triggers operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/TestRepositoryTriggersOutput
 type TestRepositoryTriggersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2881,7 +2836,6 @@ func (s *TestRepositoryTriggersOutput) SetSuccessfulExecutions(v []*string) *Tes
 }
 
 // Represents the input of an update default branch operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateDefaultBranchInput
 type UpdateDefaultBranchInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2940,7 +2894,6 @@ func (s *UpdateDefaultBranchInput) SetRepositoryName(v string) *UpdateDefaultBra
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateDefaultBranchOutput
 type UpdateDefaultBranchOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -2956,7 +2909,6 @@ func (s UpdateDefaultBranchOutput) GoString() string {
 }
 
 // Represents the input of an update repository description operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryDescriptionInput
 type UpdateRepositoryDescriptionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3008,7 +2960,6 @@ func (s *UpdateRepositoryDescriptionInput) SetRepositoryName(v string) *UpdateRe
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryDescriptionOutput
 type UpdateRepositoryDescriptionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3024,7 +2975,6 @@ func (s UpdateRepositoryDescriptionOutput) GoString() string {
 }
 
 // Represents the input of an update repository description operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryNameInput
 type UpdateRepositoryNameInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3083,7 +3033,6 @@ func (s *UpdateRepositoryNameInput) SetOldName(v string) *UpdateRepositoryNameIn
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UpdateRepositoryNameOutput
 type UpdateRepositoryNameOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3099,7 +3048,6 @@ func (s UpdateRepositoryNameOutput) GoString() string {
 }
 
 // Information about the user who made a specified commit.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/codecommit-2015-04-13/UserInfo
 type UserInfo struct {
 	_ struct{} `type:"structure"`
 

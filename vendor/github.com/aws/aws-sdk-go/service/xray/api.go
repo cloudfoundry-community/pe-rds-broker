@@ -36,7 +36,6 @@ const opBatchGetTraces = "BatchGetTraces"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/BatchGetTraces
 func (c *XRay) BatchGetTracesRequest(input *BatchGetTracesInput) (req *request.Request, output *BatchGetTracesOutput) {
 	op := &request.Operation{
 		Name:       opBatchGetTraces,
@@ -48,8 +47,9 @@ func (c *XRay) BatchGetTracesRequest(input *BatchGetTracesInput) (req *request.R
 		input = &BatchGetTracesInput{}
 	}
 
-	output = &BatchGetTracesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &BatchGetTracesOutput{}
+	req.Data = output
 	return
 }
 
@@ -73,7 +73,6 @@ func (c *XRay) BatchGetTracesRequest(input *BatchGetTracesInput) (req *request.R
 //   * ThrottledException
 //   The request exceeds the maximum number of requests per second.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/BatchGetTraces
 func (c *XRay) BatchGetTraces(input *BatchGetTracesInput) (*BatchGetTracesOutput, error) {
 	req, out := c.BatchGetTracesRequest(input)
 	err := req.Send()
@@ -106,7 +105,6 @@ const opGetServiceGraph = "GetServiceGraph"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetServiceGraph
 func (c *XRay) GetServiceGraphRequest(input *GetServiceGraphInput) (req *request.Request, output *GetServiceGraphOutput) {
 	op := &request.Operation{
 		Name:       opGetServiceGraph,
@@ -118,8 +116,9 @@ func (c *XRay) GetServiceGraphRequest(input *GetServiceGraphInput) (req *request
 		input = &GetServiceGraphInput{}
 	}
 
-	output = &GetServiceGraphOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetServiceGraphOutput{}
+	req.Data = output
 	return
 }
 
@@ -145,7 +144,6 @@ func (c *XRay) GetServiceGraphRequest(input *GetServiceGraphInput) (req *request
 //   * ThrottledException
 //   The request exceeds the maximum number of requests per second.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetServiceGraph
 func (c *XRay) GetServiceGraph(input *GetServiceGraphInput) (*GetServiceGraphOutput, error) {
 	req, out := c.GetServiceGraphRequest(input)
 	err := req.Send()
@@ -178,7 +176,6 @@ const opGetTraceGraph = "GetTraceGraph"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceGraph
 func (c *XRay) GetTraceGraphRequest(input *GetTraceGraphInput) (req *request.Request, output *GetTraceGraphOutput) {
 	op := &request.Operation{
 		Name:       opGetTraceGraph,
@@ -190,8 +187,9 @@ func (c *XRay) GetTraceGraphRequest(input *GetTraceGraphInput) (req *request.Req
 		input = &GetTraceGraphInput{}
 	}
 
-	output = &GetTraceGraphOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetTraceGraphOutput{}
+	req.Data = output
 	return
 }
 
@@ -213,7 +211,6 @@ func (c *XRay) GetTraceGraphRequest(input *GetTraceGraphInput) (req *request.Req
 //   * ThrottledException
 //   The request exceeds the maximum number of requests per second.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceGraph
 func (c *XRay) GetTraceGraph(input *GetTraceGraphInput) (*GetTraceGraphOutput, error) {
 	req, out := c.GetTraceGraphRequest(input)
 	err := req.Send()
@@ -246,7 +243,6 @@ const opGetTraceSummaries = "GetTraceSummaries"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceSummaries
 func (c *XRay) GetTraceSummariesRequest(input *GetTraceSummariesInput) (req *request.Request, output *GetTraceSummariesOutput) {
 	op := &request.Operation{
 		Name:       opGetTraceSummaries,
@@ -258,8 +254,9 @@ func (c *XRay) GetTraceSummariesRequest(input *GetTraceSummariesInput) (req *req
 		input = &GetTraceSummariesInput{}
 	}
 
-	output = &GetTraceSummariesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetTraceSummariesOutput{}
+	req.Data = output
 	return
 }
 
@@ -282,7 +279,6 @@ func (c *XRay) GetTraceSummariesRequest(input *GetTraceSummariesInput) (req *req
 //   * ThrottledException
 //   The request exceeds the maximum number of requests per second.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceSummaries
 func (c *XRay) GetTraceSummaries(input *GetTraceSummariesInput) (*GetTraceSummariesOutput, error) {
 	req, out := c.GetTraceSummariesRequest(input)
 	err := req.Send()
@@ -315,7 +311,6 @@ const opPutTelemetryRecords = "PutTelemetryRecords"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTelemetryRecords
 func (c *XRay) PutTelemetryRecordsRequest(input *PutTelemetryRecordsInput) (req *request.Request, output *PutTelemetryRecordsOutput) {
 	op := &request.Operation{
 		Name:       opPutTelemetryRecords,
@@ -327,8 +322,9 @@ func (c *XRay) PutTelemetryRecordsRequest(input *PutTelemetryRecordsInput) (req 
 		input = &PutTelemetryRecordsInput{}
 	}
 
-	output = &PutTelemetryRecordsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &PutTelemetryRecordsOutput{}
+	req.Data = output
 	return
 }
 
@@ -350,7 +346,6 @@ func (c *XRay) PutTelemetryRecordsRequest(input *PutTelemetryRecordsInput) (req 
 //   * ThrottledException
 //   The request exceeds the maximum number of requests per second.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTelemetryRecords
 func (c *XRay) PutTelemetryRecords(input *PutTelemetryRecordsInput) (*PutTelemetryRecordsOutput, error) {
 	req, out := c.PutTelemetryRecordsRequest(input)
 	err := req.Send()
@@ -383,7 +378,6 @@ const opPutTraceSegments = "PutTraceSegments"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTraceSegments
 func (c *XRay) PutTraceSegmentsRequest(input *PutTraceSegmentsInput) (req *request.Request, output *PutTraceSegmentsOutput) {
 	op := &request.Operation{
 		Name:       opPutTraceSegments,
@@ -395,8 +389,9 @@ func (c *XRay) PutTraceSegmentsRequest(input *PutTraceSegmentsInput) (req *reque
 		input = &PutTraceSegmentsInput{}
 	}
 
-	output = &PutTraceSegmentsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &PutTraceSegmentsOutput{}
+	req.Data = output
 	return
 }
 
@@ -421,7 +416,6 @@ func (c *XRay) PutTraceSegmentsRequest(input *PutTraceSegmentsInput) (req *reque
 //   * ThrottledException
 //   The request exceeds the maximum number of requests per second.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTraceSegments
 func (c *XRay) PutTraceSegments(input *PutTraceSegmentsInput) (*PutTraceSegmentsOutput, error) {
 	req, out := c.PutTraceSegmentsRequest(input)
 	err := req.Send()
@@ -429,7 +423,6 @@ func (c *XRay) PutTraceSegments(input *PutTraceSegmentsInput) (*PutTraceSegments
 }
 
 // An alias for an edge.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/Alias
 type Alias struct {
 	_ struct{} `type:"structure"`
 
@@ -473,7 +466,6 @@ func (s *Alias) SetType(v string) *Alias {
 
 // Value of a segment annotation. Has one of three value types: Number, Boolean
 // or String.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/AnnotationValue
 type AnnotationValue struct {
 	_ struct{} `type:"structure"`
 
@@ -515,7 +507,6 @@ func (s *AnnotationValue) SetStringValue(v string) *AnnotationValue {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/BackendConnectionErrors
 type BackendConnectionErrors struct {
 	_ struct{} `type:"structure"`
 
@@ -578,7 +569,6 @@ func (s *BackendConnectionErrors) SetUnknownHostCount(v int64) *BackendConnectio
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/BatchGetTracesRequest
 type BatchGetTracesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -626,7 +616,6 @@ func (s *BatchGetTracesInput) SetTraceIds(v []*string) *BatchGetTracesInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/BatchGetTracesResult
 type BatchGetTracesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -669,7 +658,6 @@ func (s *BatchGetTracesOutput) SetUnprocessedTraceIds(v []*string) *BatchGetTrac
 }
 
 // Information about a connection between two services.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/Edge
 type Edge struct {
 	_ struct{} `type:"structure"`
 
@@ -739,7 +727,6 @@ func (s *Edge) SetSummaryStatistics(v *EdgeStatistics) *Edge {
 }
 
 // Response statistics for an edge.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/EdgeStatistics
 type EdgeStatistics struct {
 	_ struct{} `type:"structure"`
 
@@ -800,7 +787,6 @@ func (s *EdgeStatistics) SetTotalResponseTime(v float64) *EdgeStatistics {
 }
 
 // Information about requests that failed with a 4xx Client Error status code.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/ErrorStatistics
 type ErrorStatistics struct {
 	_ struct{} `type:"structure"`
 
@@ -844,7 +830,6 @@ func (s *ErrorStatistics) SetTotalCount(v int64) *ErrorStatistics {
 }
 
 // Information about requests that failed with a 5xx Server Error status code.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/FaultStatistics
 type FaultStatistics struct {
 	_ struct{} `type:"structure"`
 
@@ -878,7 +863,6 @@ func (s *FaultStatistics) SetTotalCount(v int64) *FaultStatistics {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetServiceGraphRequest
 type GetServiceGraphInput struct {
 	_ struct{} `type:"structure"`
 
@@ -940,7 +924,6 @@ func (s *GetServiceGraphInput) SetStartTime(v time.Time) *GetServiceGraphInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetServiceGraphResult
 type GetServiceGraphOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -992,7 +975,6 @@ func (s *GetServiceGraphOutput) SetStartTime(v time.Time) *GetServiceGraphOutput
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceGraphRequest
 type GetTraceGraphInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1040,7 +1022,6 @@ func (s *GetTraceGraphInput) SetTraceIds(v []*string) *GetTraceGraphInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceGraphResult
 type GetTraceGraphOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1073,7 +1054,6 @@ func (s *GetTraceGraphOutput) SetServices(v []*Service) *GetTraceGraphOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceSummariesRequest
 type GetTraceSummariesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1155,7 +1135,6 @@ func (s *GetTraceSummariesInput) SetStartTime(v time.Time) *GetTraceSummariesInp
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/GetTraceSummariesResult
 type GetTraceSummariesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1210,7 +1189,6 @@ func (s *GetTraceSummariesOutput) SetTracesProcessedCount(v int64) *GetTraceSumm
 
 // An entry in a histogram for a statistic. A histogram maps the range of observed
 // values on the X axis, and the prevalence of each value on the Y axis.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/HistogramEntry
 type HistogramEntry struct {
 	_ struct{} `type:"structure"`
 
@@ -1244,7 +1222,6 @@ func (s *HistogramEntry) SetValue(v float64) *HistogramEntry {
 }
 
 // Information about an HTTP request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/Http
 type Http struct {
 	_ struct{} `type:"structure"`
 
@@ -1304,7 +1281,6 @@ func (s *Http) SetUserAgent(v string) *Http {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTelemetryRecordsRequest
 type PutTelemetryRecordsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1365,7 +1341,6 @@ func (s *PutTelemetryRecordsInput) SetTelemetryRecords(v []*TelemetryRecord) *Pu
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTelemetryRecordsResult
 type PutTelemetryRecordsOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1380,7 +1355,6 @@ func (s PutTelemetryRecordsOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTraceSegmentsRequest
 type PutTraceSegmentsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1458,7 +1432,6 @@ func (s *PutTraceSegmentsInput) SetTraceSegmentDocuments(v []*string) *PutTraceS
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/PutTraceSegmentsResult
 type PutTraceSegmentsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1483,7 +1456,6 @@ func (s *PutTraceSegmentsOutput) SetUnprocessedTraceSegments(v []*UnprocessedTra
 }
 
 // Information about a segment
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/Segment
 type Segment struct {
 	_ struct{} `type:"structure"`
 
@@ -1519,7 +1491,6 @@ func (s *Segment) SetId(v string) *Segment {
 // Information about an application that processed requests, users that made
 // requests, or downstream services, resources and applications that an application
 // used.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/Service
 type Service struct {
 	_ struct{} `type:"structure"`
 
@@ -1654,7 +1625,6 @@ func (s *Service) SetType(v string) *Service {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/ServiceId
 type ServiceId struct {
 	_ struct{} `type:"structure"`
 
@@ -1702,7 +1672,6 @@ func (s *ServiceId) SetType(v string) *ServiceId {
 }
 
 // Response statistics for a service.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/ServiceStatistics
 type ServiceStatistics struct {
 	_ struct{} `type:"structure"`
 
@@ -1762,7 +1731,6 @@ func (s *ServiceStatistics) SetTotalResponseTime(v float64) *ServiceStatistics {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/TelemetryRecord
 type TelemetryRecord struct {
 	_ struct{} `type:"structure"`
 
@@ -1826,7 +1794,6 @@ func (s *TelemetryRecord) SetTimestamp(v time.Time) *TelemetryRecord {
 }
 
 // A collection of segment documents with matching trace IDs.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/Trace
 type Trace struct {
 	_ struct{} `type:"structure"`
 
@@ -1871,7 +1838,6 @@ func (s *Trace) SetSegments(v []*Segment) *Trace {
 }
 
 // Metadata generated from the segment documents in a trace.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/TraceSummary
 type TraceSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -1991,7 +1957,6 @@ func (s *TraceSummary) SetUsers(v []*TraceUser) *TraceSummary {
 }
 
 // Information about a user recorded in segment documents.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/TraceUser
 type TraceUser struct {
 	_ struct{} `type:"structure"`
 
@@ -2025,7 +1990,6 @@ func (s *TraceUser) SetUserName(v string) *TraceUser {
 }
 
 // Information about a segment that failed processing.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/UnprocessedTraceSegment
 type UnprocessedTraceSegment struct {
 	_ struct{} `type:"structure"`
 
@@ -2068,7 +2032,6 @@ func (s *UnprocessedTraceSegment) SetMessage(v string) *UnprocessedTraceSegment 
 }
 
 // Information about a segment annotation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/xray-2016-04-12/ValueWithServiceIds
 type ValueWithServiceIds struct {
 	_ struct{} `type:"structure"`
 

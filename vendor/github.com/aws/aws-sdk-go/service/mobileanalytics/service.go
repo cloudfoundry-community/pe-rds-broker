@@ -13,9 +13,8 @@ import (
 
 // Amazon Mobile Analytics is a service for collecting, visualizing, and understanding
 // app usage data at scale.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/
 type MobileAnalytics struct {
 	*client.Client
 }
@@ -26,11 +25,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "mobileanalytics" // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName       // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "mobileanalytics"
 
 // New creates a new instance of the MobileAnalytics client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -43,7 +39,7 @@ const (
 //     // Create a MobileAnalytics client with additional configuration
 //     svc := mobileanalytics.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *MobileAnalytics {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

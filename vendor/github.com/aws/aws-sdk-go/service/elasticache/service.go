@@ -22,9 +22,8 @@ import (
 // In addition, through integration with Amazon CloudWatch, customers get enhanced
 // visibility into the key performance statistics associated with their cache
 // and can receive alarms if a part of their cache runs hot.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/elasticache-2015-02-02
 type ElastiCache struct {
 	*client.Client
 }
@@ -35,11 +34,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "elasticache" // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName   // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "elasticache"
 
 // New creates a new instance of the ElastiCache client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -52,7 +48,7 @@ const (
 //     // Create a ElastiCache client with additional configuration
 //     svc := elasticache.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *ElastiCache {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

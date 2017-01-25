@@ -1768,8 +1768,7 @@
         "TargetDBSnapshotIdentifier":{"shape":"String"},
         "KmsKeyId":{"shape":"String"},
         "Tags":{"shape":"TagList"},
-        "CopyTags":{"shape":"BooleanOptional"},
-        "PreSignedUrl":{"shape":"String"}
+        "CopyTags":{"shape":"BooleanOptional"}
       }
     },
     "CopyDBSnapshotResult":{

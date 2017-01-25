@@ -37,7 +37,6 @@ const opCheckDomainAvailability = "CheckDomainAvailability"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/CheckDomainAvailability
 func (c *Route53Domains) CheckDomainAvailabilityRequest(input *CheckDomainAvailabilityInput) (req *request.Request, output *CheckDomainAvailabilityOutput) {
 	op := &request.Operation{
 		Name:       opCheckDomainAvailability,
@@ -49,8 +48,9 @@ func (c *Route53Domains) CheckDomainAvailabilityRequest(input *CheckDomainAvaila
 		input = &CheckDomainAvailabilityInput{}
 	}
 
-	output = &CheckDomainAvailabilityOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CheckDomainAvailabilityOutput{}
+	req.Data = output
 	return
 }
 
@@ -76,7 +76,6 @@ func (c *Route53Domains) CheckDomainAvailabilityRequest(input *CheckDomainAvaila
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/CheckDomainAvailability
 func (c *Route53Domains) CheckDomainAvailability(input *CheckDomainAvailabilityInput) (*CheckDomainAvailabilityOutput, error) {
 	req, out := c.CheckDomainAvailabilityRequest(input)
 	err := req.Send()
@@ -109,7 +108,6 @@ const opDeleteTagsForDomain = "DeleteTagsForDomain"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DeleteTagsForDomain
 func (c *Route53Domains) DeleteTagsForDomainRequest(input *DeleteTagsForDomainInput) (req *request.Request, output *DeleteTagsForDomainOutput) {
 	op := &request.Operation{
 		Name:       opDeleteTagsForDomain,
@@ -121,8 +119,9 @@ func (c *Route53Domains) DeleteTagsForDomainRequest(input *DeleteTagsForDomainIn
 		input = &DeleteTagsForDomainInput{}
 	}
 
-	output = &DeleteTagsForDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteTagsForDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -153,7 +152,6 @@ func (c *Route53Domains) DeleteTagsForDomainRequest(input *DeleteTagsForDomainIn
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DeleteTagsForDomain
 func (c *Route53Domains) DeleteTagsForDomain(input *DeleteTagsForDomainInput) (*DeleteTagsForDomainOutput, error) {
 	req, out := c.DeleteTagsForDomainRequest(input)
 	err := req.Send()
@@ -186,7 +184,6 @@ const opDisableDomainAutoRenew = "DisableDomainAutoRenew"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainAutoRenew
 func (c *Route53Domains) DisableDomainAutoRenewRequest(input *DisableDomainAutoRenewInput) (req *request.Request, output *DisableDomainAutoRenewOutput) {
 	op := &request.Operation{
 		Name:       opDisableDomainAutoRenew,
@@ -198,8 +195,9 @@ func (c *Route53Domains) DisableDomainAutoRenewRequest(input *DisableDomainAutoR
 		input = &DisableDomainAutoRenewInput{}
 	}
 
-	output = &DisableDomainAutoRenewOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DisableDomainAutoRenewOutput{}
+	req.Data = output
 	return
 }
 
@@ -224,7 +222,6 @@ func (c *Route53Domains) DisableDomainAutoRenewRequest(input *DisableDomainAutoR
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainAutoRenew
 func (c *Route53Domains) DisableDomainAutoRenew(input *DisableDomainAutoRenewInput) (*DisableDomainAutoRenewOutput, error) {
 	req, out := c.DisableDomainAutoRenewRequest(input)
 	err := req.Send()
@@ -257,7 +254,6 @@ const opDisableDomainTransferLock = "DisableDomainTransferLock"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainTransferLock
 func (c *Route53Domains) DisableDomainTransferLockRequest(input *DisableDomainTransferLockInput) (req *request.Request, output *DisableDomainTransferLockOutput) {
 	op := &request.Operation{
 		Name:       opDisableDomainTransferLock,
@@ -269,8 +265,9 @@ func (c *Route53Domains) DisableDomainTransferLockRequest(input *DisableDomainTr
 		input = &DisableDomainTransferLockInput{}
 	}
 
-	output = &DisableDomainTransferLockOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DisableDomainTransferLockOutput{}
+	req.Data = output
 	return
 }
 
@@ -310,7 +307,6 @@ func (c *Route53Domains) DisableDomainTransferLockRequest(input *DisableDomainTr
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainTransferLock
 func (c *Route53Domains) DisableDomainTransferLock(input *DisableDomainTransferLockInput) (*DisableDomainTransferLockOutput, error) {
 	req, out := c.DisableDomainTransferLockRequest(input)
 	err := req.Send()
@@ -343,7 +339,6 @@ const opEnableDomainAutoRenew = "EnableDomainAutoRenew"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainAutoRenew
 func (c *Route53Domains) EnableDomainAutoRenewRequest(input *EnableDomainAutoRenewInput) (req *request.Request, output *EnableDomainAutoRenewOutput) {
 	op := &request.Operation{
 		Name:       opEnableDomainAutoRenew,
@@ -355,8 +350,9 @@ func (c *Route53Domains) EnableDomainAutoRenewRequest(input *EnableDomainAutoRen
 		input = &EnableDomainAutoRenewInput{}
 	}
 
-	output = &EnableDomainAutoRenewOutput{}
 	req = c.newRequest(op, input, output)
+	output = &EnableDomainAutoRenewOutput{}
+	req.Data = output
 	return
 }
 
@@ -392,7 +388,6 @@ func (c *Route53Domains) EnableDomainAutoRenewRequest(input *EnableDomainAutoRen
 //   * TLDRulesViolation
 //   The top-level domain does not support this operation.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainAutoRenew
 func (c *Route53Domains) EnableDomainAutoRenew(input *EnableDomainAutoRenewInput) (*EnableDomainAutoRenewOutput, error) {
 	req, out := c.EnableDomainAutoRenewRequest(input)
 	err := req.Send()
@@ -425,7 +420,6 @@ const opEnableDomainTransferLock = "EnableDomainTransferLock"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainTransferLock
 func (c *Route53Domains) EnableDomainTransferLockRequest(input *EnableDomainTransferLockInput) (req *request.Request, output *EnableDomainTransferLockOutput) {
 	op := &request.Operation{
 		Name:       opEnableDomainTransferLock,
@@ -437,8 +431,9 @@ func (c *Route53Domains) EnableDomainTransferLockRequest(input *EnableDomainTran
 		input = &EnableDomainTransferLockInput{}
 	}
 
-	output = &EnableDomainTransferLockOutput{}
 	req = c.newRequest(op, input, output)
+	output = &EnableDomainTransferLockOutput{}
+	req.Data = output
 	return
 }
 
@@ -476,7 +471,6 @@ func (c *Route53Domains) EnableDomainTransferLockRequest(input *EnableDomainTran
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainTransferLock
 func (c *Route53Domains) EnableDomainTransferLock(input *EnableDomainTransferLockInput) (*EnableDomainTransferLockOutput, error) {
 	req, out := c.EnableDomainTransferLockRequest(input)
 	err := req.Send()
@@ -509,7 +503,6 @@ const opGetContactReachabilityStatus = "GetContactReachabilityStatus"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetContactReachabilityStatus
 func (c *Route53Domains) GetContactReachabilityStatusRequest(input *GetContactReachabilityStatusInput) (req *request.Request, output *GetContactReachabilityStatusOutput) {
 	op := &request.Operation{
 		Name:       opGetContactReachabilityStatus,
@@ -521,8 +514,9 @@ func (c *Route53Domains) GetContactReachabilityStatusRequest(input *GetContactRe
 		input = &GetContactReachabilityStatusInput{}
 	}
 
-	output = &GetContactReachabilityStatusOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetContactReachabilityStatusOutput{}
+	req.Data = output
 	return
 }
 
@@ -555,7 +549,6 @@ func (c *Route53Domains) GetContactReachabilityStatusRequest(input *GetContactRe
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetContactReachabilityStatus
 func (c *Route53Domains) GetContactReachabilityStatus(input *GetContactReachabilityStatusInput) (*GetContactReachabilityStatusOutput, error) {
 	req, out := c.GetContactReachabilityStatusRequest(input)
 	err := req.Send()
@@ -588,7 +581,6 @@ const opGetDomainDetail = "GetDomainDetail"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainDetail
 func (c *Route53Domains) GetDomainDetailRequest(input *GetDomainDetailInput) (req *request.Request, output *GetDomainDetailOutput) {
 	op := &request.Operation{
 		Name:       opGetDomainDetail,
@@ -600,8 +592,9 @@ func (c *Route53Domains) GetDomainDetailRequest(input *GetDomainDetailInput) (re
 		input = &GetDomainDetailInput{}
 	}
 
-	output = &GetDomainDetailOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetDomainDetailOutput{}
+	req.Data = output
 	return
 }
 
@@ -626,7 +619,6 @@ func (c *Route53Domains) GetDomainDetailRequest(input *GetDomainDetailInput) (re
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainDetail
 func (c *Route53Domains) GetDomainDetail(input *GetDomainDetailInput) (*GetDomainDetailOutput, error) {
 	req, out := c.GetDomainDetailRequest(input)
 	err := req.Send()
@@ -659,7 +651,6 @@ const opGetDomainSuggestions = "GetDomainSuggestions"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainSuggestions
 func (c *Route53Domains) GetDomainSuggestionsRequest(input *GetDomainSuggestionsInput) (req *request.Request, output *GetDomainSuggestionsOutput) {
 	op := &request.Operation{
 		Name:       opGetDomainSuggestions,
@@ -671,8 +662,9 @@ func (c *Route53Domains) GetDomainSuggestionsRequest(input *GetDomainSuggestions
 		input = &GetDomainSuggestionsInput{}
 	}
 
-	output = &GetDomainSuggestionsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetDomainSuggestionsOutput{}
+	req.Data = output
 	return
 }
 
@@ -708,7 +700,6 @@ func (c *Route53Domains) GetDomainSuggestionsRequest(input *GetDomainSuggestions
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainSuggestions
 func (c *Route53Domains) GetDomainSuggestions(input *GetDomainSuggestionsInput) (*GetDomainSuggestionsOutput, error) {
 	req, out := c.GetDomainSuggestionsRequest(input)
 	err := req.Send()
@@ -741,7 +732,6 @@ const opGetOperationDetail = "GetOperationDetail"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetOperationDetail
 func (c *Route53Domains) GetOperationDetailRequest(input *GetOperationDetailInput) (req *request.Request, output *GetOperationDetailOutput) {
 	op := &request.Operation{
 		Name:       opGetOperationDetail,
@@ -753,8 +743,9 @@ func (c *Route53Domains) GetOperationDetailRequest(input *GetOperationDetailInpu
 		input = &GetOperationDetailInput{}
 	}
 
-	output = &GetOperationDetailOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetOperationDetailOutput{}
+	req.Data = output
 	return
 }
 
@@ -775,7 +766,6 @@ func (c *Route53Domains) GetOperationDetailRequest(input *GetOperationDetailInpu
 //   may refer to the ID of an operation that is already completed. For a domain
 //   name, it may not be a valid domain name or belong to the requester account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetOperationDetail
 func (c *Route53Domains) GetOperationDetail(input *GetOperationDetailInput) (*GetOperationDetailOutput, error) {
 	req, out := c.GetOperationDetailRequest(input)
 	err := req.Send()
@@ -808,7 +798,6 @@ const opListDomains = "ListDomains"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListDomains
 func (c *Route53Domains) ListDomainsRequest(input *ListDomainsInput) (req *request.Request, output *ListDomainsOutput) {
 	op := &request.Operation{
 		Name:       opListDomains,
@@ -826,8 +815,9 @@ func (c *Route53Domains) ListDomainsRequest(input *ListDomainsInput) (req *reque
 		input = &ListDomainsInput{}
 	}
 
-	output = &ListDomainsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListDomainsOutput{}
+	req.Data = output
 	return
 }
 
@@ -849,7 +839,6 @@ func (c *Route53Domains) ListDomainsRequest(input *ListDomainsInput) (req *reque
 //   may refer to the ID of an operation that is already completed. For a domain
 //   name, it may not be a valid domain name or belong to the requester account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListDomains
 func (c *Route53Domains) ListDomains(input *ListDomainsInput) (*ListDomainsOutput, error) {
 	req, out := c.ListDomainsRequest(input)
 	err := req.Send()
@@ -907,7 +896,6 @@ const opListOperations = "ListOperations"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListOperations
 func (c *Route53Domains) ListOperationsRequest(input *ListOperationsInput) (req *request.Request, output *ListOperationsOutput) {
 	op := &request.Operation{
 		Name:       opListOperations,
@@ -925,8 +913,9 @@ func (c *Route53Domains) ListOperationsRequest(input *ListOperationsInput) (req 
 		input = &ListOperationsInput{}
 	}
 
-	output = &ListOperationsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListOperationsOutput{}
+	req.Data = output
 	return
 }
 
@@ -947,7 +936,6 @@ func (c *Route53Domains) ListOperationsRequest(input *ListOperationsInput) (req 
 //   may refer to the ID of an operation that is already completed. For a domain
 //   name, it may not be a valid domain name or belong to the requester account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListOperations
 func (c *Route53Domains) ListOperations(input *ListOperationsInput) (*ListOperationsOutput, error) {
 	req, out := c.ListOperationsRequest(input)
 	err := req.Send()
@@ -1005,7 +993,6 @@ const opListTagsForDomain = "ListTagsForDomain"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListTagsForDomain
 func (c *Route53Domains) ListTagsForDomainRequest(input *ListTagsForDomainInput) (req *request.Request, output *ListTagsForDomainOutput) {
 	op := &request.Operation{
 		Name:       opListTagsForDomain,
@@ -1017,8 +1004,9 @@ func (c *Route53Domains) ListTagsForDomainRequest(input *ListTagsForDomainInput)
 		input = &ListTagsForDomainInput{}
 	}
 
-	output = &ListTagsForDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListTagsForDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -1050,7 +1038,6 @@ func (c *Route53Domains) ListTagsForDomainRequest(input *ListTagsForDomainInput)
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListTagsForDomain
 func (c *Route53Domains) ListTagsForDomain(input *ListTagsForDomainInput) (*ListTagsForDomainOutput, error) {
 	req, out := c.ListTagsForDomainRequest(input)
 	err := req.Send()
@@ -1083,7 +1070,6 @@ const opRegisterDomain = "RegisterDomain"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RegisterDomain
 func (c *Route53Domains) RegisterDomainRequest(input *RegisterDomainInput) (req *request.Request, output *RegisterDomainOutput) {
 	op := &request.Operation{
 		Name:       opRegisterDomain,
@@ -1095,8 +1081,9 @@ func (c *Route53Domains) RegisterDomainRequest(input *RegisterDomainInput) (req 
 		input = &RegisterDomainInput{}
 	}
 
-	output = &RegisterDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RegisterDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -1154,7 +1141,6 @@ func (c *Route53Domains) RegisterDomainRequest(input *RegisterDomainInput) (req 
 //   The number of operations or jobs running exceeded the allowed threshold for
 //   the account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RegisterDomain
 func (c *Route53Domains) RegisterDomain(input *RegisterDomainInput) (*RegisterDomainOutput, error) {
 	req, out := c.RegisterDomainRequest(input)
 	err := req.Send()
@@ -1187,7 +1173,6 @@ const opRenewDomain = "RenewDomain"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RenewDomain
 func (c *Route53Domains) RenewDomainRequest(input *RenewDomainInput) (req *request.Request, output *RenewDomainOutput) {
 	op := &request.Operation{
 		Name:       opRenewDomain,
@@ -1199,8 +1184,9 @@ func (c *Route53Domains) RenewDomainRequest(input *RenewDomainInput) (req *reque
 		input = &RenewDomainInput{}
 	}
 
-	output = &RenewDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RenewDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -1241,7 +1227,6 @@ func (c *Route53Domains) RenewDomainRequest(input *RenewDomainInput) (req *reque
 //   The number of operations or jobs running exceeded the allowed threshold for
 //   the account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RenewDomain
 func (c *Route53Domains) RenewDomain(input *RenewDomainInput) (*RenewDomainOutput, error) {
 	req, out := c.RenewDomainRequest(input)
 	err := req.Send()
@@ -1274,7 +1259,6 @@ const opResendContactReachabilityEmail = "ResendContactReachabilityEmail"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ResendContactReachabilityEmail
 func (c *Route53Domains) ResendContactReachabilityEmailRequest(input *ResendContactReachabilityEmailInput) (req *request.Request, output *ResendContactReachabilityEmailOutput) {
 	op := &request.Operation{
 		Name:       opResendContactReachabilityEmail,
@@ -1286,8 +1270,9 @@ func (c *Route53Domains) ResendContactReachabilityEmailRequest(input *ResendCont
 		input = &ResendContactReachabilityEmailInput{}
 	}
 
-	output = &ResendContactReachabilityEmailOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ResendContactReachabilityEmailOutput{}
+	req.Data = output
 	return
 }
 
@@ -1317,7 +1302,6 @@ func (c *Route53Domains) ResendContactReachabilityEmailRequest(input *ResendCont
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ResendContactReachabilityEmail
 func (c *Route53Domains) ResendContactReachabilityEmail(input *ResendContactReachabilityEmailInput) (*ResendContactReachabilityEmailOutput, error) {
 	req, out := c.ResendContactReachabilityEmailRequest(input)
 	err := req.Send()
@@ -1350,7 +1334,6 @@ const opRetrieveDomainAuthCode = "RetrieveDomainAuthCode"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RetrieveDomainAuthCode
 func (c *Route53Domains) RetrieveDomainAuthCodeRequest(input *RetrieveDomainAuthCodeInput) (req *request.Request, output *RetrieveDomainAuthCodeOutput) {
 	op := &request.Operation{
 		Name:       opRetrieveDomainAuthCode,
@@ -1362,8 +1345,9 @@ func (c *Route53Domains) RetrieveDomainAuthCodeRequest(input *RetrieveDomainAuth
 		input = &RetrieveDomainAuthCodeInput{}
 	}
 
-	output = &RetrieveDomainAuthCodeOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RetrieveDomainAuthCodeOutput{}
+	req.Data = output
 	return
 }
 
@@ -1388,7 +1372,6 @@ func (c *Route53Domains) RetrieveDomainAuthCodeRequest(input *RetrieveDomainAuth
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RetrieveDomainAuthCode
 func (c *Route53Domains) RetrieveDomainAuthCode(input *RetrieveDomainAuthCodeInput) (*RetrieveDomainAuthCodeOutput, error) {
 	req, out := c.RetrieveDomainAuthCodeRequest(input)
 	err := req.Send()
@@ -1421,7 +1404,6 @@ const opTransferDomain = "TransferDomain"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/TransferDomain
 func (c *Route53Domains) TransferDomainRequest(input *TransferDomainInput) (req *request.Request, output *TransferDomainOutput) {
 	op := &request.Operation{
 		Name:       opTransferDomain,
@@ -1433,8 +1415,9 @@ func (c *Route53Domains) TransferDomainRequest(input *TransferDomainInput) (req 
 		input = &TransferDomainInput{}
 	}
 
-	output = &TransferDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &TransferDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -1494,7 +1477,6 @@ func (c *Route53Domains) TransferDomainRequest(input *TransferDomainInput) (req 
 //   The number of operations or jobs running exceeded the allowed threshold for
 //   the account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/TransferDomain
 func (c *Route53Domains) TransferDomain(input *TransferDomainInput) (*TransferDomainOutput, error) {
 	req, out := c.TransferDomainRequest(input)
 	err := req.Send()
@@ -1527,7 +1509,6 @@ const opUpdateDomainContact = "UpdateDomainContact"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContact
 func (c *Route53Domains) UpdateDomainContactRequest(input *UpdateDomainContactInput) (req *request.Request, output *UpdateDomainContactOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDomainContact,
@@ -1539,8 +1520,9 @@ func (c *Route53Domains) UpdateDomainContactRequest(input *UpdateDomainContactIn
 		input = &UpdateDomainContactInput{}
 	}
 
-	output = &UpdateDomainContactOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateDomainContactOutput{}
+	req.Data = output
 	return
 }
 
@@ -1581,7 +1563,6 @@ func (c *Route53Domains) UpdateDomainContactRequest(input *UpdateDomainContactIn
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContact
 func (c *Route53Domains) UpdateDomainContact(input *UpdateDomainContactInput) (*UpdateDomainContactOutput, error) {
 	req, out := c.UpdateDomainContactRequest(input)
 	err := req.Send()
@@ -1614,7 +1595,6 @@ const opUpdateDomainContactPrivacy = "UpdateDomainContactPrivacy"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContactPrivacy
 func (c *Route53Domains) UpdateDomainContactPrivacyRequest(input *UpdateDomainContactPrivacyInput) (req *request.Request, output *UpdateDomainContactPrivacyOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDomainContactPrivacy,
@@ -1626,8 +1606,9 @@ func (c *Route53Domains) UpdateDomainContactPrivacyRequest(input *UpdateDomainCo
 		input = &UpdateDomainContactPrivacyInput{}
 	}
 
-	output = &UpdateDomainContactPrivacyOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateDomainContactPrivacyOutput{}
+	req.Data = output
 	return
 }
 
@@ -1671,7 +1652,6 @@ func (c *Route53Domains) UpdateDomainContactPrivacyRequest(input *UpdateDomainCo
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContactPrivacy
 func (c *Route53Domains) UpdateDomainContactPrivacy(input *UpdateDomainContactPrivacyInput) (*UpdateDomainContactPrivacyOutput, error) {
 	req, out := c.UpdateDomainContactPrivacyRequest(input)
 	err := req.Send()
@@ -1704,7 +1684,6 @@ const opUpdateDomainNameservers = "UpdateDomainNameservers"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainNameservers
 func (c *Route53Domains) UpdateDomainNameserversRequest(input *UpdateDomainNameserversInput) (req *request.Request, output *UpdateDomainNameserversOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDomainNameservers,
@@ -1716,8 +1695,9 @@ func (c *Route53Domains) UpdateDomainNameserversRequest(input *UpdateDomainNames
 		input = &UpdateDomainNameserversInput{}
 	}
 
-	output = &UpdateDomainNameserversOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateDomainNameserversOutput{}
+	req.Data = output
 	return
 }
 
@@ -1758,7 +1738,6 @@ func (c *Route53Domains) UpdateDomainNameserversRequest(input *UpdateDomainNames
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainNameservers
 func (c *Route53Domains) UpdateDomainNameservers(input *UpdateDomainNameserversInput) (*UpdateDomainNameserversOutput, error) {
 	req, out := c.UpdateDomainNameserversRequest(input)
 	err := req.Send()
@@ -1791,7 +1770,6 @@ const opUpdateTagsForDomain = "UpdateTagsForDomain"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateTagsForDomain
 func (c *Route53Domains) UpdateTagsForDomainRequest(input *UpdateTagsForDomainInput) (req *request.Request, output *UpdateTagsForDomainOutput) {
 	op := &request.Operation{
 		Name:       opUpdateTagsForDomain,
@@ -1803,8 +1781,9 @@ func (c *Route53Domains) UpdateTagsForDomainRequest(input *UpdateTagsForDomainIn
 		input = &UpdateTagsForDomainInput{}
 	}
 
-	output = &UpdateTagsForDomainOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateTagsForDomainOutput{}
+	req.Data = output
 	return
 }
 
@@ -1835,7 +1814,6 @@ func (c *Route53Domains) UpdateTagsForDomainRequest(input *UpdateTagsForDomainIn
 //   * UnsupportedTLD
 //   Amazon Route 53 does not support this top-level domain.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateTagsForDomain
 func (c *Route53Domains) UpdateTagsForDomain(input *UpdateTagsForDomainInput) (*UpdateTagsForDomainOutput, error) {
 	req, out := c.UpdateTagsForDomainRequest(input)
 	err := req.Send()
@@ -1868,7 +1846,6 @@ const opViewBilling = "ViewBilling"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ViewBilling
 func (c *Route53Domains) ViewBillingRequest(input *ViewBillingInput) (req *request.Request, output *ViewBillingOutput) {
 	op := &request.Operation{
 		Name:       opViewBilling,
@@ -1880,8 +1857,9 @@ func (c *Route53Domains) ViewBillingRequest(input *ViewBillingInput) (req *reque
 		input = &ViewBillingInput{}
 	}
 
-	output = &ViewBillingOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ViewBillingOutput{}
+	req.Data = output
 	return
 }
 
@@ -1903,14 +1881,12 @@ func (c *Route53Domains) ViewBillingRequest(input *ViewBillingInput) (req *reque
 //   may refer to the ID of an operation that is already completed. For a domain
 //   name, it may not be a valid domain name or belong to the requester account.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ViewBilling
 func (c *Route53Domains) ViewBilling(input *ViewBillingInput) (*ViewBillingOutput, error) {
 	req, out := c.ViewBillingRequest(input)
 	err := req.Send()
 	return out, err
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/BillingRecord
 type BillingRecord struct {
 	_ struct{} `type:"structure"`
 
@@ -1988,7 +1964,6 @@ func (s *BillingRecord) SetPrice(v float64) *BillingRecord {
 }
 
 // The CheckDomainAvailability request contains the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/CheckDomainAvailabilityRequest
 type CheckDomainAvailabilityInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2047,7 +2022,6 @@ func (s *CheckDomainAvailabilityInput) SetIdnLangCode(v string) *CheckDomainAvai
 }
 
 // The CheckDomainAvailability response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/CheckDomainAvailabilityResponse
 type CheckDomainAvailabilityOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2095,7 +2069,6 @@ func (s *CheckDomainAvailabilityOutput) SetAvailability(v string) *CheckDomainAv
 }
 
 // ContactDetail includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ContactDetail
 type ContactDetail struct {
 	_ struct{} `type:"structure"`
 
@@ -2405,7 +2378,6 @@ func (s *ContactDetail) SetZipCode(v string) *ContactDetail {
 }
 
 // The DeleteTagsForDomainRequest includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DeleteTagsForDomainRequest
 type DeleteTagsForDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2478,7 +2450,6 @@ func (s *DeleteTagsForDomainInput) SetTagsToDelete(v []*string) *DeleteTagsForDo
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DeleteTagsForDomainResponse
 type DeleteTagsForDomainOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -2493,7 +2464,6 @@ func (s DeleteTagsForDomainOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainAutoRenewRequest
 type DisableDomainAutoRenewInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2530,7 +2500,6 @@ func (s *DisableDomainAutoRenewInput) SetDomainName(v string) *DisableDomainAuto
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainAutoRenewResponse
 type DisableDomainAutoRenewOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -2546,7 +2515,6 @@ func (s DisableDomainAutoRenewOutput) GoString() string {
 }
 
 // The DisableDomainTransferLock request includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainTransferLockRequest
 type DisableDomainTransferLockInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2596,7 +2564,6 @@ func (s *DisableDomainTransferLockInput) SetDomainName(v string) *DisableDomainT
 }
 
 // The DisableDomainTransferLock response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DisableDomainTransferLockResponse
 type DisableDomainTransferLockOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2629,7 +2596,6 @@ func (s *DisableDomainTransferLockOutput) SetOperationId(v string) *DisableDomai
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DomainSuggestion
 type DomainSuggestion struct {
 	_ struct{} `type:"structure"`
 
@@ -2660,7 +2626,6 @@ func (s *DomainSuggestion) SetDomainName(v string) *DomainSuggestion {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/DomainSummary
 type DomainSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -2726,7 +2691,6 @@ func (s *DomainSummary) SetTransferLock(v bool) *DomainSummary {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainAutoRenewRequest
 type EnableDomainAutoRenewInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2763,7 +2727,6 @@ func (s *EnableDomainAutoRenewInput) SetDomainName(v string) *EnableDomainAutoRe
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainAutoRenewResponse
 type EnableDomainAutoRenewOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -2779,7 +2742,6 @@ func (s EnableDomainAutoRenewOutput) GoString() string {
 }
 
 // The EnableDomainTransferLock request includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainTransferLockRequest
 type EnableDomainTransferLockInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2829,7 +2791,6 @@ func (s *EnableDomainTransferLockInput) SetDomainName(v string) *EnableDomainTra
 }
 
 // The EnableDomainTransferLock response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/EnableDomainTransferLockResponse
 type EnableDomainTransferLockOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2863,7 +2824,6 @@ func (s *EnableDomainTransferLockOutput) SetOperationId(v string) *EnableDomainT
 }
 
 // ExtraParam includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ExtraParam
 type ExtraParam struct {
 	_ struct{} `type:"structure"`
 
@@ -2941,7 +2901,6 @@ func (s *ExtraParam) SetValue(v string) *ExtraParam {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetContactReachabilityStatusRequest
 type GetContactReachabilityStatusInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2972,7 +2931,6 @@ func (s *GetContactReachabilityStatusInput) SetDomainName(v string) *GetContactR
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetContactReachabilityStatusResponse
 type GetContactReachabilityStatusOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3014,7 +2972,6 @@ func (s *GetContactReachabilityStatusOutput) SetStatus(v string) *GetContactReac
 }
 
 // The GetDomainDetail request includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainDetailRequest
 type GetDomainDetailInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3064,7 +3021,6 @@ func (s *GetDomainDetailInput) SetDomainName(v string) *GetDomainDetailInput {
 }
 
 // The GetDomainDetail response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainDetailResponse
 type GetDomainDetailOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3352,7 +3308,6 @@ func (s *GetDomainDetailOutput) SetWhoIsServer(v string) *GetDomainDetailOutput 
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainSuggestionsRequest
 type GetDomainSuggestionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3413,7 +3368,6 @@ func (s *GetDomainSuggestionsInput) SetSuggestionCount(v int64) *GetDomainSugges
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetDomainSuggestionsResponse
 type GetDomainSuggestionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3437,7 +3391,6 @@ func (s *GetDomainSuggestionsOutput) SetSuggestionsList(v []*DomainSuggestion) *
 }
 
 // The GetOperationDetail request includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetOperationDetailRequest
 type GetOperationDetailInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3484,7 +3437,6 @@ func (s *GetOperationDetailInput) SetOperationId(v string) *GetOperationDetailIn
 }
 
 // The GetOperationDetail response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/GetOperationDetailResponse
 type GetOperationDetailOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3564,7 +3516,6 @@ func (s *GetOperationDetailOutput) SetType(v string) *GetOperationDetailOutput {
 }
 
 // The ListDomains request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListDomainsRequest
 type ListDomainsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3619,7 +3570,6 @@ func (s *ListDomainsInput) SetMaxItems(v int64) *ListDomainsInput {
 }
 
 // The ListDomains response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListDomainsResponse
 type ListDomainsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3665,7 +3615,6 @@ func (s *ListDomainsOutput) SetNextPageMarker(v string) *ListDomainsOutput {
 }
 
 // The ListOperations request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListOperationsRequest
 type ListOperationsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3718,7 +3667,6 @@ func (s *ListOperationsInput) SetMaxItems(v int64) *ListOperationsInput {
 }
 
 // The ListOperations response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListOperationsResponse
 type ListOperationsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3764,7 +3712,6 @@ func (s *ListOperationsOutput) SetOperations(v []*OperationSummary) *ListOperati
 }
 
 // The ListTagsForDomainRequest includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListTagsForDomainRequest
 type ListTagsForDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3804,7 +3751,6 @@ func (s *ListTagsForDomainInput) SetDomainName(v string) *ListTagsForDomainInput
 }
 
 // The ListTagsForDomain response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ListTagsForDomainResponse
 type ListTagsForDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3847,7 +3793,6 @@ func (s *ListTagsForDomainOutput) SetTagList(v []*Tag) *ListTagsForDomainOutput 
 }
 
 // Nameserver includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/Nameserver
 type Nameserver struct {
 	_ struct{} `type:"structure"`
 
@@ -3911,7 +3856,6 @@ func (s *Nameserver) SetName(v string) *Nameserver {
 }
 
 // OperationSummary includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/OperationSummary
 type OperationSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -3980,7 +3924,6 @@ func (s *OperationSummary) SetType(v string) *OperationSummary {
 }
 
 // The RegisterDomain request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RegisterDomainRequest
 type RegisterDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4224,7 +4167,6 @@ func (s *RegisterDomainInput) SetTechContact(v *ContactDetail) *RegisterDomainIn
 }
 
 // The RegisterDomain response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RegisterDomainResponse
 type RegisterDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4259,7 +4201,6 @@ func (s *RegisterDomainOutput) SetOperationId(v string) *RegisterDomainOutput {
 
 // A RenewDomain request includes the number of years that you want to renew
 // for and the current expiration year.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RenewDomainRequest
 type RenewDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4342,7 +4283,6 @@ func (s *RenewDomainInput) SetDurationInYears(v int64) *RenewDomainInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RenewDomainResponse
 type RenewDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4366,7 +4306,6 @@ func (s *RenewDomainOutput) SetOperationId(v string) *RenewDomainOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ResendContactReachabilityEmailRequest
 type ResendContactReachabilityEmailInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4397,7 +4336,6 @@ func (s *ResendContactReachabilityEmailInput) SetDomainName(v string) *ResendCon
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ResendContactReachabilityEmailResponse
 type ResendContactReachabilityEmailOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4443,7 +4381,6 @@ func (s *ResendContactReachabilityEmailOutput) SetIsAlreadyVerified(v bool) *Res
 }
 
 // The RetrieveDomainAuthCode request includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RetrieveDomainAuthCodeRequest
 type RetrieveDomainAuthCodeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4493,7 +4430,6 @@ func (s *RetrieveDomainAuthCodeInput) SetDomainName(v string) *RetrieveDomainAut
 }
 
 // The RetrieveDomainAuthCode response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/RetrieveDomainAuthCodeResponse
 type RetrieveDomainAuthCodeOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4522,7 +4458,6 @@ func (s *RetrieveDomainAuthCodeOutput) SetAuthCode(v string) *RetrieveDomainAuth
 }
 
 // Each tag includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/Tag
 type Tag struct {
 	_ struct{} `type:"structure"`
 
@@ -4576,7 +4511,6 @@ func (s *Tag) SetValue(v string) *Tag {
 }
 
 // The TransferDomain request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/TransferDomainRequest
 type TransferDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4859,7 +4793,6 @@ func (s *TransferDomainInput) SetTechContact(v *ContactDetail) *TransferDomainIn
 }
 
 // The TranserDomain response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/TransferDomainResponse
 type TransferDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4893,7 +4826,6 @@ func (s *TransferDomainOutput) SetOperationId(v string) *TransferDomainOutput {
 }
 
 // The UpdateDomainContact request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContactRequest
 type UpdateDomainContactInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5009,7 +4941,6 @@ func (s *UpdateDomainContactInput) SetTechContact(v *ContactDetail) *UpdateDomai
 }
 
 // The UpdateDomainContact response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContactResponse
 type UpdateDomainContactOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5043,7 +4974,6 @@ func (s *UpdateDomainContactOutput) SetOperationId(v string) *UpdateDomainContac
 }
 
 // The UpdateDomainContactPrivacy request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContactPrivacyRequest
 type UpdateDomainContactPrivacyInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5153,7 +5083,6 @@ func (s *UpdateDomainContactPrivacyInput) SetTechPrivacy(v bool) *UpdateDomainCo
 }
 
 // The UpdateDomainContactPrivacy response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainContactPrivacyResponse
 type UpdateDomainContactPrivacyOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5187,7 +5116,6 @@ func (s *UpdateDomainContactPrivacyOutput) SetOperationId(v string) *UpdateDomai
 }
 
 // The UpdateDomainNameserver request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainNameserversRequest
 type UpdateDomainNameserversInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5276,7 +5204,6 @@ func (s *UpdateDomainNameserversInput) SetNameservers(v []*Nameserver) *UpdateDo
 }
 
 // The UpdateDomainNameservers response includes the following element.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateDomainNameserversResponse
 type UpdateDomainNameserversOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5310,7 +5237,6 @@ func (s *UpdateDomainNameserversOutput) SetOperationId(v string) *UpdateDomainNa
 }
 
 // The UpdateTagsForDomainRequest includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateTagsForDomainRequest
 type UpdateTagsForDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5409,7 +5335,6 @@ func (s *UpdateTagsForDomainInput) SetTagsToUpdate(v []*Tag) *UpdateTagsForDomai
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/UpdateTagsForDomainResponse
 type UpdateTagsForDomainOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5425,7 +5350,6 @@ func (s UpdateTagsForDomainOutput) GoString() string {
 }
 
 // The ViewBilling request includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ViewBillingRequest
 type ViewBillingInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5513,7 +5437,6 @@ func (s *ViewBillingInput) SetStart(v time.Time) *ViewBillingInput {
 }
 
 // The ViewBilling response includes the following elements.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/route53domains-2014-05-15/ViewBillingResponse
 type ViewBillingOutput struct {
 	_ struct{} `type:"structure"`
 

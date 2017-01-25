@@ -38,7 +38,6 @@ const opAssignInstance = "AssignInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignInstance
 func (c *OpsWorks) AssignInstanceRequest(input *AssignInstanceInput) (req *request.Request, output *AssignInstanceOutput) {
 	op := &request.Operation{
 		Name:       opAssignInstance,
@@ -50,10 +49,11 @@ func (c *OpsWorks) AssignInstanceRequest(input *AssignInstanceInput) (req *reque
 		input = &AssignInstanceInput{}
 	}
 
-	output = &AssignInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &AssignInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -87,7 +87,6 @@ func (c *OpsWorks) AssignInstanceRequest(input *AssignInstanceInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignInstance
 func (c *OpsWorks) AssignInstance(input *AssignInstanceInput) (*AssignInstanceOutput, error) {
 	req, out := c.AssignInstanceRequest(input)
 	err := req.Send()
@@ -120,7 +119,6 @@ const opAssignVolume = "AssignVolume"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignVolume
 func (c *OpsWorks) AssignVolumeRequest(input *AssignVolumeInput) (req *request.Request, output *AssignVolumeOutput) {
 	op := &request.Operation{
 		Name:       opAssignVolume,
@@ -132,10 +130,11 @@ func (c *OpsWorks) AssignVolumeRequest(input *AssignVolumeInput) (req *request.R
 		input = &AssignVolumeInput{}
 	}
 
-	output = &AssignVolumeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &AssignVolumeOutput{}
+	req.Data = output
 	return
 }
 
@@ -166,7 +165,6 @@ func (c *OpsWorks) AssignVolumeRequest(input *AssignVolumeInput) (req *request.R
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignVolume
 func (c *OpsWorks) AssignVolume(input *AssignVolumeInput) (*AssignVolumeOutput, error) {
 	req, out := c.AssignVolumeRequest(input)
 	err := req.Send()
@@ -199,7 +197,6 @@ const opAssociateElasticIp = "AssociateElasticIp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssociateElasticIp
 func (c *OpsWorks) AssociateElasticIpRequest(input *AssociateElasticIpInput) (req *request.Request, output *AssociateElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opAssociateElasticIp,
@@ -211,10 +208,11 @@ func (c *OpsWorks) AssociateElasticIpRequest(input *AssociateElasticIpInput) (re
 		input = &AssociateElasticIpInput{}
 	}
 
-	output = &AssociateElasticIpOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &AssociateElasticIpOutput{}
+	req.Data = output
 	return
 }
 
@@ -243,7 +241,6 @@ func (c *OpsWorks) AssociateElasticIpRequest(input *AssociateElasticIpInput) (re
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssociateElasticIp
 func (c *OpsWorks) AssociateElasticIp(input *AssociateElasticIpInput) (*AssociateElasticIpOutput, error) {
 	req, out := c.AssociateElasticIpRequest(input)
 	err := req.Send()
@@ -276,7 +273,6 @@ const opAttachElasticLoadBalancer = "AttachElasticLoadBalancer"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AttachElasticLoadBalancer
 func (c *OpsWorks) AttachElasticLoadBalancerRequest(input *AttachElasticLoadBalancerInput) (req *request.Request, output *AttachElasticLoadBalancerOutput) {
 	op := &request.Operation{
 		Name:       opAttachElasticLoadBalancer,
@@ -288,10 +284,11 @@ func (c *OpsWorks) AttachElasticLoadBalancerRequest(input *AttachElasticLoadBala
 		input = &AttachElasticLoadBalancerInput{}
 	}
 
-	output = &AttachElasticLoadBalancerOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &AttachElasticLoadBalancerOutput{}
+	req.Data = output
 	return
 }
 
@@ -323,7 +320,6 @@ func (c *OpsWorks) AttachElasticLoadBalancerRequest(input *AttachElasticLoadBala
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AttachElasticLoadBalancer
 func (c *OpsWorks) AttachElasticLoadBalancer(input *AttachElasticLoadBalancerInput) (*AttachElasticLoadBalancerOutput, error) {
 	req, out := c.AttachElasticLoadBalancerRequest(input)
 	err := req.Send()
@@ -356,7 +352,6 @@ const opCloneStack = "CloneStack"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CloneStack
 func (c *OpsWorks) CloneStackRequest(input *CloneStackInput) (req *request.Request, output *CloneStackOutput) {
 	op := &request.Operation{
 		Name:       opCloneStack,
@@ -368,8 +363,9 @@ func (c *OpsWorks) CloneStackRequest(input *CloneStackInput) (req *request.Reque
 		input = &CloneStackInput{}
 	}
 
-	output = &CloneStackOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CloneStackOutput{}
+	req.Data = output
 	return
 }
 
@@ -397,7 +393,6 @@ func (c *OpsWorks) CloneStackRequest(input *CloneStackInput) (req *request.Reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CloneStack
 func (c *OpsWorks) CloneStack(input *CloneStackInput) (*CloneStackOutput, error) {
 	req, out := c.CloneStackRequest(input)
 	err := req.Send()
@@ -430,7 +425,6 @@ const opCreateApp = "CreateApp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateApp
 func (c *OpsWorks) CreateAppRequest(input *CreateAppInput) (req *request.Request, output *CreateAppOutput) {
 	op := &request.Operation{
 		Name:       opCreateApp,
@@ -442,8 +436,9 @@ func (c *OpsWorks) CreateAppRequest(input *CreateAppInput) (req *request.Request
 		input = &CreateAppInput{}
 	}
 
-	output = &CreateAppOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateAppOutput{}
+	req.Data = output
 	return
 }
 
@@ -471,7 +466,6 @@ func (c *OpsWorks) CreateAppRequest(input *CreateAppInput) (req *request.Request
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateApp
 func (c *OpsWorks) CreateApp(input *CreateAppInput) (*CreateAppOutput, error) {
 	req, out := c.CreateAppRequest(input)
 	err := req.Send()
@@ -504,7 +498,6 @@ const opCreateDeployment = "CreateDeployment"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateDeployment
 func (c *OpsWorks) CreateDeploymentRequest(input *CreateDeploymentInput) (req *request.Request, output *CreateDeploymentOutput) {
 	op := &request.Operation{
 		Name:       opCreateDeployment,
@@ -516,8 +509,9 @@ func (c *OpsWorks) CreateDeploymentRequest(input *CreateDeploymentInput) (req *r
 		input = &CreateDeploymentInput{}
 	}
 
-	output = &CreateDeploymentOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateDeploymentOutput{}
+	req.Data = output
 	return
 }
 
@@ -546,7 +540,6 @@ func (c *OpsWorks) CreateDeploymentRequest(input *CreateDeploymentInput) (req *r
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateDeployment
 func (c *OpsWorks) CreateDeployment(input *CreateDeploymentInput) (*CreateDeploymentOutput, error) {
 	req, out := c.CreateDeploymentRequest(input)
 	err := req.Send()
@@ -579,7 +572,6 @@ const opCreateInstance = "CreateInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateInstance
 func (c *OpsWorks) CreateInstanceRequest(input *CreateInstanceInput) (req *request.Request, output *CreateInstanceOutput) {
 	op := &request.Operation{
 		Name:       opCreateInstance,
@@ -591,8 +583,9 @@ func (c *OpsWorks) CreateInstanceRequest(input *CreateInstanceInput) (req *reque
 		input = &CreateInstanceInput{}
 	}
 
-	output = &CreateInstanceOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -620,7 +613,6 @@ func (c *OpsWorks) CreateInstanceRequest(input *CreateInstanceInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateInstance
 func (c *OpsWorks) CreateInstance(input *CreateInstanceInput) (*CreateInstanceOutput, error) {
 	req, out := c.CreateInstanceRequest(input)
 	err := req.Send()
@@ -653,7 +645,6 @@ const opCreateLayer = "CreateLayer"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateLayer
 func (c *OpsWorks) CreateLayerRequest(input *CreateLayerInput) (req *request.Request, output *CreateLayerOutput) {
 	op := &request.Operation{
 		Name:       opCreateLayer,
@@ -665,8 +656,9 @@ func (c *OpsWorks) CreateLayerRequest(input *CreateLayerInput) (req *request.Req
 		input = &CreateLayerInput{}
 	}
 
-	output = &CreateLayerOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateLayerOutput{}
+	req.Data = output
 	return
 }
 
@@ -700,7 +692,6 @@ func (c *OpsWorks) CreateLayerRequest(input *CreateLayerInput) (req *request.Req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateLayer
 func (c *OpsWorks) CreateLayer(input *CreateLayerInput) (*CreateLayerOutput, error) {
 	req, out := c.CreateLayerRequest(input)
 	err := req.Send()
@@ -733,7 +724,6 @@ const opCreateStack = "CreateStack"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateStack
 func (c *OpsWorks) CreateStackRequest(input *CreateStackInput) (req *request.Request, output *CreateStackOutput) {
 	op := &request.Operation{
 		Name:       opCreateStack,
@@ -745,8 +735,9 @@ func (c *OpsWorks) CreateStackRequest(input *CreateStackInput) (req *request.Req
 		input = &CreateStackInput{}
 	}
 
-	output = &CreateStackOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateStackOutput{}
+	req.Data = output
 	return
 }
 
@@ -769,7 +760,6 @@ func (c *OpsWorks) CreateStackRequest(input *CreateStackInput) (req *request.Req
 //   * ValidationException
 //   Indicates that a request was not valid.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateStack
 func (c *OpsWorks) CreateStack(input *CreateStackInput) (*CreateStackOutput, error) {
 	req, out := c.CreateStackRequest(input)
 	err := req.Send()
@@ -802,7 +792,6 @@ const opCreateUserProfile = "CreateUserProfile"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateUserProfile
 func (c *OpsWorks) CreateUserProfileRequest(input *CreateUserProfileInput) (req *request.Request, output *CreateUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opCreateUserProfile,
@@ -814,8 +803,9 @@ func (c *OpsWorks) CreateUserProfileRequest(input *CreateUserProfileInput) (req 
 		input = &CreateUserProfileInput{}
 	}
 
-	output = &CreateUserProfileOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateUserProfileOutput{}
+	req.Data = output
 	return
 }
 
@@ -838,7 +828,6 @@ func (c *OpsWorks) CreateUserProfileRequest(input *CreateUserProfileInput) (req 
 //   * ValidationException
 //   Indicates that a request was not valid.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateUserProfile
 func (c *OpsWorks) CreateUserProfile(input *CreateUserProfileInput) (*CreateUserProfileOutput, error) {
 	req, out := c.CreateUserProfileRequest(input)
 	err := req.Send()
@@ -871,7 +860,6 @@ const opDeleteApp = "DeleteApp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteApp
 func (c *OpsWorks) DeleteAppRequest(input *DeleteAppInput) (req *request.Request, output *DeleteAppOutput) {
 	op := &request.Operation{
 		Name:       opDeleteApp,
@@ -883,10 +871,11 @@ func (c *OpsWorks) DeleteAppRequest(input *DeleteAppInput) (req *request.Request
 		input = &DeleteAppInput{}
 	}
 
-	output = &DeleteAppOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeleteAppOutput{}
+	req.Data = output
 	return
 }
 
@@ -913,7 +902,6 @@ func (c *OpsWorks) DeleteAppRequest(input *DeleteAppInput) (req *request.Request
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteApp
 func (c *OpsWorks) DeleteApp(input *DeleteAppInput) (*DeleteAppOutput, error) {
 	req, out := c.DeleteAppRequest(input)
 	err := req.Send()
@@ -946,7 +934,6 @@ const opDeleteInstance = "DeleteInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteInstance
 func (c *OpsWorks) DeleteInstanceRequest(input *DeleteInstanceInput) (req *request.Request, output *DeleteInstanceOutput) {
 	op := &request.Operation{
 		Name:       opDeleteInstance,
@@ -958,10 +945,11 @@ func (c *OpsWorks) DeleteInstanceRequest(input *DeleteInstanceInput) (req *reque
 		input = &DeleteInstanceInput{}
 	}
 
-	output = &DeleteInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeleteInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -991,7 +979,6 @@ func (c *OpsWorks) DeleteInstanceRequest(input *DeleteInstanceInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteInstance
 func (c *OpsWorks) DeleteInstance(input *DeleteInstanceInput) (*DeleteInstanceOutput, error) {
 	req, out := c.DeleteInstanceRequest(input)
 	err := req.Send()
@@ -1024,7 +1011,6 @@ const opDeleteLayer = "DeleteLayer"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteLayer
 func (c *OpsWorks) DeleteLayerRequest(input *DeleteLayerInput) (req *request.Request, output *DeleteLayerOutput) {
 	op := &request.Operation{
 		Name:       opDeleteLayer,
@@ -1036,10 +1022,11 @@ func (c *OpsWorks) DeleteLayerRequest(input *DeleteLayerInput) (req *request.Req
 		input = &DeleteLayerInput{}
 	}
 
-	output = &DeleteLayerOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeleteLayerOutput{}
+	req.Data = output
 	return
 }
 
@@ -1068,7 +1055,6 @@ func (c *OpsWorks) DeleteLayerRequest(input *DeleteLayerInput) (req *request.Req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteLayer
 func (c *OpsWorks) DeleteLayer(input *DeleteLayerInput) (*DeleteLayerOutput, error) {
 	req, out := c.DeleteLayerRequest(input)
 	err := req.Send()
@@ -1101,7 +1087,6 @@ const opDeleteStack = "DeleteStack"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteStack
 func (c *OpsWorks) DeleteStackRequest(input *DeleteStackInput) (req *request.Request, output *DeleteStackOutput) {
 	op := &request.Operation{
 		Name:       opDeleteStack,
@@ -1113,10 +1098,11 @@ func (c *OpsWorks) DeleteStackRequest(input *DeleteStackInput) (req *request.Req
 		input = &DeleteStackInput{}
 	}
 
-	output = &DeleteStackOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeleteStackOutput{}
+	req.Data = output
 	return
 }
 
@@ -1145,7 +1131,6 @@ func (c *OpsWorks) DeleteStackRequest(input *DeleteStackInput) (req *request.Req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteStack
 func (c *OpsWorks) DeleteStack(input *DeleteStackInput) (*DeleteStackOutput, error) {
 	req, out := c.DeleteStackRequest(input)
 	err := req.Send()
@@ -1178,7 +1163,6 @@ const opDeleteUserProfile = "DeleteUserProfile"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteUserProfile
 func (c *OpsWorks) DeleteUserProfileRequest(input *DeleteUserProfileInput) (req *request.Request, output *DeleteUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opDeleteUserProfile,
@@ -1190,10 +1174,11 @@ func (c *OpsWorks) DeleteUserProfileRequest(input *DeleteUserProfileInput) (req 
 		input = &DeleteUserProfileInput{}
 	}
 
-	output = &DeleteUserProfileOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeleteUserProfileOutput{}
+	req.Data = output
 	return
 }
 
@@ -1219,7 +1204,6 @@ func (c *OpsWorks) DeleteUserProfileRequest(input *DeleteUserProfileInput) (req 
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteUserProfile
 func (c *OpsWorks) DeleteUserProfile(input *DeleteUserProfileInput) (*DeleteUserProfileOutput, error) {
 	req, out := c.DeleteUserProfileRequest(input)
 	err := req.Send()
@@ -1252,7 +1236,6 @@ const opDeregisterEcsCluster = "DeregisterEcsCluster"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterEcsCluster
 func (c *OpsWorks) DeregisterEcsClusterRequest(input *DeregisterEcsClusterInput) (req *request.Request, output *DeregisterEcsClusterOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterEcsCluster,
@@ -1264,10 +1247,11 @@ func (c *OpsWorks) DeregisterEcsClusterRequest(input *DeregisterEcsClusterInput)
 		input = &DeregisterEcsClusterInput{}
 	}
 
-	output = &DeregisterEcsClusterOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeregisterEcsClusterOutput{}
+	req.Data = output
 	return
 }
 
@@ -1295,7 +1279,6 @@ func (c *OpsWorks) DeregisterEcsClusterRequest(input *DeregisterEcsClusterInput)
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterEcsCluster
 func (c *OpsWorks) DeregisterEcsCluster(input *DeregisterEcsClusterInput) (*DeregisterEcsClusterOutput, error) {
 	req, out := c.DeregisterEcsClusterRequest(input)
 	err := req.Send()
@@ -1328,7 +1311,6 @@ const opDeregisterElasticIp = "DeregisterElasticIp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterElasticIp
 func (c *OpsWorks) DeregisterElasticIpRequest(input *DeregisterElasticIpInput) (req *request.Request, output *DeregisterElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterElasticIp,
@@ -1340,10 +1322,11 @@ func (c *OpsWorks) DeregisterElasticIpRequest(input *DeregisterElasticIpInput) (
 		input = &DeregisterElasticIpInput{}
 	}
 
-	output = &DeregisterElasticIpOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeregisterElasticIpOutput{}
+	req.Data = output
 	return
 }
 
@@ -1371,7 +1354,6 @@ func (c *OpsWorks) DeregisterElasticIpRequest(input *DeregisterElasticIpInput) (
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterElasticIp
 func (c *OpsWorks) DeregisterElasticIp(input *DeregisterElasticIpInput) (*DeregisterElasticIpOutput, error) {
 	req, out := c.DeregisterElasticIpRequest(input)
 	err := req.Send()
@@ -1404,7 +1386,6 @@ const opDeregisterInstance = "DeregisterInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterInstance
 func (c *OpsWorks) DeregisterInstanceRequest(input *DeregisterInstanceInput) (req *request.Request, output *DeregisterInstanceOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterInstance,
@@ -1416,10 +1397,11 @@ func (c *OpsWorks) DeregisterInstanceRequest(input *DeregisterInstanceInput) (re
 		input = &DeregisterInstanceInput{}
 	}
 
-	output = &DeregisterInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeregisterInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -1448,7 +1430,6 @@ func (c *OpsWorks) DeregisterInstanceRequest(input *DeregisterInstanceInput) (re
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterInstance
 func (c *OpsWorks) DeregisterInstance(input *DeregisterInstanceInput) (*DeregisterInstanceOutput, error) {
 	req, out := c.DeregisterInstanceRequest(input)
 	err := req.Send()
@@ -1481,7 +1462,6 @@ const opDeregisterRdsDbInstance = "DeregisterRdsDbInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterRdsDbInstance
 func (c *OpsWorks) DeregisterRdsDbInstanceRequest(input *DeregisterRdsDbInstanceInput) (req *request.Request, output *DeregisterRdsDbInstanceOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterRdsDbInstance,
@@ -1493,10 +1473,11 @@ func (c *OpsWorks) DeregisterRdsDbInstanceRequest(input *DeregisterRdsDbInstance
 		input = &DeregisterRdsDbInstanceInput{}
 	}
 
-	output = &DeregisterRdsDbInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeregisterRdsDbInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -1523,7 +1504,6 @@ func (c *OpsWorks) DeregisterRdsDbInstanceRequest(input *DeregisterRdsDbInstance
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterRdsDbInstance
 func (c *OpsWorks) DeregisterRdsDbInstance(input *DeregisterRdsDbInstanceInput) (*DeregisterRdsDbInstanceOutput, error) {
 	req, out := c.DeregisterRdsDbInstanceRequest(input)
 	err := req.Send()
@@ -1556,7 +1536,6 @@ const opDeregisterVolume = "DeregisterVolume"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterVolume
 func (c *OpsWorks) DeregisterVolumeRequest(input *DeregisterVolumeInput) (req *request.Request, output *DeregisterVolumeOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterVolume,
@@ -1568,10 +1547,11 @@ func (c *OpsWorks) DeregisterVolumeRequest(input *DeregisterVolumeInput) (req *r
 		input = &DeregisterVolumeInput{}
 	}
 
-	output = &DeregisterVolumeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DeregisterVolumeOutput{}
+	req.Data = output
 	return
 }
 
@@ -1599,7 +1579,6 @@ func (c *OpsWorks) DeregisterVolumeRequest(input *DeregisterVolumeInput) (req *r
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterVolume
 func (c *OpsWorks) DeregisterVolume(input *DeregisterVolumeInput) (*DeregisterVolumeOutput, error) {
 	req, out := c.DeregisterVolumeRequest(input)
 	err := req.Send()
@@ -1632,7 +1611,6 @@ const opDescribeAgentVersions = "DescribeAgentVersions"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeAgentVersions
 func (c *OpsWorks) DescribeAgentVersionsRequest(input *DescribeAgentVersionsInput) (req *request.Request, output *DescribeAgentVersionsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeAgentVersions,
@@ -1644,8 +1622,9 @@ func (c *OpsWorks) DescribeAgentVersionsRequest(input *DescribeAgentVersionsInpu
 		input = &DescribeAgentVersionsInput{}
 	}
 
-	output = &DescribeAgentVersionsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeAgentVersionsOutput{}
+	req.Data = output
 	return
 }
 
@@ -1669,7 +1648,6 @@ func (c *OpsWorks) DescribeAgentVersionsRequest(input *DescribeAgentVersionsInpu
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeAgentVersions
 func (c *OpsWorks) DescribeAgentVersions(input *DescribeAgentVersionsInput) (*DescribeAgentVersionsOutput, error) {
 	req, out := c.DescribeAgentVersionsRequest(input)
 	err := req.Send()
@@ -1702,7 +1680,6 @@ const opDescribeApps = "DescribeApps"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeApps
 func (c *OpsWorks) DescribeAppsRequest(input *DescribeAppsInput) (req *request.Request, output *DescribeAppsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeApps,
@@ -1714,8 +1691,9 @@ func (c *OpsWorks) DescribeAppsRequest(input *DescribeAppsInput) (req *request.R
 		input = &DescribeAppsInput{}
 	}
 
-	output = &DescribeAppsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeAppsOutput{}
+	req.Data = output
 	return
 }
 
@@ -1744,7 +1722,6 @@ func (c *OpsWorks) DescribeAppsRequest(input *DescribeAppsInput) (req *request.R
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeApps
 func (c *OpsWorks) DescribeApps(input *DescribeAppsInput) (*DescribeAppsOutput, error) {
 	req, out := c.DescribeAppsRequest(input)
 	err := req.Send()
@@ -1777,7 +1754,6 @@ const opDescribeCommands = "DescribeCommands"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeCommands
 func (c *OpsWorks) DescribeCommandsRequest(input *DescribeCommandsInput) (req *request.Request, output *DescribeCommandsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeCommands,
@@ -1789,8 +1765,9 @@ func (c *OpsWorks) DescribeCommandsRequest(input *DescribeCommandsInput) (req *r
 		input = &DescribeCommandsInput{}
 	}
 
-	output = &DescribeCommandsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeCommandsOutput{}
+	req.Data = output
 	return
 }
 
@@ -1819,7 +1796,6 @@ func (c *OpsWorks) DescribeCommandsRequest(input *DescribeCommandsInput) (req *r
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeCommands
 func (c *OpsWorks) DescribeCommands(input *DescribeCommandsInput) (*DescribeCommandsOutput, error) {
 	req, out := c.DescribeCommandsRequest(input)
 	err := req.Send()
@@ -1852,7 +1828,6 @@ const opDescribeDeployments = "DescribeDeployments"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeDeployments
 func (c *OpsWorks) DescribeDeploymentsRequest(input *DescribeDeploymentsInput) (req *request.Request, output *DescribeDeploymentsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeDeployments,
@@ -1864,8 +1839,9 @@ func (c *OpsWorks) DescribeDeploymentsRequest(input *DescribeDeploymentsInput) (
 		input = &DescribeDeploymentsInput{}
 	}
 
-	output = &DescribeDeploymentsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeDeploymentsOutput{}
+	req.Data = output
 	return
 }
 
@@ -1894,7 +1870,6 @@ func (c *OpsWorks) DescribeDeploymentsRequest(input *DescribeDeploymentsInput) (
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeDeployments
 func (c *OpsWorks) DescribeDeployments(input *DescribeDeploymentsInput) (*DescribeDeploymentsOutput, error) {
 	req, out := c.DescribeDeploymentsRequest(input)
 	err := req.Send()
@@ -1927,7 +1902,6 @@ const opDescribeEcsClusters = "DescribeEcsClusters"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeEcsClusters
 func (c *OpsWorks) DescribeEcsClustersRequest(input *DescribeEcsClustersInput) (req *request.Request, output *DescribeEcsClustersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeEcsClusters,
@@ -1945,8 +1919,9 @@ func (c *OpsWorks) DescribeEcsClustersRequest(input *DescribeEcsClustersInput) (
 		input = &DescribeEcsClustersInput{}
 	}
 
-	output = &DescribeEcsClustersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeEcsClustersOutput{}
+	req.Data = output
 	return
 }
 
@@ -1976,7 +1951,6 @@ func (c *OpsWorks) DescribeEcsClustersRequest(input *DescribeEcsClustersInput) (
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeEcsClusters
 func (c *OpsWorks) DescribeEcsClusters(input *DescribeEcsClustersInput) (*DescribeEcsClustersOutput, error) {
 	req, out := c.DescribeEcsClustersRequest(input)
 	err := req.Send()
@@ -2034,7 +2008,6 @@ const opDescribeElasticIps = "DescribeElasticIps"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticIps
 func (c *OpsWorks) DescribeElasticIpsRequest(input *DescribeElasticIpsInput) (req *request.Request, output *DescribeElasticIpsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeElasticIps,
@@ -2046,8 +2019,9 @@ func (c *OpsWorks) DescribeElasticIpsRequest(input *DescribeElasticIpsInput) (re
 		input = &DescribeElasticIpsInput{}
 	}
 
-	output = &DescribeElasticIpsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeElasticIpsOutput{}
+	req.Data = output
 	return
 }
 
@@ -2076,7 +2050,6 @@ func (c *OpsWorks) DescribeElasticIpsRequest(input *DescribeElasticIpsInput) (re
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticIps
 func (c *OpsWorks) DescribeElasticIps(input *DescribeElasticIpsInput) (*DescribeElasticIpsOutput, error) {
 	req, out := c.DescribeElasticIpsRequest(input)
 	err := req.Send()
@@ -2109,7 +2082,6 @@ const opDescribeElasticLoadBalancers = "DescribeElasticLoadBalancers"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticLoadBalancers
 func (c *OpsWorks) DescribeElasticLoadBalancersRequest(input *DescribeElasticLoadBalancersInput) (req *request.Request, output *DescribeElasticLoadBalancersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeElasticLoadBalancers,
@@ -2121,8 +2093,9 @@ func (c *OpsWorks) DescribeElasticLoadBalancersRequest(input *DescribeElasticLoa
 		input = &DescribeElasticLoadBalancersInput{}
 	}
 
-	output = &DescribeElasticLoadBalancersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeElasticLoadBalancersOutput{}
+	req.Data = output
 	return
 }
 
@@ -2151,7 +2124,6 @@ func (c *OpsWorks) DescribeElasticLoadBalancersRequest(input *DescribeElasticLoa
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticLoadBalancers
 func (c *OpsWorks) DescribeElasticLoadBalancers(input *DescribeElasticLoadBalancersInput) (*DescribeElasticLoadBalancersOutput, error) {
 	req, out := c.DescribeElasticLoadBalancersRequest(input)
 	err := req.Send()
@@ -2184,7 +2156,6 @@ const opDescribeInstances = "DescribeInstances"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeInstances
 func (c *OpsWorks) DescribeInstancesRequest(input *DescribeInstancesInput) (req *request.Request, output *DescribeInstancesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeInstances,
@@ -2196,8 +2167,9 @@ func (c *OpsWorks) DescribeInstancesRequest(input *DescribeInstancesInput) (req 
 		input = &DescribeInstancesInput{}
 	}
 
-	output = &DescribeInstancesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeInstancesOutput{}
+	req.Data = output
 	return
 }
 
@@ -2226,7 +2198,6 @@ func (c *OpsWorks) DescribeInstancesRequest(input *DescribeInstancesInput) (req 
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeInstances
 func (c *OpsWorks) DescribeInstances(input *DescribeInstancesInput) (*DescribeInstancesOutput, error) {
 	req, out := c.DescribeInstancesRequest(input)
 	err := req.Send()
@@ -2259,7 +2230,6 @@ const opDescribeLayers = "DescribeLayers"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLayers
 func (c *OpsWorks) DescribeLayersRequest(input *DescribeLayersInput) (req *request.Request, output *DescribeLayersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeLayers,
@@ -2271,8 +2241,9 @@ func (c *OpsWorks) DescribeLayersRequest(input *DescribeLayersInput) (req *reque
 		input = &DescribeLayersInput{}
 	}
 
-	output = &DescribeLayersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeLayersOutput{}
+	req.Data = output
 	return
 }
 
@@ -2301,7 +2272,6 @@ func (c *OpsWorks) DescribeLayersRequest(input *DescribeLayersInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLayers
 func (c *OpsWorks) DescribeLayers(input *DescribeLayersInput) (*DescribeLayersOutput, error) {
 	req, out := c.DescribeLayersRequest(input)
 	err := req.Send()
@@ -2334,7 +2304,6 @@ const opDescribeLoadBasedAutoScaling = "DescribeLoadBasedAutoScaling"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLoadBasedAutoScaling
 func (c *OpsWorks) DescribeLoadBasedAutoScalingRequest(input *DescribeLoadBasedAutoScalingInput) (req *request.Request, output *DescribeLoadBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opDescribeLoadBasedAutoScaling,
@@ -2346,8 +2315,9 @@ func (c *OpsWorks) DescribeLoadBasedAutoScalingRequest(input *DescribeLoadBasedA
 		input = &DescribeLoadBasedAutoScalingInput{}
 	}
 
-	output = &DescribeLoadBasedAutoScalingOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeLoadBasedAutoScalingOutput{}
+	req.Data = output
 	return
 }
 
@@ -2376,7 +2346,6 @@ func (c *OpsWorks) DescribeLoadBasedAutoScalingRequest(input *DescribeLoadBasedA
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLoadBasedAutoScaling
 func (c *OpsWorks) DescribeLoadBasedAutoScaling(input *DescribeLoadBasedAutoScalingInput) (*DescribeLoadBasedAutoScalingOutput, error) {
 	req, out := c.DescribeLoadBasedAutoScalingRequest(input)
 	err := req.Send()
@@ -2409,7 +2378,6 @@ const opDescribeMyUserProfile = "DescribeMyUserProfile"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeMyUserProfile
 func (c *OpsWorks) DescribeMyUserProfileRequest(input *DescribeMyUserProfileInput) (req *request.Request, output *DescribeMyUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opDescribeMyUserProfile,
@@ -2421,8 +2389,9 @@ func (c *OpsWorks) DescribeMyUserProfileRequest(input *DescribeMyUserProfileInpu
 		input = &DescribeMyUserProfileInput{}
 	}
 
-	output = &DescribeMyUserProfileOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeMyUserProfileOutput{}
+	req.Data = output
 	return
 }
 
@@ -2440,7 +2409,6 @@ func (c *OpsWorks) DescribeMyUserProfileRequest(input *DescribeMyUserProfileInpu
 //
 // See the AWS API reference guide for AWS OpsWorks's
 // API operation DescribeMyUserProfile for usage and error information.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeMyUserProfile
 func (c *OpsWorks) DescribeMyUserProfile(input *DescribeMyUserProfileInput) (*DescribeMyUserProfileOutput, error) {
 	req, out := c.DescribeMyUserProfileRequest(input)
 	err := req.Send()
@@ -2473,7 +2441,6 @@ const opDescribePermissions = "DescribePermissions"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribePermissions
 func (c *OpsWorks) DescribePermissionsRequest(input *DescribePermissionsInput) (req *request.Request, output *DescribePermissionsOutput) {
 	op := &request.Operation{
 		Name:       opDescribePermissions,
@@ -2485,8 +2452,9 @@ func (c *OpsWorks) DescribePermissionsRequest(input *DescribePermissionsInput) (
 		input = &DescribePermissionsInput{}
 	}
 
-	output = &DescribePermissionsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribePermissionsOutput{}
+	req.Data = output
 	return
 }
 
@@ -2513,7 +2481,6 @@ func (c *OpsWorks) DescribePermissionsRequest(input *DescribePermissionsInput) (
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribePermissions
 func (c *OpsWorks) DescribePermissions(input *DescribePermissionsInput) (*DescribePermissionsOutput, error) {
 	req, out := c.DescribePermissionsRequest(input)
 	err := req.Send()
@@ -2546,7 +2513,6 @@ const opDescribeRaidArrays = "DescribeRaidArrays"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRaidArrays
 func (c *OpsWorks) DescribeRaidArraysRequest(input *DescribeRaidArraysInput) (req *request.Request, output *DescribeRaidArraysOutput) {
 	op := &request.Operation{
 		Name:       opDescribeRaidArrays,
@@ -2558,8 +2524,9 @@ func (c *OpsWorks) DescribeRaidArraysRequest(input *DescribeRaidArraysInput) (re
 		input = &DescribeRaidArraysInput{}
 	}
 
-	output = &DescribeRaidArraysOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeRaidArraysOutput{}
+	req.Data = output
 	return
 }
 
@@ -2588,7 +2555,6 @@ func (c *OpsWorks) DescribeRaidArraysRequest(input *DescribeRaidArraysInput) (re
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRaidArrays
 func (c *OpsWorks) DescribeRaidArrays(input *DescribeRaidArraysInput) (*DescribeRaidArraysOutput, error) {
 	req, out := c.DescribeRaidArraysRequest(input)
 	err := req.Send()
@@ -2621,7 +2587,6 @@ const opDescribeRdsDbInstances = "DescribeRdsDbInstances"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRdsDbInstances
 func (c *OpsWorks) DescribeRdsDbInstancesRequest(input *DescribeRdsDbInstancesInput) (req *request.Request, output *DescribeRdsDbInstancesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeRdsDbInstances,
@@ -2633,8 +2598,9 @@ func (c *OpsWorks) DescribeRdsDbInstancesRequest(input *DescribeRdsDbInstancesIn
 		input = &DescribeRdsDbInstancesInput{}
 	}
 
-	output = &DescribeRdsDbInstancesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeRdsDbInstancesOutput{}
+	req.Data = output
 	return
 }
 
@@ -2661,7 +2627,6 @@ func (c *OpsWorks) DescribeRdsDbInstancesRequest(input *DescribeRdsDbInstancesIn
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRdsDbInstances
 func (c *OpsWorks) DescribeRdsDbInstances(input *DescribeRdsDbInstancesInput) (*DescribeRdsDbInstancesOutput, error) {
 	req, out := c.DescribeRdsDbInstancesRequest(input)
 	err := req.Send()
@@ -2694,7 +2659,6 @@ const opDescribeServiceErrors = "DescribeServiceErrors"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeServiceErrors
 func (c *OpsWorks) DescribeServiceErrorsRequest(input *DescribeServiceErrorsInput) (req *request.Request, output *DescribeServiceErrorsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeServiceErrors,
@@ -2706,8 +2670,9 @@ func (c *OpsWorks) DescribeServiceErrorsRequest(input *DescribeServiceErrorsInpu
 		input = &DescribeServiceErrorsInput{}
 	}
 
-	output = &DescribeServiceErrorsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeServiceErrorsOutput{}
+	req.Data = output
 	return
 }
 
@@ -2734,7 +2699,6 @@ func (c *OpsWorks) DescribeServiceErrorsRequest(input *DescribeServiceErrorsInpu
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeServiceErrors
 func (c *OpsWorks) DescribeServiceErrors(input *DescribeServiceErrorsInput) (*DescribeServiceErrorsOutput, error) {
 	req, out := c.DescribeServiceErrorsRequest(input)
 	err := req.Send()
@@ -2767,7 +2731,6 @@ const opDescribeStackProvisioningParameters = "DescribeStackProvisioningParamete
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackProvisioningParameters
 func (c *OpsWorks) DescribeStackProvisioningParametersRequest(input *DescribeStackProvisioningParametersInput) (req *request.Request, output *DescribeStackProvisioningParametersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStackProvisioningParameters,
@@ -2779,8 +2742,9 @@ func (c *OpsWorks) DescribeStackProvisioningParametersRequest(input *DescribeSta
 		input = &DescribeStackProvisioningParametersInput{}
 	}
 
-	output = &DescribeStackProvisioningParametersOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeStackProvisioningParametersOutput{}
+	req.Data = output
 	return
 }
 
@@ -2807,7 +2771,6 @@ func (c *OpsWorks) DescribeStackProvisioningParametersRequest(input *DescribeSta
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackProvisioningParameters
 func (c *OpsWorks) DescribeStackProvisioningParameters(input *DescribeStackProvisioningParametersInput) (*DescribeStackProvisioningParametersOutput, error) {
 	req, out := c.DescribeStackProvisioningParametersRequest(input)
 	err := req.Send()
@@ -2840,7 +2803,6 @@ const opDescribeStackSummary = "DescribeStackSummary"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackSummary
 func (c *OpsWorks) DescribeStackSummaryRequest(input *DescribeStackSummaryInput) (req *request.Request, output *DescribeStackSummaryOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStackSummary,
@@ -2852,8 +2814,9 @@ func (c *OpsWorks) DescribeStackSummaryRequest(input *DescribeStackSummaryInput)
 		input = &DescribeStackSummaryInput{}
 	}
 
-	output = &DescribeStackSummaryOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeStackSummaryOutput{}
+	req.Data = output
 	return
 }
 
@@ -2881,7 +2844,6 @@ func (c *OpsWorks) DescribeStackSummaryRequest(input *DescribeStackSummaryInput)
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackSummary
 func (c *OpsWorks) DescribeStackSummary(input *DescribeStackSummaryInput) (*DescribeStackSummaryOutput, error) {
 	req, out := c.DescribeStackSummaryRequest(input)
 	err := req.Send()
@@ -2914,7 +2876,6 @@ const opDescribeStacks = "DescribeStacks"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStacks
 func (c *OpsWorks) DescribeStacksRequest(input *DescribeStacksInput) (req *request.Request, output *DescribeStacksOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStacks,
@@ -2926,8 +2887,9 @@ func (c *OpsWorks) DescribeStacksRequest(input *DescribeStacksInput) (req *reque
 		input = &DescribeStacksInput{}
 	}
 
-	output = &DescribeStacksOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeStacksOutput{}
+	req.Data = output
 	return
 }
 
@@ -2954,7 +2916,6 @@ func (c *OpsWorks) DescribeStacksRequest(input *DescribeStacksInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStacks
 func (c *OpsWorks) DescribeStacks(input *DescribeStacksInput) (*DescribeStacksOutput, error) {
 	req, out := c.DescribeStacksRequest(input)
 	err := req.Send()
@@ -2987,7 +2948,6 @@ const opDescribeTimeBasedAutoScaling = "DescribeTimeBasedAutoScaling"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeTimeBasedAutoScaling
 func (c *OpsWorks) DescribeTimeBasedAutoScalingRequest(input *DescribeTimeBasedAutoScalingInput) (req *request.Request, output *DescribeTimeBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opDescribeTimeBasedAutoScaling,
@@ -2999,8 +2959,9 @@ func (c *OpsWorks) DescribeTimeBasedAutoScalingRequest(input *DescribeTimeBasedA
 		input = &DescribeTimeBasedAutoScalingInput{}
 	}
 
-	output = &DescribeTimeBasedAutoScalingOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeTimeBasedAutoScalingOutput{}
+	req.Data = output
 	return
 }
 
@@ -3029,7 +2990,6 @@ func (c *OpsWorks) DescribeTimeBasedAutoScalingRequest(input *DescribeTimeBasedA
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeTimeBasedAutoScaling
 func (c *OpsWorks) DescribeTimeBasedAutoScaling(input *DescribeTimeBasedAutoScalingInput) (*DescribeTimeBasedAutoScalingOutput, error) {
 	req, out := c.DescribeTimeBasedAutoScalingRequest(input)
 	err := req.Send()
@@ -3062,7 +3022,6 @@ const opDescribeUserProfiles = "DescribeUserProfiles"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeUserProfiles
 func (c *OpsWorks) DescribeUserProfilesRequest(input *DescribeUserProfilesInput) (req *request.Request, output *DescribeUserProfilesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeUserProfiles,
@@ -3074,8 +3033,9 @@ func (c *OpsWorks) DescribeUserProfilesRequest(input *DescribeUserProfilesInput)
 		input = &DescribeUserProfilesInput{}
 	}
 
-	output = &DescribeUserProfilesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeUserProfilesOutput{}
+	req.Data = output
 	return
 }
 
@@ -3101,7 +3061,6 @@ func (c *OpsWorks) DescribeUserProfilesRequest(input *DescribeUserProfilesInput)
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeUserProfiles
 func (c *OpsWorks) DescribeUserProfiles(input *DescribeUserProfilesInput) (*DescribeUserProfilesOutput, error) {
 	req, out := c.DescribeUserProfilesRequest(input)
 	err := req.Send()
@@ -3134,7 +3093,6 @@ const opDescribeVolumes = "DescribeVolumes"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeVolumes
 func (c *OpsWorks) DescribeVolumesRequest(input *DescribeVolumesInput) (req *request.Request, output *DescribeVolumesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeVolumes,
@@ -3146,8 +3104,9 @@ func (c *OpsWorks) DescribeVolumesRequest(input *DescribeVolumesInput) (req *req
 		input = &DescribeVolumesInput{}
 	}
 
-	output = &DescribeVolumesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeVolumesOutput{}
+	req.Data = output
 	return
 }
 
@@ -3176,7 +3135,6 @@ func (c *OpsWorks) DescribeVolumesRequest(input *DescribeVolumesInput) (req *req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeVolumes
 func (c *OpsWorks) DescribeVolumes(input *DescribeVolumesInput) (*DescribeVolumesOutput, error) {
 	req, out := c.DescribeVolumesRequest(input)
 	err := req.Send()
@@ -3209,7 +3167,6 @@ const opDetachElasticLoadBalancer = "DetachElasticLoadBalancer"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DetachElasticLoadBalancer
 func (c *OpsWorks) DetachElasticLoadBalancerRequest(input *DetachElasticLoadBalancerInput) (req *request.Request, output *DetachElasticLoadBalancerOutput) {
 	op := &request.Operation{
 		Name:       opDetachElasticLoadBalancer,
@@ -3221,10 +3178,11 @@ func (c *OpsWorks) DetachElasticLoadBalancerRequest(input *DetachElasticLoadBala
 		input = &DetachElasticLoadBalancerInput{}
 	}
 
-	output = &DetachElasticLoadBalancerOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DetachElasticLoadBalancerOutput{}
+	req.Data = output
 	return
 }
 
@@ -3248,7 +3206,6 @@ func (c *OpsWorks) DetachElasticLoadBalancerRequest(input *DetachElasticLoadBala
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DetachElasticLoadBalancer
 func (c *OpsWorks) DetachElasticLoadBalancer(input *DetachElasticLoadBalancerInput) (*DetachElasticLoadBalancerOutput, error) {
 	req, out := c.DetachElasticLoadBalancerRequest(input)
 	err := req.Send()
@@ -3281,7 +3238,6 @@ const opDisassociateElasticIp = "DisassociateElasticIp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DisassociateElasticIp
 func (c *OpsWorks) DisassociateElasticIpRequest(input *DisassociateElasticIpInput) (req *request.Request, output *DisassociateElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opDisassociateElasticIp,
@@ -3293,10 +3249,11 @@ func (c *OpsWorks) DisassociateElasticIpRequest(input *DisassociateElasticIpInpu
 		input = &DisassociateElasticIpInput{}
 	}
 
-	output = &DisassociateElasticIpOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DisassociateElasticIpOutput{}
+	req.Data = output
 	return
 }
 
@@ -3325,7 +3282,6 @@ func (c *OpsWorks) DisassociateElasticIpRequest(input *DisassociateElasticIpInpu
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DisassociateElasticIp
 func (c *OpsWorks) DisassociateElasticIp(input *DisassociateElasticIpInput) (*DisassociateElasticIpOutput, error) {
 	req, out := c.DisassociateElasticIpRequest(input)
 	err := req.Send()
@@ -3358,7 +3314,6 @@ const opGetHostnameSuggestion = "GetHostnameSuggestion"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GetHostnameSuggestion
 func (c *OpsWorks) GetHostnameSuggestionRequest(input *GetHostnameSuggestionInput) (req *request.Request, output *GetHostnameSuggestionOutput) {
 	op := &request.Operation{
 		Name:       opGetHostnameSuggestion,
@@ -3370,8 +3325,9 @@ func (c *OpsWorks) GetHostnameSuggestionRequest(input *GetHostnameSuggestionInpu
 		input = &GetHostnameSuggestionInput{}
 	}
 
-	output = &GetHostnameSuggestionOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetHostnameSuggestionOutput{}
+	req.Data = output
 	return
 }
 
@@ -3399,7 +3355,6 @@ func (c *OpsWorks) GetHostnameSuggestionRequest(input *GetHostnameSuggestionInpu
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GetHostnameSuggestion
 func (c *OpsWorks) GetHostnameSuggestion(input *GetHostnameSuggestionInput) (*GetHostnameSuggestionOutput, error) {
 	req, out := c.GetHostnameSuggestionRequest(input)
 	err := req.Send()
@@ -3432,7 +3387,6 @@ const opGrantAccess = "GrantAccess"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GrantAccess
 func (c *OpsWorks) GrantAccessRequest(input *GrantAccessInput) (req *request.Request, output *GrantAccessOutput) {
 	op := &request.Operation{
 		Name:       opGrantAccess,
@@ -3444,8 +3398,9 @@ func (c *OpsWorks) GrantAccessRequest(input *GrantAccessInput) (req *request.Req
 		input = &GrantAccessInput{}
 	}
 
-	output = &GrantAccessOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GrantAccessOutput{}
+	req.Data = output
 	return
 }
 
@@ -3469,7 +3424,6 @@ func (c *OpsWorks) GrantAccessRequest(input *GrantAccessInput) (req *request.Req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GrantAccess
 func (c *OpsWorks) GrantAccess(input *GrantAccessInput) (*GrantAccessOutput, error) {
 	req, out := c.GrantAccessRequest(input)
 	err := req.Send()
@@ -3502,7 +3456,6 @@ const opRebootInstance = "RebootInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RebootInstance
 func (c *OpsWorks) RebootInstanceRequest(input *RebootInstanceInput) (req *request.Request, output *RebootInstanceOutput) {
 	op := &request.Operation{
 		Name:       opRebootInstance,
@@ -3514,10 +3467,11 @@ func (c *OpsWorks) RebootInstanceRequest(input *RebootInstanceInput) (req *reque
 		input = &RebootInstanceInput{}
 	}
 
-	output = &RebootInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RebootInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -3545,7 +3499,6 @@ func (c *OpsWorks) RebootInstanceRequest(input *RebootInstanceInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RebootInstance
 func (c *OpsWorks) RebootInstance(input *RebootInstanceInput) (*RebootInstanceOutput, error) {
 	req, out := c.RebootInstanceRequest(input)
 	err := req.Send()
@@ -3578,7 +3531,6 @@ const opRegisterEcsCluster = "RegisterEcsCluster"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterEcsCluster
 func (c *OpsWorks) RegisterEcsClusterRequest(input *RegisterEcsClusterInput) (req *request.Request, output *RegisterEcsClusterOutput) {
 	op := &request.Operation{
 		Name:       opRegisterEcsCluster,
@@ -3590,8 +3542,9 @@ func (c *OpsWorks) RegisterEcsClusterRequest(input *RegisterEcsClusterInput) (re
 		input = &RegisterEcsClusterInput{}
 	}
 
-	output = &RegisterEcsClusterOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RegisterEcsClusterOutput{}
+	req.Data = output
 	return
 }
 
@@ -3620,7 +3573,6 @@ func (c *OpsWorks) RegisterEcsClusterRequest(input *RegisterEcsClusterInput) (re
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterEcsCluster
 func (c *OpsWorks) RegisterEcsCluster(input *RegisterEcsClusterInput) (*RegisterEcsClusterOutput, error) {
 	req, out := c.RegisterEcsClusterRequest(input)
 	err := req.Send()
@@ -3653,7 +3605,6 @@ const opRegisterElasticIp = "RegisterElasticIp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterElasticIp
 func (c *OpsWorks) RegisterElasticIpRequest(input *RegisterElasticIpInput) (req *request.Request, output *RegisterElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opRegisterElasticIp,
@@ -3665,8 +3616,9 @@ func (c *OpsWorks) RegisterElasticIpRequest(input *RegisterElasticIpInput) (req 
 		input = &RegisterElasticIpInput{}
 	}
 
-	output = &RegisterElasticIpOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RegisterElasticIpOutput{}
+	req.Data = output
 	return
 }
 
@@ -3696,7 +3648,6 @@ func (c *OpsWorks) RegisterElasticIpRequest(input *RegisterElasticIpInput) (req 
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterElasticIp
 func (c *OpsWorks) RegisterElasticIp(input *RegisterElasticIpInput) (*RegisterElasticIpOutput, error) {
 	req, out := c.RegisterElasticIpRequest(input)
 	err := req.Send()
@@ -3729,7 +3680,6 @@ const opRegisterInstance = "RegisterInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterInstance
 func (c *OpsWorks) RegisterInstanceRequest(input *RegisterInstanceInput) (req *request.Request, output *RegisterInstanceOutput) {
 	op := &request.Operation{
 		Name:       opRegisterInstance,
@@ -3741,8 +3691,9 @@ func (c *OpsWorks) RegisterInstanceRequest(input *RegisterInstanceInput) (req *r
 		input = &RegisterInstanceInput{}
 	}
 
-	output = &RegisterInstanceOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RegisterInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -3777,7 +3728,6 @@ func (c *OpsWorks) RegisterInstanceRequest(input *RegisterInstanceInput) (req *r
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterInstance
 func (c *OpsWorks) RegisterInstance(input *RegisterInstanceInput) (*RegisterInstanceOutput, error) {
 	req, out := c.RegisterInstanceRequest(input)
 	err := req.Send()
@@ -3810,7 +3760,6 @@ const opRegisterRdsDbInstance = "RegisterRdsDbInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterRdsDbInstance
 func (c *OpsWorks) RegisterRdsDbInstanceRequest(input *RegisterRdsDbInstanceInput) (req *request.Request, output *RegisterRdsDbInstanceOutput) {
 	op := &request.Operation{
 		Name:       opRegisterRdsDbInstance,
@@ -3822,10 +3771,11 @@ func (c *OpsWorks) RegisterRdsDbInstanceRequest(input *RegisterRdsDbInstanceInpu
 		input = &RegisterRdsDbInstanceInput{}
 	}
 
-	output = &RegisterRdsDbInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &RegisterRdsDbInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -3852,7 +3802,6 @@ func (c *OpsWorks) RegisterRdsDbInstanceRequest(input *RegisterRdsDbInstanceInpu
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterRdsDbInstance
 func (c *OpsWorks) RegisterRdsDbInstance(input *RegisterRdsDbInstanceInput) (*RegisterRdsDbInstanceOutput, error) {
 	req, out := c.RegisterRdsDbInstanceRequest(input)
 	err := req.Send()
@@ -3885,7 +3834,6 @@ const opRegisterVolume = "RegisterVolume"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterVolume
 func (c *OpsWorks) RegisterVolumeRequest(input *RegisterVolumeInput) (req *request.Request, output *RegisterVolumeOutput) {
 	op := &request.Operation{
 		Name:       opRegisterVolume,
@@ -3897,8 +3845,9 @@ func (c *OpsWorks) RegisterVolumeRequest(input *RegisterVolumeInput) (req *reque
 		input = &RegisterVolumeInput{}
 	}
 
-	output = &RegisterVolumeOutput{}
 	req = c.newRequest(op, input, output)
+	output = &RegisterVolumeOutput{}
+	req.Data = output
 	return
 }
 
@@ -3928,7 +3877,6 @@ func (c *OpsWorks) RegisterVolumeRequest(input *RegisterVolumeInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterVolume
 func (c *OpsWorks) RegisterVolume(input *RegisterVolumeInput) (*RegisterVolumeOutput, error) {
 	req, out := c.RegisterVolumeRequest(input)
 	err := req.Send()
@@ -3961,7 +3909,6 @@ const opSetLoadBasedAutoScaling = "SetLoadBasedAutoScaling"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetLoadBasedAutoScaling
 func (c *OpsWorks) SetLoadBasedAutoScalingRequest(input *SetLoadBasedAutoScalingInput) (req *request.Request, output *SetLoadBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opSetLoadBasedAutoScaling,
@@ -3973,10 +3920,11 @@ func (c *OpsWorks) SetLoadBasedAutoScalingRequest(input *SetLoadBasedAutoScaling
 		input = &SetLoadBasedAutoScalingInput{}
 	}
 
-	output = &SetLoadBasedAutoScalingOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &SetLoadBasedAutoScalingOutput{}
+	req.Data = output
 	return
 }
 
@@ -4010,7 +3958,6 @@ func (c *OpsWorks) SetLoadBasedAutoScalingRequest(input *SetLoadBasedAutoScaling
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetLoadBasedAutoScaling
 func (c *OpsWorks) SetLoadBasedAutoScaling(input *SetLoadBasedAutoScalingInput) (*SetLoadBasedAutoScalingOutput, error) {
 	req, out := c.SetLoadBasedAutoScalingRequest(input)
 	err := req.Send()
@@ -4043,7 +3990,6 @@ const opSetPermission = "SetPermission"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetPermission
 func (c *OpsWorks) SetPermissionRequest(input *SetPermissionInput) (req *request.Request, output *SetPermissionOutput) {
 	op := &request.Operation{
 		Name:       opSetPermission,
@@ -4055,10 +4001,11 @@ func (c *OpsWorks) SetPermissionRequest(input *SetPermissionInput) (req *request
 		input = &SetPermissionInput{}
 	}
 
-	output = &SetPermissionOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &SetPermissionOutput{}
+	req.Data = output
 	return
 }
 
@@ -4086,7 +4033,6 @@ func (c *OpsWorks) SetPermissionRequest(input *SetPermissionInput) (req *request
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetPermission
 func (c *OpsWorks) SetPermission(input *SetPermissionInput) (*SetPermissionOutput, error) {
 	req, out := c.SetPermissionRequest(input)
 	err := req.Send()
@@ -4119,7 +4065,6 @@ const opSetTimeBasedAutoScaling = "SetTimeBasedAutoScaling"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetTimeBasedAutoScaling
 func (c *OpsWorks) SetTimeBasedAutoScalingRequest(input *SetTimeBasedAutoScalingInput) (req *request.Request, output *SetTimeBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opSetTimeBasedAutoScaling,
@@ -4131,10 +4076,11 @@ func (c *OpsWorks) SetTimeBasedAutoScalingRequest(input *SetTimeBasedAutoScaling
 		input = &SetTimeBasedAutoScalingInput{}
 	}
 
-	output = &SetTimeBasedAutoScalingOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &SetTimeBasedAutoScalingOutput{}
+	req.Data = output
 	return
 }
 
@@ -4163,7 +4109,6 @@ func (c *OpsWorks) SetTimeBasedAutoScalingRequest(input *SetTimeBasedAutoScaling
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetTimeBasedAutoScaling
 func (c *OpsWorks) SetTimeBasedAutoScaling(input *SetTimeBasedAutoScalingInput) (*SetTimeBasedAutoScalingOutput, error) {
 	req, out := c.SetTimeBasedAutoScalingRequest(input)
 	err := req.Send()
@@ -4196,7 +4141,6 @@ const opStartInstance = "StartInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartInstance
 func (c *OpsWorks) StartInstanceRequest(input *StartInstanceInput) (req *request.Request, output *StartInstanceOutput) {
 	op := &request.Operation{
 		Name:       opStartInstance,
@@ -4208,10 +4152,11 @@ func (c *OpsWorks) StartInstanceRequest(input *StartInstanceInput) (req *request
 		input = &StartInstanceInput{}
 	}
 
-	output = &StartInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &StartInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -4239,7 +4184,6 @@ func (c *OpsWorks) StartInstanceRequest(input *StartInstanceInput) (req *request
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartInstance
 func (c *OpsWorks) StartInstance(input *StartInstanceInput) (*StartInstanceOutput, error) {
 	req, out := c.StartInstanceRequest(input)
 	err := req.Send()
@@ -4272,7 +4216,6 @@ const opStartStack = "StartStack"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartStack
 func (c *OpsWorks) StartStackRequest(input *StartStackInput) (req *request.Request, output *StartStackOutput) {
 	op := &request.Operation{
 		Name:       opStartStack,
@@ -4284,10 +4227,11 @@ func (c *OpsWorks) StartStackRequest(input *StartStackInput) (req *request.Reque
 		input = &StartStackInput{}
 	}
 
-	output = &StartStackOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &StartStackOutput{}
+	req.Data = output
 	return
 }
 
@@ -4314,7 +4258,6 @@ func (c *OpsWorks) StartStackRequest(input *StartStackInput) (req *request.Reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartStack
 func (c *OpsWorks) StartStack(input *StartStackInput) (*StartStackOutput, error) {
 	req, out := c.StartStackRequest(input)
 	err := req.Send()
@@ -4347,7 +4290,6 @@ const opStopInstance = "StopInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopInstance
 func (c *OpsWorks) StopInstanceRequest(input *StopInstanceInput) (req *request.Request, output *StopInstanceOutput) {
 	op := &request.Operation{
 		Name:       opStopInstance,
@@ -4359,10 +4301,11 @@ func (c *OpsWorks) StopInstanceRequest(input *StopInstanceInput) (req *request.R
 		input = &StopInstanceInput{}
 	}
 
-	output = &StopInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &StopInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -4392,7 +4335,6 @@ func (c *OpsWorks) StopInstanceRequest(input *StopInstanceInput) (req *request.R
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopInstance
 func (c *OpsWorks) StopInstance(input *StopInstanceInput) (*StopInstanceOutput, error) {
 	req, out := c.StopInstanceRequest(input)
 	err := req.Send()
@@ -4425,7 +4367,6 @@ const opStopStack = "StopStack"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopStack
 func (c *OpsWorks) StopStackRequest(input *StopStackInput) (req *request.Request, output *StopStackOutput) {
 	op := &request.Operation{
 		Name:       opStopStack,
@@ -4437,10 +4378,11 @@ func (c *OpsWorks) StopStackRequest(input *StopStackInput) (req *request.Request
 		input = &StopStackInput{}
 	}
 
-	output = &StopStackOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &StopStackOutput{}
+	req.Data = output
 	return
 }
 
@@ -4467,7 +4409,6 @@ func (c *OpsWorks) StopStackRequest(input *StopStackInput) (req *request.Request
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopStack
 func (c *OpsWorks) StopStack(input *StopStackInput) (*StopStackOutput, error) {
 	req, out := c.StopStackRequest(input)
 	err := req.Send()
@@ -4500,7 +4441,6 @@ const opUnassignInstance = "UnassignInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignInstance
 func (c *OpsWorks) UnassignInstanceRequest(input *UnassignInstanceInput) (req *request.Request, output *UnassignInstanceOutput) {
 	op := &request.Operation{
 		Name:       opUnassignInstance,
@@ -4512,10 +4452,11 @@ func (c *OpsWorks) UnassignInstanceRequest(input *UnassignInstanceInput) (req *r
 		input = &UnassignInstanceInput{}
 	}
 
-	output = &UnassignInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UnassignInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -4545,7 +4486,6 @@ func (c *OpsWorks) UnassignInstanceRequest(input *UnassignInstanceInput) (req *r
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignInstance
 func (c *OpsWorks) UnassignInstance(input *UnassignInstanceInput) (*UnassignInstanceOutput, error) {
 	req, out := c.UnassignInstanceRequest(input)
 	err := req.Send()
@@ -4578,7 +4518,6 @@ const opUnassignVolume = "UnassignVolume"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignVolume
 func (c *OpsWorks) UnassignVolumeRequest(input *UnassignVolumeInput) (req *request.Request, output *UnassignVolumeOutput) {
 	op := &request.Operation{
 		Name:       opUnassignVolume,
@@ -4590,10 +4529,11 @@ func (c *OpsWorks) UnassignVolumeRequest(input *UnassignVolumeInput) (req *reque
 		input = &UnassignVolumeInput{}
 	}
 
-	output = &UnassignVolumeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UnassignVolumeOutput{}
+	req.Data = output
 	return
 }
 
@@ -4621,7 +4561,6 @@ func (c *OpsWorks) UnassignVolumeRequest(input *UnassignVolumeInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignVolume
 func (c *OpsWorks) UnassignVolume(input *UnassignVolumeInput) (*UnassignVolumeOutput, error) {
 	req, out := c.UnassignVolumeRequest(input)
 	err := req.Send()
@@ -4654,7 +4593,6 @@ const opUpdateApp = "UpdateApp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateApp
 func (c *OpsWorks) UpdateAppRequest(input *UpdateAppInput) (req *request.Request, output *UpdateAppOutput) {
 	op := &request.Operation{
 		Name:       opUpdateApp,
@@ -4666,10 +4604,11 @@ func (c *OpsWorks) UpdateAppRequest(input *UpdateAppInput) (req *request.Request
 		input = &UpdateAppInput{}
 	}
 
-	output = &UpdateAppOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateAppOutput{}
+	req.Data = output
 	return
 }
 
@@ -4696,7 +4635,6 @@ func (c *OpsWorks) UpdateAppRequest(input *UpdateAppInput) (req *request.Request
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateApp
 func (c *OpsWorks) UpdateApp(input *UpdateAppInput) (*UpdateAppOutput, error) {
 	req, out := c.UpdateAppRequest(input)
 	err := req.Send()
@@ -4729,7 +4667,6 @@ const opUpdateElasticIp = "UpdateElasticIp"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateElasticIp
 func (c *OpsWorks) UpdateElasticIpRequest(input *UpdateElasticIpInput) (req *request.Request, output *UpdateElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opUpdateElasticIp,
@@ -4741,10 +4678,11 @@ func (c *OpsWorks) UpdateElasticIpRequest(input *UpdateElasticIpInput) (req *req
 		input = &UpdateElasticIpInput{}
 	}
 
-	output = &UpdateElasticIpOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateElasticIpOutput{}
+	req.Data = output
 	return
 }
 
@@ -4772,7 +4710,6 @@ func (c *OpsWorks) UpdateElasticIpRequest(input *UpdateElasticIpInput) (req *req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateElasticIp
 func (c *OpsWorks) UpdateElasticIp(input *UpdateElasticIpInput) (*UpdateElasticIpOutput, error) {
 	req, out := c.UpdateElasticIpRequest(input)
 	err := req.Send()
@@ -4805,7 +4742,6 @@ const opUpdateInstance = "UpdateInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateInstance
 func (c *OpsWorks) UpdateInstanceRequest(input *UpdateInstanceInput) (req *request.Request, output *UpdateInstanceOutput) {
 	op := &request.Operation{
 		Name:       opUpdateInstance,
@@ -4817,10 +4753,11 @@ func (c *OpsWorks) UpdateInstanceRequest(input *UpdateInstanceInput) (req *reque
 		input = &UpdateInstanceInput{}
 	}
 
-	output = &UpdateInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -4847,7 +4784,6 @@ func (c *OpsWorks) UpdateInstanceRequest(input *UpdateInstanceInput) (req *reque
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateInstance
 func (c *OpsWorks) UpdateInstance(input *UpdateInstanceInput) (*UpdateInstanceOutput, error) {
 	req, out := c.UpdateInstanceRequest(input)
 	err := req.Send()
@@ -4880,7 +4816,6 @@ const opUpdateLayer = "UpdateLayer"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateLayer
 func (c *OpsWorks) UpdateLayerRequest(input *UpdateLayerInput) (req *request.Request, output *UpdateLayerOutput) {
 	op := &request.Operation{
 		Name:       opUpdateLayer,
@@ -4892,10 +4827,11 @@ func (c *OpsWorks) UpdateLayerRequest(input *UpdateLayerInput) (req *request.Req
 		input = &UpdateLayerInput{}
 	}
 
-	output = &UpdateLayerOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateLayerOutput{}
+	req.Data = output
 	return
 }
 
@@ -4922,7 +4858,6 @@ func (c *OpsWorks) UpdateLayerRequest(input *UpdateLayerInput) (req *request.Req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateLayer
 func (c *OpsWorks) UpdateLayer(input *UpdateLayerInput) (*UpdateLayerOutput, error) {
 	req, out := c.UpdateLayerRequest(input)
 	err := req.Send()
@@ -4955,7 +4890,6 @@ const opUpdateMyUserProfile = "UpdateMyUserProfile"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateMyUserProfile
 func (c *OpsWorks) UpdateMyUserProfileRequest(input *UpdateMyUserProfileInput) (req *request.Request, output *UpdateMyUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opUpdateMyUserProfile,
@@ -4967,10 +4901,11 @@ func (c *OpsWorks) UpdateMyUserProfileRequest(input *UpdateMyUserProfileInput) (
 		input = &UpdateMyUserProfileInput{}
 	}
 
-	output = &UpdateMyUserProfileOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateMyUserProfileOutput{}
+	req.Data = output
 	return
 }
 
@@ -4993,7 +4928,6 @@ func (c *OpsWorks) UpdateMyUserProfileRequest(input *UpdateMyUserProfileInput) (
 //   * ValidationException
 //   Indicates that a request was not valid.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateMyUserProfile
 func (c *OpsWorks) UpdateMyUserProfile(input *UpdateMyUserProfileInput) (*UpdateMyUserProfileOutput, error) {
 	req, out := c.UpdateMyUserProfileRequest(input)
 	err := req.Send()
@@ -5026,7 +4960,6 @@ const opUpdateRdsDbInstance = "UpdateRdsDbInstance"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateRdsDbInstance
 func (c *OpsWorks) UpdateRdsDbInstanceRequest(input *UpdateRdsDbInstanceInput) (req *request.Request, output *UpdateRdsDbInstanceOutput) {
 	op := &request.Operation{
 		Name:       opUpdateRdsDbInstance,
@@ -5038,10 +4971,11 @@ func (c *OpsWorks) UpdateRdsDbInstanceRequest(input *UpdateRdsDbInstanceInput) (
 		input = &UpdateRdsDbInstanceInput{}
 	}
 
-	output = &UpdateRdsDbInstanceOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateRdsDbInstanceOutput{}
+	req.Data = output
 	return
 }
 
@@ -5068,7 +5002,6 @@ func (c *OpsWorks) UpdateRdsDbInstanceRequest(input *UpdateRdsDbInstanceInput) (
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateRdsDbInstance
 func (c *OpsWorks) UpdateRdsDbInstance(input *UpdateRdsDbInstanceInput) (*UpdateRdsDbInstanceOutput, error) {
 	req, out := c.UpdateRdsDbInstanceRequest(input)
 	err := req.Send()
@@ -5101,7 +5034,6 @@ const opUpdateStack = "UpdateStack"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateStack
 func (c *OpsWorks) UpdateStackRequest(input *UpdateStackInput) (req *request.Request, output *UpdateStackOutput) {
 	op := &request.Operation{
 		Name:       opUpdateStack,
@@ -5113,10 +5045,11 @@ func (c *OpsWorks) UpdateStackRequest(input *UpdateStackInput) (req *request.Req
 		input = &UpdateStackInput{}
 	}
 
-	output = &UpdateStackOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateStackOutput{}
+	req.Data = output
 	return
 }
 
@@ -5143,7 +5076,6 @@ func (c *OpsWorks) UpdateStackRequest(input *UpdateStackInput) (req *request.Req
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateStack
 func (c *OpsWorks) UpdateStack(input *UpdateStackInput) (*UpdateStackOutput, error) {
 	req, out := c.UpdateStackRequest(input)
 	err := req.Send()
@@ -5176,7 +5108,6 @@ const opUpdateUserProfile = "UpdateUserProfile"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateUserProfile
 func (c *OpsWorks) UpdateUserProfileRequest(input *UpdateUserProfileInput) (req *request.Request, output *UpdateUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opUpdateUserProfile,
@@ -5188,10 +5119,11 @@ func (c *OpsWorks) UpdateUserProfileRequest(input *UpdateUserProfileInput) (req 
 		input = &UpdateUserProfileInput{}
 	}
 
-	output = &UpdateUserProfileOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateUserProfileOutput{}
+	req.Data = output
 	return
 }
 
@@ -5217,7 +5149,6 @@ func (c *OpsWorks) UpdateUserProfileRequest(input *UpdateUserProfileInput) (req 
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateUserProfile
 func (c *OpsWorks) UpdateUserProfile(input *UpdateUserProfileInput) (*UpdateUserProfileOutput, error) {
 	req, out := c.UpdateUserProfileRequest(input)
 	err := req.Send()
@@ -5250,7 +5181,6 @@ const opUpdateVolume = "UpdateVolume"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateVolume
 func (c *OpsWorks) UpdateVolumeRequest(input *UpdateVolumeInput) (req *request.Request, output *UpdateVolumeOutput) {
 	op := &request.Operation{
 		Name:       opUpdateVolume,
@@ -5262,10 +5192,11 @@ func (c *OpsWorks) UpdateVolumeRequest(input *UpdateVolumeInput) (req *request.R
 		input = &UpdateVolumeInput{}
 	}
 
-	output = &UpdateVolumeOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &UpdateVolumeOutput{}
+	req.Data = output
 	return
 }
 
@@ -5293,7 +5224,6 @@ func (c *OpsWorks) UpdateVolumeRequest(input *UpdateVolumeInput) (req *request.R
 //   * ResourceNotFoundException
 //   Indicates that a resource was not found.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateVolume
 func (c *OpsWorks) UpdateVolume(input *UpdateVolumeInput) (*UpdateVolumeOutput, error) {
 	req, out := c.UpdateVolumeRequest(input)
 	err := req.Send()
@@ -5301,7 +5231,6 @@ func (c *OpsWorks) UpdateVolume(input *UpdateVolumeInput) (*UpdateVolumeOutput, 
 }
 
 // Describes an agent version.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AgentVersion
 type AgentVersion struct {
 	_ struct{} `type:"structure"`
 
@@ -5335,7 +5264,6 @@ func (s *AgentVersion) SetVersion(v string) *AgentVersion {
 }
 
 // A description of the app.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/App
 type App struct {
 	_ struct{} `type:"structure"`
 
@@ -5487,7 +5415,6 @@ func (s *App) SetType(v string) *App {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignInstanceRequest
 type AssignInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5541,7 +5468,6 @@ func (s *AssignInstanceInput) SetLayerIds(v []*string) *AssignInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignInstanceOutput
 type AssignInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5556,7 +5482,6 @@ func (s AssignInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignVolumeRequest
 type AssignVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5604,7 +5529,6 @@ func (s *AssignVolumeInput) SetVolumeId(v string) *AssignVolumeInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssignVolumeOutput
 type AssignVolumeOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5619,7 +5543,6 @@ func (s AssignVolumeOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssociateElasticIpRequest
 type AssociateElasticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5667,7 +5590,6 @@ func (s *AssociateElasticIpInput) SetInstanceId(v string) *AssociateElasticIpInp
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AssociateElasticIpOutput
 type AssociateElasticIpOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5682,7 +5604,6 @@ func (s AssociateElasticIpOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AttachElasticLoadBalancerRequest
 type AttachElasticLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5736,7 +5657,6 @@ func (s *AttachElasticLoadBalancerInput) SetLayerId(v string) *AttachElasticLoad
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AttachElasticLoadBalancerOutput
 type AttachElasticLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5753,7 +5673,6 @@ func (s AttachElasticLoadBalancerOutput) GoString() string {
 
 // Describes a load-based auto scaling upscaling or downscaling threshold configuration,
 // which specifies when AWS OpsWorks starts or stops load-based instances.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/AutoScalingThresholds
 type AutoScalingThresholds struct {
 	_ struct{} `type:"structure"`
 
@@ -5868,7 +5787,6 @@ func (s *AutoScalingThresholds) SetThresholdsWaitTime(v int64) *AutoScalingThres
 // Describes a block device mapping. This data type maps directly to the Amazon
 // EC2 BlockDeviceMapping (http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_BlockDeviceMapping.html)
 // data type.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/BlockDeviceMapping
 type BlockDeviceMapping struct {
 	_ struct{} `type:"structure"`
 
@@ -5923,7 +5841,6 @@ func (s *BlockDeviceMapping) SetVirtualName(v string) *BlockDeviceMapping {
 }
 
 // Describes the Chef configuration.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/ChefConfiguration
 type ChefConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -5956,7 +5873,6 @@ func (s *ChefConfiguration) SetManageBerkshelf(v bool) *ChefConfiguration {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CloneStackRequest
 type CloneStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6345,7 +6261,6 @@ func (s *CloneStackInput) SetVpcId(v string) *CloneStackInput {
 }
 
 // Contains the response to a CloneStack request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CloneStackResult
 type CloneStackOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6370,7 +6285,6 @@ func (s *CloneStackOutput) SetStackId(v string) *CloneStackOutput {
 }
 
 // Describes a command.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Command
 type Command struct {
 	_ struct{} `type:"structure"`
 
@@ -6503,7 +6417,6 @@ func (s *Command) SetType(v string) *Command {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateAppRequest
 type CreateAppInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6685,7 +6598,6 @@ func (s *CreateAppInput) SetType(v string) *CreateAppInput {
 }
 
 // Contains the response to a CreateApp request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateAppResult
 type CreateAppOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6709,7 +6621,6 @@ func (s *CreateAppOutput) SetAppId(v string) *CreateAppOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateDeploymentRequest
 type CreateDeploymentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6822,7 +6733,6 @@ func (s *CreateDeploymentInput) SetStackId(v string) *CreateDeploymentInput {
 }
 
 // Contains the response to a CreateDeployment request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateDeploymentResult
 type CreateDeploymentOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6847,7 +6757,6 @@ func (s *CreateDeploymentOutput) SetDeploymentId(v string) *CreateDeploymentOutp
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateInstanceRequest
 type CreateInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7124,7 +7033,6 @@ func (s *CreateInstanceInput) SetVirtualizationType(v string) *CreateInstanceInp
 }
 
 // Contains the response to a CreateInstance request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateInstanceResult
 type CreateInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7148,7 +7056,6 @@ func (s *CreateInstanceOutput) SetInstanceId(v string) *CreateInstanceOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateLayerRequest
 type CreateLayerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7385,7 +7292,6 @@ func (s *CreateLayerInput) SetVolumeConfigurations(v []*VolumeConfiguration) *Cr
 }
 
 // Contains the response to a CreateLayer request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateLayerResult
 type CreateLayerOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7409,7 +7315,6 @@ func (s *CreateLayerOutput) SetLayerId(v string) *CreateLayerOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateStackRequest
 type CreateStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7775,7 +7680,6 @@ func (s *CreateStackInput) SetVpcId(v string) *CreateStackInput {
 }
 
 // Contains the response to a CreateStack request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateStackResult
 type CreateStackOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7800,7 +7704,6 @@ func (s *CreateStackOutput) SetStackId(v string) *CreateStackOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateUserProfileRequest
 type CreateUserProfileInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7872,7 +7775,6 @@ func (s *CreateUserProfileInput) SetSshUsername(v string) *CreateUserProfileInpu
 }
 
 // Contains the response to a CreateUserProfile request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/CreateUserProfileResult
 type CreateUserProfileOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7897,7 +7799,6 @@ func (s *CreateUserProfileOutput) SetIamUserArn(v string) *CreateUserProfileOutp
 }
 
 // Describes an app's data source.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DataSource
 type DataSource struct {
 	_ struct{} `type:"structure"`
 
@@ -7940,7 +7841,6 @@ func (s *DataSource) SetType(v string) *DataSource {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteAppRequest
 type DeleteAppInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7979,7 +7879,6 @@ func (s *DeleteAppInput) SetAppId(v string) *DeleteAppInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteAppOutput
 type DeleteAppOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -7994,7 +7893,6 @@ func (s DeleteAppOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteInstanceRequest
 type DeleteInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8051,7 +7949,6 @@ func (s *DeleteInstanceInput) SetInstanceId(v string) *DeleteInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteInstanceOutput
 type DeleteInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8066,7 +7963,6 @@ func (s DeleteInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteLayerRequest
 type DeleteLayerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8105,7 +8001,6 @@ func (s *DeleteLayerInput) SetLayerId(v string) *DeleteLayerInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteLayerOutput
 type DeleteLayerOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8120,7 +8015,6 @@ func (s DeleteLayerOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteStackRequest
 type DeleteStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8159,7 +8053,6 @@ func (s *DeleteStackInput) SetStackId(v string) *DeleteStackInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteStackOutput
 type DeleteStackOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8174,7 +8067,6 @@ func (s DeleteStackOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteUserProfileRequest
 type DeleteUserProfileInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8213,7 +8105,6 @@ func (s *DeleteUserProfileInput) SetIamUserArn(v string) *DeleteUserProfileInput
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeleteUserProfileOutput
 type DeleteUserProfileOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8229,7 +8120,6 @@ func (s DeleteUserProfileOutput) GoString() string {
 }
 
 // Describes a deployment of a stack or app.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Deployment
 type Deployment struct {
 	_ struct{} `type:"structure"`
 
@@ -8366,7 +8256,6 @@ func (s *Deployment) SetStatus(v string) *Deployment {
 }
 
 // Used to specify a stack or deployment command.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeploymentCommand
 type DeploymentCommand struct {
 	_ struct{} `type:"structure"`
 
@@ -8468,7 +8357,6 @@ func (s *DeploymentCommand) SetName(v string) *DeploymentCommand {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterEcsClusterRequest
 type DeregisterEcsClusterInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8507,7 +8395,6 @@ func (s *DeregisterEcsClusterInput) SetEcsClusterArn(v string) *DeregisterEcsClu
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterEcsClusterOutput
 type DeregisterEcsClusterOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8522,7 +8409,6 @@ func (s DeregisterEcsClusterOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterElasticIpRequest
 type DeregisterElasticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8561,7 +8447,6 @@ func (s *DeregisterElasticIpInput) SetElasticIp(v string) *DeregisterElasticIpIn
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterElasticIpOutput
 type DeregisterElasticIpOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8576,7 +8461,6 @@ func (s DeregisterElasticIpOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterInstanceRequest
 type DeregisterInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8615,7 +8499,6 @@ func (s *DeregisterInstanceInput) SetInstanceId(v string) *DeregisterInstanceInp
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterInstanceOutput
 type DeregisterInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8630,7 +8513,6 @@ func (s DeregisterInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterRdsDbInstanceRequest
 type DeregisterRdsDbInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8669,7 +8551,6 @@ func (s *DeregisterRdsDbInstanceInput) SetRdsDbInstanceArn(v string) *Deregister
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterRdsDbInstanceOutput
 type DeregisterRdsDbInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8684,7 +8565,6 @@ func (s DeregisterRdsDbInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterVolumeRequest
 type DeregisterVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8725,7 +8605,6 @@ func (s *DeregisterVolumeInput) SetVolumeId(v string) *DeregisterVolumeInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DeregisterVolumeOutput
 type DeregisterVolumeOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8740,7 +8619,6 @@ func (s DeregisterVolumeOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeAgentVersionsRequest
 type DescribeAgentVersionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8774,7 +8652,6 @@ func (s *DescribeAgentVersionsInput) SetStackId(v string) *DescribeAgentVersions
 }
 
 // Contains the response to a DescribeAgentVersions request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeAgentVersionsResult
 type DescribeAgentVersionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8800,7 +8677,6 @@ func (s *DescribeAgentVersionsOutput) SetAgentVersions(v []*AgentVersion) *Descr
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeAppsRequest
 type DescribeAppsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8837,7 +8713,6 @@ func (s *DescribeAppsInput) SetStackId(v string) *DescribeAppsInput {
 }
 
 // Contains the response to a DescribeApps request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeAppsResult
 type DescribeAppsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8861,7 +8736,6 @@ func (s *DescribeAppsOutput) SetApps(v []*App) *DescribeAppsOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeCommandsRequest
 type DescribeCommandsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8908,7 +8782,6 @@ func (s *DescribeCommandsInput) SetInstanceId(v string) *DescribeCommandsInput {
 }
 
 // Contains the response to a DescribeCommands request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeCommandsResult
 type DescribeCommandsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8932,7 +8805,6 @@ func (s *DescribeCommandsOutput) SetCommands(v []*Command) *DescribeCommandsOutp
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeDeploymentsRequest
 type DescribeDeploymentsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8979,7 +8851,6 @@ func (s *DescribeDeploymentsInput) SetStackId(v string) *DescribeDeploymentsInpu
 }
 
 // Contains the response to a DescribeDeployments request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeDeploymentsResult
 type DescribeDeploymentsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9003,7 +8874,6 @@ func (s *DescribeDeploymentsOutput) SetDeployments(v []*Deployment) *DescribeDep
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeEcsClustersRequest
 type DescribeEcsClustersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9064,7 +8934,6 @@ func (s *DescribeEcsClustersInput) SetStackId(v string) *DescribeEcsClustersInpu
 }
 
 // Contains the response to a DescribeEcsClusters request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeEcsClustersResult
 type DescribeEcsClustersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9100,7 +8969,6 @@ func (s *DescribeEcsClustersOutput) SetNextToken(v string) *DescribeEcsClustersO
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticIpsRequest
 type DescribeElasticIpsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9147,7 +9015,6 @@ func (s *DescribeElasticIpsInput) SetStackId(v string) *DescribeElasticIpsInput 
 }
 
 // Contains the response to a DescribeElasticIps request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticIpsResult
 type DescribeElasticIpsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9171,7 +9038,6 @@ func (s *DescribeElasticIpsOutput) SetElasticIps(v []*ElasticIp) *DescribeElasti
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticLoadBalancersRequest
 type DescribeElasticLoadBalancersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9206,7 +9072,6 @@ func (s *DescribeElasticLoadBalancersInput) SetStackId(v string) *DescribeElasti
 }
 
 // Contains the response to a DescribeElasticLoadBalancers request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeElasticLoadBalancersResult
 type DescribeElasticLoadBalancersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9231,7 +9096,6 @@ func (s *DescribeElasticLoadBalancersOutput) SetElasticLoadBalancers(v []*Elasti
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeInstancesRequest
 type DescribeInstancesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9278,7 +9142,6 @@ func (s *DescribeInstancesInput) SetStackId(v string) *DescribeInstancesInput {
 }
 
 // Contains the response to a DescribeInstances request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeInstancesResult
 type DescribeInstancesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9302,7 +9165,6 @@ func (s *DescribeInstancesOutput) SetInstances(v []*Instance) *DescribeInstances
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLayersRequest
 type DescribeLayersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9338,7 +9200,6 @@ func (s *DescribeLayersInput) SetStackId(v string) *DescribeLayersInput {
 }
 
 // Contains the response to a DescribeLayers request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLayersResult
 type DescribeLayersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9362,7 +9223,6 @@ func (s *DescribeLayersOutput) SetLayers(v []*Layer) *DescribeLayersOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLoadBasedAutoScalingRequest
 type DescribeLoadBasedAutoScalingInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9402,7 +9262,6 @@ func (s *DescribeLoadBasedAutoScalingInput) SetLayerIds(v []*string) *DescribeLo
 }
 
 // Contains the response to a DescribeLoadBasedAutoScaling request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeLoadBasedAutoScalingResult
 type DescribeLoadBasedAutoScalingOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9427,7 +9286,6 @@ func (s *DescribeLoadBasedAutoScalingOutput) SetLoadBasedAutoScalingConfiguratio
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeMyUserProfileInput
 type DescribeMyUserProfileInput struct {
 	_ struct{} `type:"structure"`
 }
@@ -9443,7 +9301,6 @@ func (s DescribeMyUserProfileInput) GoString() string {
 }
 
 // Contains the response to a DescribeMyUserProfile request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeMyUserProfileResult
 type DescribeMyUserProfileOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9467,7 +9324,6 @@ func (s *DescribeMyUserProfileOutput) SetUserProfile(v *SelfUserProfile) *Descri
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribePermissionsRequest
 type DescribePermissionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9502,7 +9358,6 @@ func (s *DescribePermissionsInput) SetStackId(v string) *DescribePermissionsInpu
 }
 
 // Contains the response to a DescribePermissions request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribePermissionsResult
 type DescribePermissionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9536,7 +9391,6 @@ func (s *DescribePermissionsOutput) SetPermissions(v []*Permission) *DescribePer
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRaidArraysRequest
 type DescribeRaidArraysInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9582,7 +9436,6 @@ func (s *DescribeRaidArraysInput) SetStackId(v string) *DescribeRaidArraysInput 
 }
 
 // Contains the response to a DescribeRaidArrays request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRaidArraysResult
 type DescribeRaidArraysOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9606,7 +9459,6 @@ func (s *DescribeRaidArraysOutput) SetRaidArrays(v []*RaidArray) *DescribeRaidAr
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRdsDbInstancesRequest
 type DescribeRdsDbInstancesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9656,7 +9508,6 @@ func (s *DescribeRdsDbInstancesInput) SetStackId(v string) *DescribeRdsDbInstanc
 }
 
 // Contains the response to a DescribeRdsDbInstances request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeRdsDbInstancesResult
 type DescribeRdsDbInstancesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9680,7 +9531,6 @@ func (s *DescribeRdsDbInstancesOutput) SetRdsDbInstances(v []*RdsDbInstance) *De
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeServiceErrorsRequest
 type DescribeServiceErrorsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9727,7 +9577,6 @@ func (s *DescribeServiceErrorsInput) SetStackId(v string) *DescribeServiceErrors
 }
 
 // Contains the response to a DescribeServiceErrors request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeServiceErrorsResult
 type DescribeServiceErrorsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9751,7 +9600,6 @@ func (s *DescribeServiceErrorsOutput) SetServiceErrors(v []*ServiceError) *Descr
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackProvisioningParametersRequest
 type DescribeStackProvisioningParametersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9791,7 +9639,6 @@ func (s *DescribeStackProvisioningParametersInput) SetStackId(v string) *Describ
 }
 
 // Contains the response to a DescribeStackProvisioningParameters request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackProvisioningParametersResult
 type DescribeStackProvisioningParametersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9824,7 +9671,6 @@ func (s *DescribeStackProvisioningParametersOutput) SetParameters(v map[string]*
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackSummaryRequest
 type DescribeStackSummaryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9864,7 +9710,6 @@ func (s *DescribeStackSummaryInput) SetStackId(v string) *DescribeStackSummaryIn
 }
 
 // Contains the response to a DescribeStackSummary request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStackSummaryResult
 type DescribeStackSummaryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9888,7 +9733,6 @@ func (s *DescribeStackSummaryOutput) SetStackSummary(v *StackSummary) *DescribeS
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStacksRequest
 type DescribeStacksInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9914,7 +9758,6 @@ func (s *DescribeStacksInput) SetStackIds(v []*string) *DescribeStacksInput {
 }
 
 // Contains the response to a DescribeStacks request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeStacksResult
 type DescribeStacksOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9938,7 +9781,6 @@ func (s *DescribeStacksOutput) SetStacks(v []*Stack) *DescribeStacksOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeTimeBasedAutoScalingRequest
 type DescribeTimeBasedAutoScalingInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9978,7 +9820,6 @@ func (s *DescribeTimeBasedAutoScalingInput) SetInstanceIds(v []*string) *Describ
 }
 
 // Contains the response to a DescribeTimeBasedAutoScaling request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeTimeBasedAutoScalingResult
 type DescribeTimeBasedAutoScalingOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10003,7 +9844,6 @@ func (s *DescribeTimeBasedAutoScalingOutput) SetTimeBasedAutoScalingConfiguratio
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeUserProfilesRequest
 type DescribeUserProfilesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10028,7 +9868,6 @@ func (s *DescribeUserProfilesInput) SetIamUserArns(v []*string) *DescribeUserPro
 }
 
 // Contains the response to a DescribeUserProfiles request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeUserProfilesResult
 type DescribeUserProfilesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10052,7 +9891,6 @@ func (s *DescribeUserProfilesOutput) SetUserProfiles(v []*UserProfile) *Describe
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeVolumesRequest
 type DescribeVolumesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10108,7 +9946,6 @@ func (s *DescribeVolumesInput) SetVolumeIds(v []*string) *DescribeVolumesInput {
 }
 
 // Contains the response to a DescribeVolumes request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DescribeVolumesResult
 type DescribeVolumesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10132,7 +9969,6 @@ func (s *DescribeVolumesOutput) SetVolumes(v []*Volume) *DescribeVolumesOutput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DetachElasticLoadBalancerRequest
 type DetachElasticLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10186,7 +10022,6 @@ func (s *DetachElasticLoadBalancerInput) SetLayerId(v string) *DetachElasticLoad
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DetachElasticLoadBalancerOutput
 type DetachElasticLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -10201,7 +10036,6 @@ func (s DetachElasticLoadBalancerOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DisassociateElasticIpRequest
 type DisassociateElasticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10240,7 +10074,6 @@ func (s *DisassociateElasticIpInput) SetElasticIp(v string) *DisassociateElastic
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/DisassociateElasticIpOutput
 type DisassociateElasticIpOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -10258,7 +10091,6 @@ func (s DisassociateElasticIpOutput) GoString() string {
 // Describes an Amazon EBS volume. This data type maps directly to the Amazon
 // EC2 EbsBlockDevice (http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_EbsBlockDevice.html)
 // data type.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/EbsBlockDevice
 type EbsBlockDevice struct {
 	_ struct{} `type:"structure"`
 
@@ -10321,7 +10153,6 @@ func (s *EbsBlockDevice) SetVolumeType(v string) *EbsBlockDevice {
 }
 
 // Describes a registered Amazon ECS cluster.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/EcsCluster
 type EcsCluster struct {
 	_ struct{} `type:"structure"`
 
@@ -10373,7 +10204,6 @@ func (s *EcsCluster) SetStackId(v string) *EcsCluster {
 }
 
 // Describes an Elastic IP address.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/ElasticIp
 type ElasticIp struct {
 	_ struct{} `type:"structure"`
 
@@ -10434,7 +10264,6 @@ func (s *ElasticIp) SetRegion(v string) *ElasticIp {
 }
 
 // Describes an Elastic Load Balancing instance.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/ElasticLoadBalancer
 type ElasticLoadBalancer struct {
 	_ struct{} `type:"structure"`
 
@@ -10532,7 +10361,6 @@ func (s *ElasticLoadBalancer) SetVpcId(v string) *ElasticLoadBalancer {
 }
 
 // Represents an app's environment variable.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/EnvironmentVariable
 type EnvironmentVariable struct {
 	_ struct{} `type:"structure"`
 
@@ -10602,7 +10430,6 @@ func (s *EnvironmentVariable) SetValue(v string) *EnvironmentVariable {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GetHostnameSuggestionRequest
 type GetHostnameSuggestionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10642,7 +10469,6 @@ func (s *GetHostnameSuggestionInput) SetLayerId(v string) *GetHostnameSuggestion
 }
 
 // Contains the response to a GetHostnameSuggestion request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GetHostnameSuggestionResult
 type GetHostnameSuggestionOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10675,7 +10501,6 @@ func (s *GetHostnameSuggestionOutput) SetLayerId(v string) *GetHostnameSuggestio
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GrantAccessRequest
 type GrantAccessInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10730,7 +10555,6 @@ func (s *GrantAccessInput) SetValidForInMinutes(v int64) *GrantAccessInput {
 }
 
 // Contains the response to a GrantAccess request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/GrantAccessResult
 type GrantAccessOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10756,7 +10580,6 @@ func (s *GrantAccessOutput) SetTemporaryCredential(v *TemporaryCredential) *Gran
 }
 
 // Describes an instance.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Instance
 type Instance struct {
 	_ struct{} `type:"structure"`
 
@@ -11176,7 +10999,6 @@ func (s *Instance) SetVirtualizationType(v string) *Instance {
 
 // Contains a description of an Amazon EC2 instance from the Amazon EC2 metadata
 // service. For more information, see Instance Metadata and User Data (http://docs.aws.amazon.com/sdkfornet/latest/apidocs/Index.html).
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/InstanceIdentity
 type InstanceIdentity struct {
 	_ struct{} `type:"structure"`
 
@@ -11210,7 +11032,6 @@ func (s *InstanceIdentity) SetSignature(v string) *InstanceIdentity {
 }
 
 // Describes how many instances a stack has for each status.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/InstancesCount
 type InstancesCount struct {
 	_ struct{} `type:"structure"`
 
@@ -11397,7 +11218,6 @@ func (s *InstancesCount) SetUnassigning(v int64) *InstancesCount {
 }
 
 // Describes a layer.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Layer
 type Layer struct {
 	_ struct{} `type:"structure"`
 
@@ -11630,7 +11450,6 @@ func (s *Layer) SetVolumeConfigurations(v []*VolumeConfiguration) *Layer {
 }
 
 // Specifies the lifecycle event configuration
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/LifecycleEventConfiguration
 type LifecycleEventConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -11655,7 +11474,6 @@ func (s *LifecycleEventConfiguration) SetShutdown(v *ShutdownEventConfiguration)
 }
 
 // Describes a layer's load-based auto scaling configuration.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/LoadBasedAutoScalingConfiguration
 type LoadBasedAutoScalingConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -11709,7 +11527,6 @@ func (s *LoadBasedAutoScalingConfiguration) SetUpScaling(v *AutoScalingThreshold
 }
 
 // Describes stack or user permissions.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Permission
 type Permission struct {
 	_ struct{} `type:"structure"`
 
@@ -11784,7 +11601,6 @@ func (s *Permission) SetStackId(v string) *Permission {
 }
 
 // Describes an instance's RAID array.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RaidArray
 type RaidArray struct {
 	_ struct{} `type:"structure"`
 
@@ -11918,7 +11734,6 @@ func (s *RaidArray) SetVolumeType(v string) *RaidArray {
 }
 
 // Describes an Amazon RDS instance.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RdsDbInstance
 type RdsDbInstance struct {
 	_ struct{} `type:"structure"`
 
@@ -12016,7 +11831,6 @@ func (s *RdsDbInstance) SetStackId(v string) *RdsDbInstance {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RebootInstanceRequest
 type RebootInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12055,7 +11869,6 @@ func (s *RebootInstanceInput) SetInstanceId(v string) *RebootInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RebootInstanceOutput
 type RebootInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -12081,7 +11894,6 @@ func (s RebootInstanceOutput) GoString() string {
 // followed by two colons and the recipe name, which is the recipe's file name
 // without the .rb extension. For example: phpapp2::dbsetup specifies the dbsetup.rb
 // recipe in the repository's phpapp2 folder.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Recipes
 type Recipes struct {
 	_ struct{} `type:"structure"`
 
@@ -12141,7 +11953,6 @@ func (s *Recipes) SetUndeploy(v []*string) *Recipes {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterEcsClusterRequest
 type RegisterEcsClusterInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12195,7 +12006,6 @@ func (s *RegisterEcsClusterInput) SetStackId(v string) *RegisterEcsClusterInput 
 }
 
 // Contains the response to a RegisterEcsCluster request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterEcsClusterResult
 type RegisterEcsClusterOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12219,7 +12029,6 @@ func (s *RegisterEcsClusterOutput) SetEcsClusterArn(v string) *RegisterEcsCluste
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterElasticIpRequest
 type RegisterElasticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12273,7 +12082,6 @@ func (s *RegisterElasticIpInput) SetStackId(v string) *RegisterElasticIpInput {
 }
 
 // Contains the response to a RegisterElasticIp request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterElasticIpResult
 type RegisterElasticIpOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12297,7 +12105,6 @@ func (s *RegisterElasticIpOutput) SetElasticIp(v string) *RegisterElasticIpOutpu
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterInstanceRequest
 type RegisterInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12392,7 +12199,6 @@ func (s *RegisterInstanceInput) SetStackId(v string) *RegisterInstanceInput {
 }
 
 // Contains the response to a RegisterInstanceResult request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterInstanceResult
 type RegisterInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12416,7 +12222,6 @@ func (s *RegisterInstanceOutput) SetInstanceId(v string) *RegisterInstanceOutput
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterRdsDbInstanceRequest
 type RegisterRdsDbInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12497,7 +12302,6 @@ func (s *RegisterRdsDbInstanceInput) SetStackId(v string) *RegisterRdsDbInstance
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterRdsDbInstanceOutput
 type RegisterRdsDbInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -12512,7 +12316,6 @@ func (s RegisterRdsDbInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterVolumeRequest
 type RegisterVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12561,7 +12364,6 @@ func (s *RegisterVolumeInput) SetStackId(v string) *RegisterVolumeInput {
 }
 
 // Contains the response to a RegisterVolume request.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/RegisterVolumeResult
 type RegisterVolumeOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12586,7 +12388,6 @@ func (s *RegisterVolumeOutput) SetVolumeId(v string) *RegisterVolumeOutput {
 }
 
 // A registered instance's reported operating system.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/ReportedOs
 type ReportedOs struct {
 	_ struct{} `type:"structure"`
 
@@ -12629,7 +12430,6 @@ func (s *ReportedOs) SetVersion(v string) *ReportedOs {
 }
 
 // Describes a user's SSH information.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SelfUserProfile
 type SelfUserProfile struct {
 	_ struct{} `type:"structure"`
 
@@ -12681,7 +12481,6 @@ func (s *SelfUserProfile) SetSshUsername(v string) *SelfUserProfile {
 }
 
 // Describes an AWS OpsWorks service error.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/ServiceError
 type ServiceError struct {
 	_ struct{} `type:"structure"`
 
@@ -12750,7 +12549,6 @@ func (s *ServiceError) SetType(v string) *ServiceError {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetLoadBasedAutoScalingRequest
 type SetLoadBasedAutoScalingInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12830,7 +12628,6 @@ func (s *SetLoadBasedAutoScalingInput) SetUpScaling(v *AutoScalingThresholds) *S
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetLoadBasedAutoScalingOutput
 type SetLoadBasedAutoScalingOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -12845,7 +12642,6 @@ func (s SetLoadBasedAutoScalingOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetPermissionRequest
 type SetPermissionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12939,7 +12735,6 @@ func (s *SetPermissionInput) SetStackId(v string) *SetPermissionInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetPermissionOutput
 type SetPermissionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -12954,7 +12749,6 @@ func (s SetPermissionOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetTimeBasedAutoScalingRequest
 type SetTimeBasedAutoScalingInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13002,7 +12796,6 @@ func (s *SetTimeBasedAutoScalingInput) SetInstanceId(v string) *SetTimeBasedAuto
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SetTimeBasedAutoScalingOutput
 type SetTimeBasedAutoScalingOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13018,7 +12811,6 @@ func (s SetTimeBasedAutoScalingOutput) GoString() string {
 }
 
 // The Shutdown event configuration.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/ShutdownEventConfiguration
 type ShutdownEventConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -13056,7 +12848,6 @@ func (s *ShutdownEventConfiguration) SetExecutionTimeout(v int64) *ShutdownEvent
 // Contains the information required to retrieve an app or cookbook from a repository.
 // For more information, see Creating Apps (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-creating.html)
 // or Custom Recipes and Cookbooks (http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook.html).
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Source
 type Source struct {
 	_ struct{} `type:"structure"`
 
@@ -13149,7 +12940,6 @@ func (s *Source) SetUsername(v string) *Source {
 }
 
 // Describes an app's SSL configuration.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/SslConfiguration
 type SslConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -13213,7 +13003,6 @@ func (s *SslConfiguration) SetPrivateKey(v string) *SslConfiguration {
 }
 
 // Describes a stack.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Stack
 type Stack struct {
 	_ struct{} `type:"structure"`
 
@@ -13447,7 +13236,6 @@ func (s *Stack) SetVpcId(v string) *Stack {
 }
 
 // Describes the configuration manager.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StackConfigurationManager
 type StackConfigurationManager struct {
 	_ struct{} `type:"structure"`
 
@@ -13483,7 +13271,6 @@ func (s *StackConfigurationManager) SetVersion(v string) *StackConfigurationMana
 }
 
 // Summarizes the number of layers, instances, and apps in a stack.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StackSummary
 type StackSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -13552,7 +13339,6 @@ func (s *StackSummary) SetStackId(v string) *StackSummary {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartInstanceRequest
 type StartInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13591,7 +13377,6 @@ func (s *StartInstanceInput) SetInstanceId(v string) *StartInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartInstanceOutput
 type StartInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13606,7 +13391,6 @@ func (s StartInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartStackRequest
 type StartStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13645,7 +13429,6 @@ func (s *StartStackInput) SetStackId(v string) *StartStackInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StartStackOutput
 type StartStackOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13660,7 +13443,6 @@ func (s StartStackOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopInstanceRequest
 type StopInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13699,7 +13481,6 @@ func (s *StopInstanceInput) SetInstanceId(v string) *StopInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopInstanceOutput
 type StopInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13714,7 +13495,6 @@ func (s StopInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopStackRequest
 type StopStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13753,7 +13533,6 @@ func (s *StopStackInput) SetStackId(v string) *StopStackInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/StopStackOutput
 type StopStackOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13770,7 +13549,6 @@ func (s StopStackOutput) GoString() string {
 
 // Contains the data needed by RDP clients such as the Microsoft Remote Desktop
 // Connection to log in to the instance.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/TemporaryCredential
 type TemporaryCredential struct {
 	_ struct{} `type:"structure"`
 
@@ -13825,7 +13603,6 @@ func (s *TemporaryCredential) SetValidForInMinutes(v int64) *TemporaryCredential
 }
 
 // Describes an instance's time-based auto scaling configuration.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/TimeBasedAutoScalingConfiguration
 type TimeBasedAutoScalingConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -13858,7 +13635,6 @@ func (s *TimeBasedAutoScalingConfiguration) SetInstanceId(v string) *TimeBasedAu
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignInstanceRequest
 type UnassignInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13897,7 +13673,6 @@ func (s *UnassignInstanceInput) SetInstanceId(v string) *UnassignInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignInstanceOutput
 type UnassignInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13912,7 +13687,6 @@ func (s UnassignInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignVolumeRequest
 type UnassignVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13951,7 +13725,6 @@ func (s *UnassignVolumeInput) SetVolumeId(v string) *UnassignVolumeInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UnassignVolumeOutput
 type UnassignVolumeOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13966,7 +13739,6 @@ func (s UnassignVolumeOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateAppRequest
 type UpdateAppInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14124,7 +13896,6 @@ func (s *UpdateAppInput) SetType(v string) *UpdateAppInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateAppOutput
 type UpdateAppOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14139,7 +13910,6 @@ func (s UpdateAppOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateElasticIpRequest
 type UpdateElasticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14187,7 +13957,6 @@ func (s *UpdateElasticIpInput) SetName(v string) *UpdateElasticIpInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateElasticIpOutput
 type UpdateElasticIpOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14202,7 +13971,6 @@ func (s UpdateElasticIpOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateInstanceRequest
 type UpdateInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14398,7 +14166,6 @@ func (s *UpdateInstanceInput) SetSshKeyName(v string) *UpdateInstanceInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateInstanceOutput
 type UpdateInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14413,7 +14180,6 @@ func (s UpdateInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateLayerRequest
 type UpdateLayerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14616,7 +14382,6 @@ func (s *UpdateLayerInput) SetVolumeConfigurations(v []*VolumeConfiguration) *Up
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateLayerOutput
 type UpdateLayerOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14631,7 +14396,6 @@ func (s UpdateLayerOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateMyUserProfileRequest
 type UpdateMyUserProfileInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14655,7 +14419,6 @@ func (s *UpdateMyUserProfileInput) SetSshPublicKey(v string) *UpdateMyUserProfil
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateMyUserProfileOutput
 type UpdateMyUserProfileOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14670,7 +14433,6 @@ func (s UpdateMyUserProfileOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateRdsDbInstanceRequest
 type UpdateRdsDbInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14727,7 +14489,6 @@ func (s *UpdateRdsDbInstanceInput) SetRdsDbInstanceArn(v string) *UpdateRdsDbIns
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateRdsDbInstanceOutput
 type UpdateRdsDbInstanceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14742,7 +14503,6 @@ func (s UpdateRdsDbInstanceOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateStackRequest
 type UpdateStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15051,7 +14811,6 @@ func (s *UpdateStackInput) SetUseOpsworksSecurityGroups(v bool) *UpdateStackInpu
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateStackOutput
 type UpdateStackOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -15066,7 +14825,6 @@ func (s UpdateStackOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateUserProfileRequest
 type UpdateUserProfileInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15137,7 +14895,6 @@ func (s *UpdateUserProfileInput) SetSshUsername(v string) *UpdateUserProfileInpu
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateUserProfileOutput
 type UpdateUserProfileOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -15152,7 +14909,6 @@ func (s UpdateUserProfileOutput) GoString() string {
 	return s.String()
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateVolumeRequest
 type UpdateVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15209,7 +14965,6 @@ func (s *UpdateVolumeInput) SetVolumeId(v string) *UpdateVolumeInput {
 	return s
 }
 
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UpdateVolumeOutput
 type UpdateVolumeOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -15225,7 +14980,6 @@ func (s UpdateVolumeOutput) GoString() string {
 }
 
 // Describes a user's SSH information.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/UserProfile
 type UserProfile struct {
 	_ struct{} `type:"structure"`
 
@@ -15287,7 +15041,6 @@ func (s *UserProfile) SetSshUsername(v string) *UserProfile {
 }
 
 // Describes an instance's Amazon EBS volume.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/Volume
 type Volume struct {
 	_ struct{} `type:"structure"`
 
@@ -15422,7 +15175,6 @@ func (s *Volume) SetVolumeType(v string) *Volume {
 }
 
 // Describes an Amazon EBS volume configuration.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/VolumeConfiguration
 type VolumeConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -15540,7 +15292,6 @@ func (s *VolumeConfiguration) SetVolumeType(v string) *VolumeConfiguration {
 // hours, from UTC 1200 - 1600. It will be off for the remainder of the day.
 //
 // { "12":"on", "13":"on", "14":"on", "15":"on" }
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/opsworks-2013-02-18/WeeklyAutoScalingSchedule
 type WeeklyAutoScalingSchedule struct {
 	_ struct{} `type:"structure"`
 

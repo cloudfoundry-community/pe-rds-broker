@@ -51,8 +51,6 @@ type API struct {
 	imports     map[string]bool
 	name        string
 	path        string
-
-	BaseCrosslinkURL string
 }
 
 // A Metadata is the metadata about an API's definition.
@@ -66,8 +64,6 @@ type Metadata struct {
 	JSONVersion         string
 	TargetPrefix        string
 	Protocol            string
-	UID                 string
-	EndpointsID         string
 }
 
 var serviceAliases map[string]string
@@ -277,37 +273,6 @@ func (a *API) APIGoCode() string {
 	return code
 }
 
-var noCrossLinkServices = map[string]struct{}{
-	"apigateway":        struct{}{},
-	"budgets":           struct{}{},
-	"cloudsearch":       struct{}{},
-	"cloudsearchdomain": struct{}{},
-	"discovery":         struct{}{},
-	"elastictranscoder": struct{}{},
-	"es":                struct{}{},
-	"glacier":           struct{}{},
-	"importexport":      struct{}{},
-	"iot":               struct{}{},
-	"iot-data":          struct{}{},
-	"lambda":            struct{}{},
-	"machinelearning":   struct{}{},
-	"rekognition":       struct{}{},
-	"sdb":               struct{}{},
-	"swf":               struct{}{},
-}
-
-func GetCrosslinkURL(baseURL, name, uid string, params ...string) string {
-	_, ok := noCrossLinkServices[strings.ToLower(name)]
-	if baseURL != "" && !ok {
-		return strings.Join(append([]string{baseURL, "goto", "WebAPI", uid}, params...), "/")
-	}
-	return ""
-}
-
-func (a *API) APIName() string {
-	return a.name
-}
-
 // A tplService defines the template for the service generated code.
 var tplService = template.Must(template.New("service").Funcs(template.FuncMap{
 	"ServiceNameValue": func(a *API) string {
@@ -316,30 +281,9 @@ var tplService = template.Must(template.New("service").Funcs(template.FuncMap{
 		}
 		return "ServiceName"
 	},
-	"GetCrosslinkURL": GetCrosslinkURL,
-	"EndpointsIDConstValue": func(a *API) string {
-		if a.NoConstServiceNames {
-			return fmt.Sprintf("%q", a.Metadata.EndpointPrefix)
-		}
-		if a.Metadata.EndpointPrefix == a.Metadata.EndpointsID {
-			return "ServiceName"
-		}
-		return fmt.Sprintf("%q", a.Metadata.EndpointsID)
-	},
-	"EndpointsIDValue": func(a *API) string {
-		if a.NoConstServiceNames {
-			return fmt.Sprintf("%q", a.Metadata.EndpointPrefix)
-		}
-
-		return "EndpointsID"
-	},
 }).Parse(`
-{{ .Documentation }}// The service client's operations are safe to be used concurrently.
+{{ .Documentation }}//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-{{ $crosslinkURL := GetCrosslinkURL $.BaseCrosslinkURL $.APIName $.Metadata.UID -}}
-{{ if ne $crosslinkURL "" -}} 
-// Please also see {{ $crosslinkURL }}
-{{ end -}}
 type {{ .StructName }} struct {
 	*client.Client
 }
@@ -351,14 +295,11 @@ var initClient func(*client.Client)
 var initRequest func(*request.Request)
 {{ end }}
 
-
-{{ if not .NoConstServiceNames -}}
-// Service information constants
-const (
-	ServiceName = "{{ .Metadata.EndpointPrefix }}" // Service endpoint prefix API calls made to.
-	EndpointsID = {{ EndpointsIDConstValue . }} // Service ID for Regions and Endpoints metadata.
-)
-{{- end }}
+{{ if not .NoConstServiceNames }}
+	// A ServiceName is the name of the service the client will make API calls to.
+	const ServiceName = "{{ .Metadata.EndpointPrefix }}"
+{{ end }}
+{{ $serviceName := ServiceNameValue . -}}
 
 // New creates a new instance of the {{ .StructName }} client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -371,7 +312,7 @@ const (
 //     // Create a {{ .StructName }} client with additional configuration
 //     svc := {{ .PackageName }}.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *{{ .StructName }} {
-	c := p.ClientConfig({{ EndpointsIDValue . }}, cfgs...)
+	c := p.ClientConfig({{ $serviceName }}, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 
@@ -386,15 +327,13 @@ func newClient(cfg aws.Config, handlers request.Handlers, endpoint, signingRegio
     	Client: client.New(
     		cfg,
     		metadata.ClientInfo{
-			ServiceName: {{ ServiceNameValue . }},
+			ServiceName: {{ $serviceName }},
 			SigningName: signingName,
 			SigningRegion: signingRegion,
 			Endpoint:     endpoint,
 			APIVersion:   "{{ .Metadata.APIVersion }}",
-			{{ if .Metadata.JSONVersion -}}
+			{{ if eq .Metadata.Protocol "json" -}}
 				JSONVersion:  "{{ .Metadata.JSONVersion }}",
-			{{- end }}
-			{{ if .Metadata.TargetPrefix -}}
 				TargetPrefix: "{{ .Metadata.TargetPrefix }}",
 			{{- end }}
     		},

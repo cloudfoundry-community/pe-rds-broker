@@ -32,9 +32,8 @@ import (
 //    the buyer submits a Registration Token through the browser. The Registration
 //    Token is resolved through this API to obtain a CustomerIdentifier and
 //    Product Code.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/meteringmarketplace-2016-01-14
 type MarketplaceMetering struct {
 	*client.Client
 }
@@ -45,11 +44,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "metering.marketplace" // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName            // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "metering.marketplace"
 
 // New creates a new instance of the MarketplaceMetering client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -62,7 +58,7 @@ const (
 //     // Create a MarketplaceMetering client with additional configuration
 //     svc := marketplacemetering.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *MarketplaceMetering {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

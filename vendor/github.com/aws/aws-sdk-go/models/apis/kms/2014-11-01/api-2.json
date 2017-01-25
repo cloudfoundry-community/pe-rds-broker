@@ -1,6 +1,7 @@
 {
   "version":"2.0",
   "metadata":{
+    "uid":"kms-2014-11-01",
     "apiVersion":"2014-11-01",
     "endpointPrefix":"kms",
     "jsonVersion":"1.1",
@@ -8,8 +9,7 @@
     "serviceAbbreviation":"KMS",
     "serviceFullName":"AWS Key Management Service",
     "signatureVersion":"v4",
-    "targetPrefix":"TrentService",
-    "uid":"kms-2014-11-01"
+    "targetPrefix":"TrentService"
   },
   "operations":{
     "CancelKeyDeletion":{

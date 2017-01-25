@@ -1084,8 +1084,7 @@
       "enum":[
         "ConfigurationItemChangeNotification",
         "ConfigurationSnapshotDeliveryCompleted",
-        "ScheduledNotification",
-        "OversizedConfigurationItemChangeNotification"
+        "ScheduledNotification"
       ]
     },
     "Name":{"type":"string"},

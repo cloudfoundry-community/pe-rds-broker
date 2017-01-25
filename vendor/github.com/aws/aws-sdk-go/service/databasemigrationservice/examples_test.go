@@ -60,13 +60,14 @@ func ExampleDatabaseMigrationService_CreateEndpoint() {
 		EndpointIdentifier:        aws.String("String"),                       // Required
 		EndpointType:              aws.String("ReplicationEndpointTypeValue"), // Required
 		EngineName:                aws.String("String"),                       // Required
+		Password:                  aws.String("SecretString"),                 // Required
+		Port:                      aws.Int64(1),                               // Required
+		ServerName:                aws.String("String"),                       // Required
+		Username:                  aws.String("String"),                       // Required
 		CertificateArn:            aws.String("String"),
 		DatabaseName:              aws.String("String"),
 		ExtraConnectionAttributes: aws.String("String"),
 		KmsKeyId:                  aws.String("String"),
-		Password:                  aws.String("SecretString"),
-		Port:                      aws.Int64(1),
-		ServerName:                aws.String("String"),
 		SslMode:                   aws.String("DmsSslModeValue"),
 		Tags: []*databasemigrationservice.Tag{
 			{ // Required
@@ -75,7 +76,6 @@ func ExampleDatabaseMigrationService_CreateEndpoint() {
 			},
 			// More values...
 		},
-		Username: aws.String("String"),
 	}
 	resp, err := svc.CreateEndpoint(params)
 
@@ -729,7 +729,6 @@ func ExampleDatabaseMigrationService_ImportCertificate() {
 	params := &databasemigrationservice.ImportCertificateInput{
 		CertificateIdentifier: aws.String("String"), // Required
 		CertificatePem:        aws.String("String"),
-		CertificateWallet:     []byte("PAYLOAD"),
 	}
 	resp, err := svc.ImportCertificate(params)
 
@@ -861,36 +860,6 @@ func ExampleDatabaseMigrationService_ModifyReplicationSubnetGroup() {
 		ReplicationSubnetGroupDescription: aws.String("String"),
 	}
 	resp, err := svc.ModifyReplicationSubnetGroup(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleDatabaseMigrationService_ModifyReplicationTask() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
-
-	svc := databasemigrationservice.New(sess)
-
-	params := &databasemigrationservice.ModifyReplicationTaskInput{
-		ReplicationTaskArn:        aws.String("String"), // Required
-		CdcStartTime:              aws.Time(time.Now()),
-		MigrationType:             aws.String("MigrationTypeValue"),
-		ReplicationTaskIdentifier: aws.String("String"),
-		ReplicationTaskSettings:   aws.String("String"),
-		TableMappings:             aws.String("String"),
-	}
-	resp, err := svc.ModifyReplicationTask(params)
 
 	if err != nil {
 		// Print the error, cast err to awserr.Error to get the Code and

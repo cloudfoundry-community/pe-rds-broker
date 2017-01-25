@@ -507,15 +507,11 @@
       "input":{"shape":"RegisterOnPremisesInstanceInput"},
       "errors":[
         {"shape":"InstanceNameAlreadyRegisteredException"},
-        {"shape":"IamArnRequiredException"},
-        {"shape":"IamSessionArnAlreadyRegisteredException"},
         {"shape":"IamUserArnAlreadyRegisteredException"},
         {"shape":"InstanceNameRequiredException"},
         {"shape":"IamUserArnRequiredException"},
         {"shape":"InvalidInstanceNameException"},
-        {"shape":"InvalidIamSessionArnException"},
-        {"shape":"InvalidIamUserArnException"},
-        {"shape":"MultipleIamArnsProvidedException"}
+        {"shape":"InvalidIamUserArnException"}
       ]
     },
     "RemoveTagsFromOnPremisesInstances":{
@@ -1334,19 +1330,6 @@
         "commitId":{"shape":"CommitId"}
       }
     },
-    "IamArnRequiredException":{
-      "type":"structure",
-      "members":{
-      },
-      "exception":true
-    },
-    "IamSessionArn":{"type":"string"},
-    "IamSessionArnAlreadyRegisteredException":{
-      "type":"structure",
-      "members":{
-      },
-      "exception":true
-    },
     "IamUserArn":{"type":"string"},
     "IamUserArnAlreadyRegisteredException":{
       "type":"structure",
@@ -1379,7 +1362,6 @@
       "type":"structure",
       "members":{
         "instanceName":{"shape":"InstanceName"},
-        "iamSessionArn":{"shape":"IamSessionArn"},
         "iamUserArn":{"shape":"IamUserArn"},
         "instanceArn":{"shape":"InstanceArn"},
         "registerTime":{"shape":"Timestamp"},
@@ -1514,12 +1496,6 @@
       "exception":true
     },
     "InvalidEC2TagException":{
-      "type":"structure",
-      "members":{
-      },
-      "exception":true
-    },
-    "InvalidIamSessionArnException":{
       "type":"structure",
       "members":{
       },
@@ -1801,12 +1777,6 @@
       ]
     },
     "MinimumHealthyHostsValue":{"type":"integer"},
-    "MultipleIamArnsProvidedException":{
-      "type":"structure",
-      "members":{
-      },
-      "exception":true
-    },
     "NextToken":{"type":"string"},
     "NullableBoolean":{"type":"boolean"},
     "RegisterApplicationRevisionInput":{
@@ -1823,10 +1793,12 @@
     },
     "RegisterOnPremisesInstanceInput":{
       "type":"structure",
-      "required":["instanceName"],
+      "required":[
+        "instanceName",
+        "iamUserArn"
+      ],
       "members":{
         "instanceName":{"shape":"InstanceName"},
-        "iamSessionArn":{"shape":"IamSessionArn"},
         "iamUserArn":{"shape":"IamUserArn"}
       }
     },

@@ -24,9 +24,8 @@ import (
 // To use the Lightsail API or the CLI, you will need to use AWS Identity and
 // Access Management (IAM) to generate access keys. For details about how to
 // set this up, see the Lightsail Dev Guide (http://lightsail.aws.amazon.com/ls/docs/how-to/articles/lightsail-how-to-set-up-access-keys-to-use-sdk-api-cli).
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28
 type Lightsail struct {
 	*client.Client
 }
@@ -37,11 +36,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "lightsail" // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "lightsail"
 
 // New creates a new instance of the Lightsail client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -54,7 +50,7 @@ const (
 //     // Create a Lightsail client with additional configuration
 //     svc := lightsail.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *Lightsail {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

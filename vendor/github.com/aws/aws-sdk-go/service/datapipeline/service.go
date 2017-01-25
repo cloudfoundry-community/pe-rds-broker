@@ -33,9 +33,8 @@ import (
 // service, reporting progress to the web service as it does so. When the task
 // is done, the task runner reports the final success or failure of the task
 // to the web service.
-// The service client's operations are safe to be used concurrently.
+//The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/datapipeline-2012-10-29
 type DataPipeline struct {
 	*client.Client
 }
@@ -46,11 +45,8 @@ var initClient func(*client.Client)
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// Service information constants
-const (
-	ServiceName = "datapipeline" // Service endpoint prefix API calls made to.
-	EndpointsID = ServiceName    // Service ID for Regions and Endpoints metadata.
-)
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "datapipeline"
 
 // New creates a new instance of the DataPipeline client with a session.
 // If additional configuration is needed for the client instance use the optional
@@ -63,7 +59,7 @@ const (
 //     // Create a DataPipeline client with additional configuration
 //     svc := datapipeline.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *DataPipeline {
-	c := p.ClientConfig(EndpointsID, cfgs...)
+	c := p.ClientConfig(ServiceName, cfgs...)
 	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion, c.SigningName)
 }
 

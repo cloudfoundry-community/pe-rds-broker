@@ -37,7 +37,6 @@ const opBatchGetItem = "BatchGetItem"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchGetItem
 func (c *DynamoDB) BatchGetItemRequest(input *BatchGetItemInput) (req *request.Request, output *BatchGetItemOutput) {
 	op := &request.Operation{
 		Name:       opBatchGetItem,
@@ -55,8 +54,9 @@ func (c *DynamoDB) BatchGetItemRequest(input *BatchGetItemInput) (req *request.R
 		input = &BatchGetItemInput{}
 	}
 
-	output = &BatchGetItemOutput{}
 	req = c.newRequest(op, input, output)
+	output = &BatchGetItemOutput{}
+	req.Data = output
 	return
 }
 
@@ -135,7 +135,6 @@ func (c *DynamoDB) BatchGetItemRequest(input *BatchGetItemInput) (req *request.R
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchGetItem
 func (c *DynamoDB) BatchGetItem(input *BatchGetItemInput) (*BatchGetItemOutput, error) {
 	req, out := c.BatchGetItemRequest(input)
 	err := req.Send()
@@ -193,7 +192,6 @@ const opBatchWriteItem = "BatchWriteItem"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchWriteItem
 func (c *DynamoDB) BatchWriteItemRequest(input *BatchWriteItemInput) (req *request.Request, output *BatchWriteItemOutput) {
 	op := &request.Operation{
 		Name:       opBatchWriteItem,
@@ -205,8 +203,9 @@ func (c *DynamoDB) BatchWriteItemRequest(input *BatchWriteItemInput) (req *reque
 		input = &BatchWriteItemInput{}
 	}
 
-	output = &BatchWriteItemOutput{}
 	req = c.newRequest(op, input, output)
+	output = &BatchWriteItemOutput{}
+	req.Data = output
 	return
 }
 
@@ -309,7 +308,6 @@ func (c *DynamoDB) BatchWriteItemRequest(input *BatchWriteItemInput) (req *reque
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchWriteItem
 func (c *DynamoDB) BatchWriteItem(input *BatchWriteItemInput) (*BatchWriteItemOutput, error) {
 	req, out := c.BatchWriteItemRequest(input)
 	err := req.Send()
@@ -342,7 +340,6 @@ const opCreateTable = "CreateTable"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/CreateTable
 func (c *DynamoDB) CreateTableRequest(input *CreateTableInput) (req *request.Request, output *CreateTableOutput) {
 	op := &request.Operation{
 		Name:       opCreateTable,
@@ -354,8 +351,9 @@ func (c *DynamoDB) CreateTableRequest(input *CreateTableInput) (req *request.Req
 		input = &CreateTableInput{}
 	}
 
-	output = &CreateTableOutput{}
 	req = c.newRequest(op, input, output)
+	output = &CreateTableOutput{}
+	req.Data = output
 	return
 }
 
@@ -403,7 +401,6 @@ func (c *DynamoDB) CreateTableRequest(input *CreateTableInput) (req *request.Req
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/CreateTable
 func (c *DynamoDB) CreateTable(input *CreateTableInput) (*CreateTableOutput, error) {
 	req, out := c.CreateTableRequest(input)
 	err := req.Send()
@@ -436,7 +433,6 @@ const opDeleteItem = "DeleteItem"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteItem
 func (c *DynamoDB) DeleteItemRequest(input *DeleteItemInput) (req *request.Request, output *DeleteItemOutput) {
 	op := &request.Operation{
 		Name:       opDeleteItem,
@@ -448,8 +444,9 @@ func (c *DynamoDB) DeleteItemRequest(input *DeleteItemInput) (req *request.Reque
 		input = &DeleteItemInput{}
 	}
 
-	output = &DeleteItemOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteItemOutput{}
+	req.Data = output
 	return
 }
 
@@ -500,7 +497,6 @@ func (c *DynamoDB) DeleteItemRequest(input *DeleteItemInput) (req *request.Reque
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteItem
 func (c *DynamoDB) DeleteItem(input *DeleteItemInput) (*DeleteItemOutput, error) {
 	req, out := c.DeleteItemRequest(input)
 	err := req.Send()
@@ -533,7 +529,6 @@ const opDeleteTable = "DeleteTable"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteTable
 func (c *DynamoDB) DeleteTableRequest(input *DeleteTableInput) (req *request.Request, output *DeleteTableOutput) {
 	op := &request.Operation{
 		Name:       opDeleteTable,
@@ -545,8 +540,9 @@ func (c *DynamoDB) DeleteTableRequest(input *DeleteTableInput) (req *request.Req
 		input = &DeleteTableInput{}
 	}
 
-	output = &DeleteTableOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DeleteTableOutput{}
+	req.Data = output
 	return
 }
 
@@ -601,7 +597,6 @@ func (c *DynamoDB) DeleteTableRequest(input *DeleteTableInput) (req *request.Req
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteTable
 func (c *DynamoDB) DeleteTable(input *DeleteTableInput) (*DeleteTableOutput, error) {
 	req, out := c.DeleteTableRequest(input)
 	err := req.Send()
@@ -634,7 +629,6 @@ const opDescribeLimits = "DescribeLimits"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeLimits
 func (c *DynamoDB) DescribeLimitsRequest(input *DescribeLimitsInput) (req *request.Request, output *DescribeLimitsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeLimits,
@@ -646,8 +640,9 @@ func (c *DynamoDB) DescribeLimitsRequest(input *DescribeLimitsInput) (req *reque
 		input = &DescribeLimitsInput{}
 	}
 
-	output = &DescribeLimitsOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeLimitsOutput{}
+	req.Data = output
 	return
 }
 
@@ -722,7 +717,6 @@ func (c *DynamoDB) DescribeLimitsRequest(input *DescribeLimitsInput) (req *reque
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeLimits
 func (c *DynamoDB) DescribeLimits(input *DescribeLimitsInput) (*DescribeLimitsOutput, error) {
 	req, out := c.DescribeLimitsRequest(input)
 	err := req.Send()
@@ -755,7 +749,6 @@ const opDescribeTable = "DescribeTable"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeTable
 func (c *DynamoDB) DescribeTableRequest(input *DescribeTableInput) (req *request.Request, output *DescribeTableOutput) {
 	op := &request.Operation{
 		Name:       opDescribeTable,
@@ -767,8 +760,9 @@ func (c *DynamoDB) DescribeTableRequest(input *DescribeTableInput) (req *request
 		input = &DescribeTableInput{}
 	}
 
-	output = &DescribeTableOutput{}
 	req = c.newRequest(op, input, output)
+	output = &DescribeTableOutput{}
+	req.Data = output
 	return
 }
 
@@ -799,7 +793,6 @@ func (c *DynamoDB) DescribeTableRequest(input *DescribeTableInput) (req *request
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeTable
 func (c *DynamoDB) DescribeTable(input *DescribeTableInput) (*DescribeTableOutput, error) {
 	req, out := c.DescribeTableRequest(input)
 	err := req.Send()
@@ -832,7 +825,6 @@ const opGetItem = "GetItem"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GetItem
 func (c *DynamoDB) GetItemRequest(input *GetItemInput) (req *request.Request, output *GetItemOutput) {
 	op := &request.Operation{
 		Name:       opGetItem,
@@ -844,8 +836,9 @@ func (c *DynamoDB) GetItemRequest(input *GetItemInput) (req *request.Request, ou
 		input = &GetItemInput{}
 	}
 
-	output = &GetItemOutput{}
 	req = c.newRequest(op, input, output)
+	output = &GetItemOutput{}
+	req.Data = output
 	return
 }
 
@@ -882,7 +875,6 @@ func (c *DynamoDB) GetItemRequest(input *GetItemInput) (req *request.Request, ou
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GetItem
 func (c *DynamoDB) GetItem(input *GetItemInput) (*GetItemOutput, error) {
 	req, out := c.GetItemRequest(input)
 	err := req.Send()
@@ -915,7 +907,6 @@ const opListTables = "ListTables"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ListTables
 func (c *DynamoDB) ListTablesRequest(input *ListTablesInput) (req *request.Request, output *ListTablesOutput) {
 	op := &request.Operation{
 		Name:       opListTables,
@@ -933,8 +924,9 @@ func (c *DynamoDB) ListTablesRequest(input *ListTablesInput) (req *request.Reque
 		input = &ListTablesInput{}
 	}
 
-	output = &ListTablesOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ListTablesOutput{}
+	req.Data = output
 	return
 }
 
@@ -955,7 +947,6 @@ func (c *DynamoDB) ListTablesRequest(input *ListTablesInput) (req *request.Reque
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ListTables
 func (c *DynamoDB) ListTables(input *ListTablesInput) (*ListTablesOutput, error) {
 	req, out := c.ListTablesRequest(input)
 	err := req.Send()
@@ -1013,7 +1004,6 @@ const opPutItem = "PutItem"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/PutItem
 func (c *DynamoDB) PutItemRequest(input *PutItemInput) (req *request.Request, output *PutItemOutput) {
 	op := &request.Operation{
 		Name:       opPutItem,
@@ -1025,8 +1015,9 @@ func (c *DynamoDB) PutItemRequest(input *PutItemInput) (req *request.Request, ou
 		input = &PutItemInput{}
 	}
 
-	output = &PutItemOutput{}
 	req = c.newRequest(op, input, output)
+	output = &PutItemOutput{}
+	req.Data = output
 	return
 }
 
@@ -1090,7 +1081,6 @@ func (c *DynamoDB) PutItemRequest(input *PutItemInput) (req *request.Request, ou
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/PutItem
 func (c *DynamoDB) PutItem(input *PutItemInput) (*PutItemOutput, error) {
 	req, out := c.PutItemRequest(input)
 	err := req.Send()
@@ -1123,7 +1113,6 @@ const opQuery = "Query"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Query
 func (c *DynamoDB) QueryRequest(input *QueryInput) (req *request.Request, output *QueryOutput) {
 	op := &request.Operation{
 		Name:       opQuery,
@@ -1141,8 +1130,9 @@ func (c *DynamoDB) QueryRequest(input *QueryInput) (req *request.Request, output
 		input = &QueryInput{}
 	}
 
-	output = &QueryOutput{}
 	req = c.newRequest(op, input, output)
+	output = &QueryOutput{}
+	req.Data = output
 	return
 }
 
@@ -1198,7 +1188,6 @@ func (c *DynamoDB) QueryRequest(input *QueryInput) (req *request.Request, output
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Query
 func (c *DynamoDB) Query(input *QueryInput) (*QueryOutput, error) {
 	req, out := c.QueryRequest(input)
 	err := req.Send()
@@ -1256,7 +1245,6 @@ const opScan = "Scan"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Scan
 func (c *DynamoDB) ScanRequest(input *ScanInput) (req *request.Request, output *ScanOutput) {
 	op := &request.Operation{
 		Name:       opScan,
@@ -1274,8 +1262,9 @@ func (c *DynamoDB) ScanRequest(input *ScanInput) (req *request.Request, output *
 		input = &ScanInput{}
 	}
 
-	output = &ScanOutput{}
 	req = c.newRequest(op, input, output)
+	output = &ScanOutput{}
+	req.Data = output
 	return
 }
 
@@ -1326,7 +1315,6 @@ func (c *DynamoDB) ScanRequest(input *ScanInput) (req *request.Request, output *
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Scan
 func (c *DynamoDB) Scan(input *ScanInput) (*ScanOutput, error) {
 	req, out := c.ScanRequest(input)
 	err := req.Send()
@@ -1384,7 +1372,6 @@ const opUpdateItem = "UpdateItem"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateItem
 func (c *DynamoDB) UpdateItemRequest(input *UpdateItemInput) (req *request.Request, output *UpdateItemOutput) {
 	op := &request.Operation{
 		Name:       opUpdateItem,
@@ -1396,8 +1383,9 @@ func (c *DynamoDB) UpdateItemRequest(input *UpdateItemInput) (req *request.Reque
 		input = &UpdateItemInput{}
 	}
 
-	output = &UpdateItemOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateItemOutput{}
+	req.Data = output
 	return
 }
 
@@ -1442,7 +1430,6 @@ func (c *DynamoDB) UpdateItemRequest(input *UpdateItemInput) (req *request.Reque
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateItem
 func (c *DynamoDB) UpdateItem(input *UpdateItemInput) (*UpdateItemOutput, error) {
 	req, out := c.UpdateItemRequest(input)
 	err := req.Send()
@@ -1475,7 +1462,6 @@ const opUpdateTable = "UpdateTable"
 //        fmt.Println(resp)
 //    }
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateTable
 func (c *DynamoDB) UpdateTableRequest(input *UpdateTableInput) (req *request.Request, output *UpdateTableOutput) {
 	op := &request.Operation{
 		Name:       opUpdateTable,
@@ -1487,8 +1473,9 @@ func (c *DynamoDB) UpdateTableRequest(input *UpdateTableInput) (req *request.Req
 		input = &UpdateTableInput{}
 	}
 
-	output = &UpdateTableOutput{}
 	req = c.newRequest(op, input, output)
+	output = &UpdateTableOutput{}
+	req.Data = output
 	return
 }
 
@@ -1543,7 +1530,6 @@ func (c *DynamoDB) UpdateTableRequest(input *UpdateTableInput) (req *request.Req
 //   * InternalServerError
 //   An error occurred on the server side.
 //
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateTable
 func (c *DynamoDB) UpdateTable(input *UpdateTableInput) (*UpdateTableOutput, error) {
 	req, out := c.UpdateTableRequest(input)
 	err := req.Send()
@@ -1551,7 +1537,6 @@ func (c *DynamoDB) UpdateTable(input *UpdateTableInput) (*UpdateTableOutput, err
 }
 
 // Represents an attribute for describing the key schema for the table and indexes.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/AttributeDefinition
 type AttributeDefinition struct {
 	_ struct{} `type:"structure"`
 
@@ -1620,7 +1605,6 @@ func (s *AttributeDefinition) SetAttributeType(v string) *AttributeDefinition {
 // or multi-valued set. For example, a book item can have title and authors
 // attributes. Each book has one title but can have many authors. The multi-valued
 // attribute is a set; duplicate values are not allowed.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/AttributeValue
 type AttributeValue struct {
 	_ struct{} `type:"structure"`
 
@@ -1737,7 +1721,6 @@ func (s *AttributeValue) SetSS(v []*string) *AttributeValue {
 // Attribute values cannot be null; string and binary type attributes must have
 // lengths greater than zero; and set type attributes must not be empty. Requests
 // with empty values will be rejected with a ValidationException exception.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/AttributeValueUpdate
 type AttributeValueUpdate struct {
 	_ struct{} `type:"structure"`
 
@@ -1839,7 +1822,6 @@ func (s *AttributeValueUpdate) SetValue(v *AttributeValue) *AttributeValueUpdate
 }
 
 // Represents the input of a BatchGetItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchGetItemInput
 type BatchGetItemInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1994,7 +1976,6 @@ func (s *BatchGetItemInput) SetReturnConsumedCapacity(v string) *BatchGetItemInp
 }
 
 // Represents the output of a BatchGetItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchGetItemOutput
 type BatchGetItemOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2064,7 +2045,6 @@ func (s *BatchGetItemOutput) SetUnprocessedKeys(v map[string]*KeysAndAttributes)
 }
 
 // Represents the input of a BatchWriteItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchWriteItemInput
 type BatchWriteItemInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2167,7 +2147,6 @@ func (s *BatchWriteItemInput) SetReturnItemCollectionMetrics(v string) *BatchWri
 }
 
 // Represents the output of a BatchWriteItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/BatchWriteItemOutput
 type BatchWriteItemOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2263,7 +2242,6 @@ func (s *BatchWriteItemOutput) SetUnprocessedItems(v map[string][]*WriteRequest)
 
 // Represents the amount of provisioned throughput capacity consumed on a table
 // or an index.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Capacity
 type Capacity struct {
 	_ struct{} `type:"structure"`
 
@@ -2300,7 +2278,6 @@ func (s *Capacity) SetCapacityUnits(v float64) *Capacity {
 //
 //    * For a Scan operation, Condition is used in a ScanFilter, which evaluates
 //    the scan results and returns only the desired values.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Condition
 type Condition struct {
 	_ struct{} `type:"structure"`
 
@@ -2404,7 +2381,6 @@ func (s *Condition) SetComparisonOperator(v string) *Condition {
 // if the request asked for it. For more information, see Provisioned Throughput
 // (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
 // in the Amazon DynamoDB Developer Guide.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ConsumedCapacity
 type ConsumedCapacity struct {
 	_ struct{} `type:"structure"`
 
@@ -2465,7 +2441,6 @@ func (s *ConsumedCapacity) SetTableName(v string) *ConsumedCapacity {
 }
 
 // Represents a new global secondary index to be added to an existing table.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/CreateGlobalSecondaryIndexAction
 type CreateGlobalSecondaryIndexAction struct {
 	_ struct{} `type:"structure"`
 
@@ -2580,7 +2555,6 @@ func (s *CreateGlobalSecondaryIndexAction) SetProvisionedThroughput(v *Provision
 }
 
 // Represents the input of a CreateTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/CreateTableInput
 type CreateTableInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2856,7 +2830,6 @@ func (s *CreateTableInput) SetTableName(v string) *CreateTableInput {
 }
 
 // Represents the output of a CreateTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/CreateTableOutput
 type CreateTableOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2881,7 +2854,6 @@ func (s *CreateTableOutput) SetTableDescription(v *TableDescription) *CreateTabl
 }
 
 // Represents a global secondary index to be deleted from an existing table.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteGlobalSecondaryIndexAction
 type DeleteGlobalSecondaryIndexAction struct {
 	_ struct{} `type:"structure"`
 
@@ -2924,7 +2896,6 @@ func (s *DeleteGlobalSecondaryIndexAction) SetIndexName(v string) *DeleteGlobalS
 }
 
 // Represents the input of a DeleteItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteItemInput
 type DeleteItemInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3281,7 +3252,6 @@ func (s *DeleteItemInput) SetTableName(v string) *DeleteItemInput {
 }
 
 // Represents the output of a DeleteItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteItemOutput
 type DeleteItemOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3349,7 +3319,6 @@ func (s *DeleteItemOutput) SetItemCollectionMetrics(v *ItemCollectionMetrics) *D
 }
 
 // Represents a request to perform a DeleteItem operation on an item.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteRequest
 type DeleteRequest struct {
 	_ struct{} `type:"structure"`
 
@@ -3378,7 +3347,6 @@ func (s *DeleteRequest) SetKey(v map[string]*AttributeValue) *DeleteRequest {
 }
 
 // Represents the input of a DeleteTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteTableInput
 type DeleteTableInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3421,7 +3389,6 @@ func (s *DeleteTableInput) SetTableName(v string) *DeleteTableInput {
 }
 
 // Represents the output of a DeleteTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DeleteTableOutput
 type DeleteTableOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3446,7 +3413,6 @@ func (s *DeleteTableOutput) SetTableDescription(v *TableDescription) *DeleteTabl
 }
 
 // Represents the input of a DescribeLimits operation. Has no content.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeLimitsInput
 type DescribeLimitsInput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3462,7 +3428,6 @@ func (s DescribeLimitsInput) GoString() string {
 }
 
 // Represents the output of a DescribeLimits operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeLimitsOutput
 type DescribeLimitsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3520,7 +3485,6 @@ func (s *DescribeLimitsOutput) SetTableMaxWriteCapacityUnits(v int64) *DescribeL
 }
 
 // Represents the input of a DescribeTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeTableInput
 type DescribeTableInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3563,7 +3527,6 @@ func (s *DescribeTableInput) SetTableName(v string) *DescribeTableInput {
 }
 
 // Represents the output of a DescribeTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/DescribeTableOutput
 type DescribeTableOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3607,7 +3570,6 @@ func (s *DescribeTableOutput) SetTable(v *TableDescription) *DescribeTableOutput
 // Value and Exists are incompatible with AttributeValueList and ComparisonOperator.
 // Note that if you use both sets of parameters at once, DynamoDB will return
 // a ValidationException exception.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ExpectedAttributeValue
 type ExpectedAttributeValue struct {
 	_ struct{} `type:"structure"`
 
@@ -3739,7 +3701,6 @@ func (s *ExpectedAttributeValue) SetValue(v *AttributeValue) *ExpectedAttributeV
 }
 
 // Represents the input of a GetItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GetItemInput
 type GetItemInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3925,7 +3886,6 @@ func (s *GetItemInput) SetTableName(v string) *GetItemInput {
 }
 
 // Represents the output of a GetItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GetItemOutput
 type GetItemOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3964,7 +3924,6 @@ func (s *GetItemOutput) SetItem(v map[string]*AttributeValue) *GetItemOutput {
 }
 
 // Represents the properties of a global secondary index.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GlobalSecondaryIndex
 type GlobalSecondaryIndex struct {
 	_ struct{} `type:"structure"`
 
@@ -4094,7 +4053,6 @@ func (s *GlobalSecondaryIndex) SetProvisionedThroughput(v *ProvisionedThroughput
 }
 
 // Represents the properties of a global secondary index.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GlobalSecondaryIndexDescription
 type GlobalSecondaryIndexDescription struct {
 	_ struct{} `type:"structure"`
 
@@ -4234,7 +4192,6 @@ func (s *GlobalSecondaryIndexDescription) SetProvisionedThroughput(v *Provisione
 //    index.
 //
 //    * An existing global secondary index to be removed from an existing table.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/GlobalSecondaryIndexUpdate
 type GlobalSecondaryIndexUpdate struct {
 	_ struct{} `type:"structure"`
 
@@ -4317,7 +4274,6 @@ func (s *GlobalSecondaryIndexUpdate) SetUpdate(v *UpdateGlobalSecondaryIndexActi
 // ItemCollectionMetrics is only returned if the request asked for it. If the
 // table does not have any local secondary indexes, this information is not
 // returned in the response.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ItemCollectionMetrics
 type ItemCollectionMetrics struct {
 	_ struct{} `type:"structure"`
 
@@ -4370,7 +4326,6 @@ func (s *ItemCollectionMetrics) SetSizeEstimateRangeGB(v []*float64) *ItemCollec
 // A KeySchemaElement must be a scalar, top-level attribute (not a nested attribute).
 // The data type must be one of String, Number, or Binary. The attribute cannot
 // be nested within a List or a Map.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/KeySchemaElement
 type KeySchemaElement struct {
 	_ struct{} `type:"structure"`
 
@@ -4446,7 +4401,6 @@ func (s *KeySchemaElement) SetKeyType(v string) *KeySchemaElement {
 // with a simple primary key, you only need to provide the partition key. For
 // a composite primary key, you must provide both the partition key and the
 // sort key.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/KeysAndAttributes
 type KeysAndAttributes struct {
 	_ struct{} `type:"structure"`
 
@@ -4577,7 +4531,6 @@ func (s *KeysAndAttributes) SetProjectionExpression(v string) *KeysAndAttributes
 }
 
 // Represents the input of a ListTables operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ListTablesInput
 type ListTablesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4630,7 +4583,6 @@ func (s *ListTablesInput) SetLimit(v int64) *ListTablesInput {
 }
 
 // Represents the output of a ListTables operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ListTablesOutput
 type ListTablesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4674,7 +4626,6 @@ func (s *ListTablesOutput) SetTableNames(v []*string) *ListTablesOutput {
 }
 
 // Represents the properties of a local secondary index.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/LocalSecondaryIndex
 type LocalSecondaryIndex struct {
 	_ struct{} `type:"structure"`
 
@@ -4780,7 +4731,6 @@ func (s *LocalSecondaryIndex) SetProjection(v *Projection) *LocalSecondaryIndex 
 }
 
 // Represents the properties of a local secondary index.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/LocalSecondaryIndexDescription
 type LocalSecondaryIndexDescription struct {
 	_ struct{} `type:"structure"`
 
@@ -4871,7 +4821,6 @@ func (s *LocalSecondaryIndexDescription) SetProjection(v *Projection) *LocalSeco
 // Represents attributes that are copied (projected) from the table into an
 // index. These are in addition to the primary key attributes and index key
 // attributes, which are automatically projected.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/Projection
 type Projection struct {
 	_ struct{} `type:"structure"`
 
@@ -4935,7 +4884,6 @@ func (s *Projection) SetProjectionType(v string) *Projection {
 // For current minimum and maximum provisioned throughput values, see Limits
 // (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 // in the Amazon DynamoDB Developer Guide.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ProvisionedThroughput
 type ProvisionedThroughput struct {
 	_ struct{} `type:"structure"`
 
@@ -5002,7 +4950,6 @@ func (s *ProvisionedThroughput) SetWriteCapacityUnits(v int64) *ProvisionedThrou
 
 // Represents the provisioned throughput settings for the table, consisting
 // of read and write capacity units, along with data about increases and decreases.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ProvisionedThroughputDescription
 type ProvisionedThroughputDescription struct {
 	_ struct{} `type:"structure"`
 
@@ -5070,7 +5017,6 @@ func (s *ProvisionedThroughputDescription) SetWriteCapacityUnits(v int64) *Provi
 }
 
 // Represents the input of a PutItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/PutItemInput
 type PutItemInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5441,7 +5387,6 @@ func (s *PutItemInput) SetTableName(v string) *PutItemInput {
 }
 
 // Represents the output of a PutItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/PutItemOutput
 type PutItemOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5509,7 +5454,6 @@ func (s *PutItemOutput) SetItemCollectionMetrics(v *ItemCollectionMetrics) *PutI
 }
 
 // Represents a request to perform a PutItem operation on an item.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/PutRequest
 type PutRequest struct {
 	_ struct{} `type:"structure"`
 
@@ -5540,7 +5484,6 @@ func (s *PutRequest) SetItem(v map[string]*AttributeValue) *PutRequest {
 }
 
 // Represents the input of a Query operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/QueryInput
 type QueryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6174,7 +6117,6 @@ func (s *QueryInput) SetTableName(v string) *QueryInput {
 }
 
 // Represents the output of a Query operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/QueryOutput
 type QueryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6263,7 +6205,6 @@ func (s *QueryOutput) SetScannedCount(v int64) *QueryOutput {
 }
 
 // Represents the input of a Scan operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ScanInput
 type ScanInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6704,7 +6645,6 @@ func (s *ScanInput) SetTotalSegments(v int64) *ScanInput {
 }
 
 // Represents the output of a Scan operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ScanOutput
 type ScanOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6792,7 +6732,6 @@ func (s *ScanOutput) SetScannedCount(v int64) *ScanOutput {
 }
 
 // Represents the DynamoDB Streams configuration for a table in DynamoDB.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/StreamSpecification
 type StreamSpecification struct {
 	_ struct{} `type:"structure"`
 
@@ -6846,7 +6785,6 @@ func (s *StreamSpecification) SetStreamViewType(v string) *StreamSpecification {
 }
 
 // Represents the properties of a table.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/TableDescription
 type TableDescription struct {
 	_ struct{} `type:"structure"`
 
@@ -7140,7 +7078,6 @@ func (s *TableDescription) SetTableStatus(v string) *TableDescription {
 
 // Represents the new provisioned throughput settings to be applied to a global
 // secondary index.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateGlobalSecondaryIndexAction
 type UpdateGlobalSecondaryIndexAction struct {
 	_ struct{} `type:"structure"`
 
@@ -7207,7 +7144,6 @@ func (s *UpdateGlobalSecondaryIndexAction) SetProvisionedThroughput(v *Provision
 }
 
 // Represents the input of an UpdateItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateItemInput
 type UpdateItemInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7752,7 +7688,6 @@ func (s *UpdateItemInput) SetUpdateExpression(v string) *UpdateItemInput {
 }
 
 // Represents the output of an UpdateItem operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateItemOutput
 type UpdateItemOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7805,7 +7740,6 @@ func (s *UpdateItemOutput) SetItemCollectionMetrics(v *ItemCollectionMetrics) *U
 }
 
 // Represents the input of an UpdateTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateTableInput
 type UpdateTableInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7931,7 +7865,6 @@ func (s *UpdateTableInput) SetTableName(v string) *UpdateTableInput {
 }
 
 // Represents the output of an UpdateTable operation.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/UpdateTableOutput
 type UpdateTableOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7959,7 +7892,6 @@ func (s *UpdateTableOutput) SetTableDescription(v *TableDescription) *UpdateTabl
 // only request one of these operations, not both, in a single WriteRequest.
 // If you do need to perform both of these operations, you will need to provide
 // two separate WriteRequest objects.
-// Please also see https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/WriteRequest
 type WriteRequest struct {
 	_ struct{} `type:"structure"`
 

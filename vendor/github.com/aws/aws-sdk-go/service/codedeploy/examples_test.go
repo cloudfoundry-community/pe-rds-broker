@@ -963,9 +963,8 @@ func ExampleCodeDeploy_RegisterOnPremisesInstance() {
 	svc := codedeploy.New(sess)
 
 	params := &codedeploy.RegisterOnPremisesInstanceInput{
-		InstanceName:  aws.String("InstanceName"), // Required
-		IamSessionArn: aws.String("IamSessionArn"),
-		IamUserArn:    aws.String("IamUserArn"),
+		IamUserArn:   aws.String("IamUserArn"),   // Required
+		InstanceName: aws.String("InstanceName"), // Required
 	}
 	resp, err := svc.RegisterOnPremisesInstance(params)
 
