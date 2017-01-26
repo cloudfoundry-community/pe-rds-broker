@@ -40,8 +40,10 @@ var rdsStatus2State = map[string]brokerapi.LastOperationState{
 }
 
 var (
+	// ErrInstanceNotUpdateable failure
 	ErrInstanceNotUpdateable = errors.New("instance not updateable")
-	ErrInstanceNotBindable   = errors.New("instance not bindable")
+	// ErrInstanceNotBindable failure
+	ErrInstanceNotBindable = errors.New("instance not bindable")
 )
 
 // RDSBroker implementation
