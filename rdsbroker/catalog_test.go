@@ -1,9 +1,9 @@
 package rdsbroker_test
 
 import (
-	"github.com/pivotal-cf/brokerapi"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-cf/brokerapi"
 
 	. "github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"
 )
