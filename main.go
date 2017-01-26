@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/joek/brokerapi"
+	"github.com/pivotal-cf/brokerapi"
 
 	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 	"github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"

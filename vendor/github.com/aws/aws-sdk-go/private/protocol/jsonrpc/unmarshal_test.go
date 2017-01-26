@@ -43,7 +43,7 @@ func init() {
 	protocol.RandReader = &awstesting.ZeroReader{}
 }
 
-//The service client's operations are safe to be used concurrently.
+// The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
 type OutputService1ProtocolTest struct {
 	*client.Client
@@ -75,8 +75,6 @@ func newOutputService1ProtocolTestClient(cfg aws.Config, handlers request.Handle
 				SigningRegion: signingRegion,
 				Endpoint:      endpoint,
 				APIVersion:    "",
-				JSONVersion:   "",
-				TargetPrefix:  "",
 			},
 			handlers,
 		),
@@ -125,7 +123,6 @@ const opOutputService1TestCaseOperation1 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService1ProtocolTest) OutputService1TestCaseOperation1Request(input *OutputService1TestShapeOutputService1TestCaseOperation1Input) (req *request.Request, output *OutputService1TestShapeOutputService1TestCaseOperation1Output) {
 	op := &request.Operation{
 		Name:     opOutputService1TestCaseOperation1,
@@ -136,9 +133,8 @@ func (c *OutputService1ProtocolTest) OutputService1TestCaseOperation1Request(inp
 		input = &OutputService1TestShapeOutputService1TestCaseOperation1Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService1TestShapeOutputService1TestCaseOperation1Output{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -228,7 +224,7 @@ func (s *OutputService1TestShapeOutputService1TestCaseOperation1Output) SetTrueB
 	return s
 }
 
-//The service client's operations are safe to be used concurrently.
+// The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
 type OutputService2ProtocolTest struct {
 	*client.Client
@@ -260,8 +256,6 @@ func newOutputService2ProtocolTestClient(cfg aws.Config, handlers request.Handle
 				SigningRegion: signingRegion,
 				Endpoint:      endpoint,
 				APIVersion:    "",
-				JSONVersion:   "",
-				TargetPrefix:  "",
 			},
 			handlers,
 		),
@@ -310,7 +304,6 @@ const opOutputService2TestCaseOperation1 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService2ProtocolTest) OutputService2TestCaseOperation1Request(input *OutputService2TestShapeOutputService2TestCaseOperation1Input) (req *request.Request, output *OutputService2TestShapeOutputService2TestCaseOperation1Output) {
 	op := &request.Operation{
 		Name:     opOutputService2TestCaseOperation1,
@@ -321,9 +314,8 @@ func (c *OutputService2ProtocolTest) OutputService2TestCaseOperation1Request(inp
 		input = &OutputService2TestShapeOutputService2TestCaseOperation1Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService2TestShapeOutputService2TestCaseOperation1Output{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -379,7 +371,7 @@ func (s *OutputService2TestShapeOutputService2TestCaseOperation1Output) SetStruc
 	return s
 }
 
-//The service client's operations are safe to be used concurrently.
+// The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
 type OutputService3ProtocolTest struct {
 	*client.Client
@@ -411,8 +403,6 @@ func newOutputService3ProtocolTestClient(cfg aws.Config, handlers request.Handle
 				SigningRegion: signingRegion,
 				Endpoint:      endpoint,
 				APIVersion:    "",
-				JSONVersion:   "",
-				TargetPrefix:  "",
 			},
 			handlers,
 		),
@@ -461,7 +451,6 @@ const opOutputService3TestCaseOperation1 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService3ProtocolTest) OutputService3TestCaseOperation1Request(input *OutputService3TestShapeOutputService3TestCaseOperation1Input) (req *request.Request, output *OutputService3TestShapeOutputService3TestCaseOperation1Output) {
 	op := &request.Operation{
 		Name:     opOutputService3TestCaseOperation1,
@@ -472,9 +461,8 @@ func (c *OutputService3ProtocolTest) OutputService3TestCaseOperation1Request(inp
 		input = &OutputService3TestShapeOutputService3TestCaseOperation1Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService3TestShapeOutputService3TestCaseOperation1Output{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -528,7 +516,7 @@ func (s *OutputService3TestShapeTimeContainer) SetFoo(v time.Time) *OutputServic
 	return s
 }
 
-//The service client's operations are safe to be used concurrently.
+// The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
 type OutputService4ProtocolTest struct {
 	*client.Client
@@ -560,8 +548,6 @@ func newOutputService4ProtocolTestClient(cfg aws.Config, handlers request.Handle
 				SigningRegion: signingRegion,
 				Endpoint:      endpoint,
 				APIVersion:    "",
-				JSONVersion:   "",
-				TargetPrefix:  "",
 			},
 			handlers,
 		),
@@ -610,7 +596,6 @@ const opOutputService4TestCaseOperation1 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService4ProtocolTest) OutputService4TestCaseOperation1Request(input *OutputService4TestShapeOutputService4TestCaseOperation1Input) (req *request.Request, output *OutputService4TestShapeOutputShape) {
 	op := &request.Operation{
 		Name:     opOutputService4TestCaseOperation1,
@@ -621,9 +606,8 @@ func (c *OutputService4ProtocolTest) OutputService4TestCaseOperation1Request(inp
 		input = &OutputService4TestShapeOutputService4TestCaseOperation1Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService4TestShapeOutputShape{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -666,7 +650,6 @@ const opOutputService4TestCaseOperation2 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService4ProtocolTest) OutputService4TestCaseOperation2Request(input *OutputService4TestShapeOutputService4TestCaseOperation2Input) (req *request.Request, output *OutputService4TestShapeOutputShape) {
 	op := &request.Operation{
 		Name:     opOutputService4TestCaseOperation2,
@@ -677,9 +660,8 @@ func (c *OutputService4ProtocolTest) OutputService4TestCaseOperation2Request(inp
 		input = &OutputService4TestShapeOutputService4TestCaseOperation2Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService4TestShapeOutputShape{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -737,7 +719,7 @@ type OutputService4TestShapeStructType struct {
 	_ struct{} `type:"structure"`
 }
 
-//The service client's operations are safe to be used concurrently.
+// The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
 type OutputService5ProtocolTest struct {
 	*client.Client
@@ -769,8 +751,6 @@ func newOutputService5ProtocolTestClient(cfg aws.Config, handlers request.Handle
 				SigningRegion: signingRegion,
 				Endpoint:      endpoint,
 				APIVersion:    "",
-				JSONVersion:   "",
-				TargetPrefix:  "",
 			},
 			handlers,
 		),
@@ -819,7 +799,6 @@ const opOutputService5TestCaseOperation1 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService5ProtocolTest) OutputService5TestCaseOperation1Request(input *OutputService5TestShapeOutputService5TestCaseOperation1Input) (req *request.Request, output *OutputService5TestShapeOutputService5TestCaseOperation1Output) {
 	op := &request.Operation{
 		Name:     opOutputService5TestCaseOperation1,
@@ -830,9 +809,8 @@ func (c *OutputService5ProtocolTest) OutputService5TestCaseOperation1Request(inp
 		input = &OutputService5TestShapeOutputService5TestCaseOperation1Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService5TestShapeOutputService5TestCaseOperation1Output{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -866,7 +844,7 @@ func (s *OutputService5TestShapeOutputService5TestCaseOperation1Output) SetMapMe
 	return s
 }
 
-//The service client's operations are safe to be used concurrently.
+// The service client's operations are safe to be used concurrently.
 // It is not safe to mutate any of the client's properties though.
 type OutputService6ProtocolTest struct {
 	*client.Client
@@ -898,8 +876,6 @@ func newOutputService6ProtocolTestClient(cfg aws.Config, handlers request.Handle
 				SigningRegion: signingRegion,
 				Endpoint:      endpoint,
 				APIVersion:    "",
-				JSONVersion:   "",
-				TargetPrefix:  "",
 			},
 			handlers,
 		),
@@ -948,7 +924,6 @@ const opOutputService6TestCaseOperation1 = "OperationName"
 //    if err == nil { // resp is now filled
 //        fmt.Println(resp)
 //    }
-//
 func (c *OutputService6ProtocolTest) OutputService6TestCaseOperation1Request(input *OutputService6TestShapeOutputService6TestCaseOperation1Input) (req *request.Request, output *OutputService6TestShapeOutputService6TestCaseOperation1Output) {
 	op := &request.Operation{
 		Name:     opOutputService6TestCaseOperation1,
@@ -959,9 +934,8 @@ func (c *OutputService6ProtocolTest) OutputService6TestCaseOperation1Request(inp
 		input = &OutputService6TestShapeOutputService6TestCaseOperation1Input{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &OutputService6TestShapeOutputService6TestCaseOperation1Output{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 

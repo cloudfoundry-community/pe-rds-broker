@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/joek/brokerapi"
+	"github.com/pivotal-cf/brokerapi"
 )
 
 // UpdateServices is appliying changes to the plan config on all instances.

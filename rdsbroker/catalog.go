@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/joek/brokerapi"
+	"github.com/pivotal-cf/brokerapi"
 )
 
 const minAllocatedStorage = 5

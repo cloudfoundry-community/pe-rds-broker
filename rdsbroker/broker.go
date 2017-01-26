@@ -3,12 +3,13 @@ package rdsbroker
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"code.cloudfoundry.org/lager"
-	"github.com/joek/brokerapi"
+	"github.com/pivotal-cf/brokerapi"
 
 	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 	"github.com/cloudfoundry-community/pe-rds-broker/sqlengine"
@@ -37,6 +38,11 @@ var rdsStatus2State = map[string]brokerapi.LastOperationState{
 	"resetting-master-credentials": brokerapi.InProgress,
 	"upgrading":                    brokerapi.InProgress,
 }
+
+var (
+	ErrInstanceNotUpdateable = errors.New("instance not updateable")
+	ErrInstanceNotBindable   = errors.New("instance not bindable")
+)
 
 // RDSBroker implementation
 type RDSBroker struct {
@@ -195,7 +201,7 @@ func (b *RDSBroker) Update(context context.Context, instanceID string, details b
 	}
 
 	if !service.PlanUpdateable {
-		return provisioningResponse, brokerapi.ErrInstanceNotUpdateable
+		return provisioningResponse, ErrInstanceNotUpdateable
 	}
 
 	servicePlan, ok := b.catalog.FindServicePlan(details.PlanID)
@@ -284,7 +290,7 @@ func (b *RDSBroker) Bind(context context.Context, instanceID, bindingID string, 
 	}
 
 	if !service.Bindable {
-		return bindingResponse, brokerapi.ErrInstanceNotBindable
+		return bindingResponse, ErrInstanceNotBindable
 	}
 
 	servicePlan, ok := b.catalog.FindServicePlan(details.PlanID)

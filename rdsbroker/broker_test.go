@@ -11,7 +11,7 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagertest"
-	"github.com/joek/brokerapi"
+	"github.com/pivotal-cf/brokerapi"
 
 	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 	rdsfake "github.com/cloudfoundry-community/pe-rds-broker/awsrds/fakes"
@@ -1693,7 +1693,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
-				Expect(err).To(Equal(brokerapi.ErrInstanceNotUpdateable))
+				Expect(err).To(Equal(ErrInstanceNotUpdateable))
 			})
 		})
 
@@ -2190,7 +2190,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err).To(Equal(brokerapi.ErrInstanceNotBindable))
+				Expect(err).To(Equal(ErrInstanceNotBindable))
 			})
 		})
 

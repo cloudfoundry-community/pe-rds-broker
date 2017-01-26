@@ -1,7 +1,7 @@
 package rdsbroker_test
 
 import (
-	"github.com/joek/brokerapi"
+	"github.com/pivotal-cf/brokerapi"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
