@@ -25,6 +25,7 @@ const detailsLogKey = "details"
 const acceptsIncompleteLogKey = "acceptsIncomplete"
 const asyncAllowedLogKey = "asyncAllowed"
 const aurora = "aurora"
+const successDeprovisionedInstance = "Successfull deprovisioned Instance"
 
 var rdsStatus2State = map[string]brokerapi.LastOperationState{
 	"available":                    brokerapi.Succeeded,
@@ -533,6 +534,10 @@ func (b *RDSBroker) LastOperation(context context.Context, instanceID string, op
 	dbInstanceDetails, err := b.dbInstance.Describe(b.dbInstanceIdentifier(instanceID))
 	if err != nil {
 		if err == awsrds.ErrDBInstanceDoesNotExist {
+			if operationData == successDeprovisionedInstance {
+				lastOperationResponse.State = brokerapi.Succeeded
+				return lastOperationResponse, nil
+			}
 			return lastOperationResponse, brokerapi.ErrInstanceDoesNotExist
 		}
 		return lastOperationResponse, err

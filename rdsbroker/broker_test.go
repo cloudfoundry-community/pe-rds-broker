@@ -2684,6 +2684,22 @@ var _ = Describe("RDS Broker", func() {
 				Expect(lastOperationResponse).To(Equal(properLastOperationResponse))
 			})
 
+			Context("when deprovisioning", func() {
+				var operationData string
+				BeforeEach(func() {
+					operationData = "Successfull deprovisioned Instance"
+					dbInstance.DescribeError = awsrds.ErrDBInstanceDoesNotExist
+				})
+
+				It("Is returning success", func() {
+					lastOperationResponse, err := rdsBroker.LastOperation(context, instanceID, operationData)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(lastOperationResponse).To(Equal(brokerapi.LastOperation{
+						State: brokerapi.Succeeded,
+					}))
+				})
+			})
+
 			Context("but has pending modifications", func() {
 				JustBeforeEach(func() {
 					dbInstance.DescribeDBInstanceDetails.PendingModifications = true
