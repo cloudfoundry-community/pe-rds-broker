@@ -1,12 +1,12 @@
 hash: 552613accf0ca0a1c830963f42101b860bbae005f1d9158b0f4ad03f820d05d8
-updated: 2017-01-26T09:42:28.034061639+01:00
+updated: 2017-03-06T15:09:31.726025366+01:00
 imports:
 - name: code.cloudfoundry.org/lager
-  version: 6cfe365fb6bb84343f0034b4a53cd250d173b61f
+  version: de8e9c6c6e474e5e3668aea1a9817bdb4ceeceb0
   subpackages:
   - lagertest
 - name: github.com/aws/aws-sdk-go
-  version: 5f8c77604d405643d9bd8440d47b57bc40748824
+  version: 78568b07950e5e7948496878fe99b9436add41d4
   subpackages:
   - aws
   - aws/awserr
@@ -34,7 +34,7 @@ imports:
   - service/rds
   - service/sts
 - name: github.com/go-ini/ini
-  version: e3c2d47c61e5333f9aa2974695dd94396eb69c75
+  version: c437d20015c2ab6454b7a66a13109ff0fb99e17a
 - name: github.com/go-sql-driver/mysql
   version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/gorilla/context
@@ -44,7 +44,7 @@ imports:
 - name: github.com/jmespath/go-jmespath
   version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/lib/pq
-  version: 67c3f2a8884c9b1aac5503c8d42ae4f73a93511c
+  version: 699d6b1bd83a497693f0863c142dd8759b35eb80
   subpackages:
   - oid
 - name: github.com/onsi/ginkgo
@@ -80,7 +80,7 @@ imports:
   - matchers/support/goraph/util
   - types
 - name: github.com/pivotal-cf/brokerapi
-  version: 2888133b7e83b7972220c940651e145dd114734c
+  version: b90ba3f93800e6618e6f06280fba6466726f1e9a
   subpackages:
   - auth
 - name: golang.org/x/sys

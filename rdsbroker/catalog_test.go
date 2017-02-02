@@ -92,7 +92,7 @@ var _ = Describe("Service", func() {
 			Tags:            []string{"service"},
 			Metadata:        &brokerapi.ServiceMetadata{},
 			Requires:        []brokerapi.RequiredPermission{"syslog"},
-			PlanUpdateable:  true,
+			PlanUpdatable:   true,
 			Plans:           []ServicePlan{},
 			DashboardClient: &brokerapi.ServiceDashboardClient{},
 		}

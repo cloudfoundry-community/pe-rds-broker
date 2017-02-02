@@ -47,7 +47,7 @@ var _ = Describe("RDS Broker", func() {
 		allowUserUpdateParameters    bool
 		allowUserBindParameters      bool
 		serviceBindable              bool
-		planUpdateable               bool
+		planUpdatable                bool
 		skipFinalSnapshot            bool
 		serviceBrokerID              string
 
@@ -69,7 +69,7 @@ var _ = Describe("RDS Broker", func() {
 		allowUserUpdateParameters = true
 		allowUserBindParameters = true
 		serviceBindable = true
-		planUpdateable = true
+		planUpdatable = true
 		skipFinalSnapshot = true
 		serviceBrokerID = ""
 
@@ -115,20 +115,20 @@ var _ = Describe("RDS Broker", func() {
 		}
 
 		service1 = Service{
-			ID:             "Service-1",
-			Name:           "Service 1",
-			Description:    "This is the Service 1",
-			Bindable:       serviceBindable,
-			PlanUpdateable: planUpdateable,
-			Plans:          []ServicePlan{plan1},
+			ID:            "Service-1",
+			Name:          "Service 1",
+			Description:   "This is the Service 1",
+			Bindable:      serviceBindable,
+			PlanUpdatable: planUpdatable,
+			Plans:         []ServicePlan{plan1},
 		}
 		service2 = Service{
-			ID:             "Service-2",
-			Name:           "Service 2",
-			Description:    "This is the Service 2",
-			Bindable:       serviceBindable,
-			PlanUpdateable: planUpdateable,
-			Plans:          []ServicePlan{plan2},
+			ID:            "Service-2",
+			Name:          "Service 2",
+			Description:   "This is the Service 2",
+			Bindable:      serviceBindable,
+			PlanUpdatable: planUpdatable,
+			Plans:         []ServicePlan{plan2},
 		}
 
 		catalog = Catalog{
@@ -165,7 +165,7 @@ var _ = Describe("RDS Broker", func() {
 					Name:          "Service 1",
 					Description:   "This is the Service 1",
 					Bindable:      serviceBindable,
-					PlanUpdatable: planUpdateable,
+					PlanUpdatable: planUpdatable,
 					Plans: []brokerapi.ServicePlan{
 						brokerapi.ServicePlan{
 							ID:          "Plan-1",
@@ -180,7 +180,7 @@ var _ = Describe("RDS Broker", func() {
 					Name:          "Service 2",
 					Description:   "This is the Service 2",
 					Bindable:      serviceBindable,
-					PlanUpdatable: planUpdateable,
+					PlanUpdatable: planUpdatable,
 					Plans: []brokerapi.ServicePlan{
 						brokerapi.ServicePlan{
 							ID:          "Plan-2",
@@ -223,7 +223,7 @@ var _ = Describe("RDS Broker", func() {
 			}
 		})
 
-		It("Deals with empty Parameters", func() {
+		It("Deals with empty RawParameters", func() {
 			provisionDetails.RawParameters = []byte{}
 			_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 			Expect(err).ToNot(HaveOccurred())
@@ -255,7 +255,7 @@ var _ = Describe("RDS Broker", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		Context("wehn has ServiceBrokerID set", func() {
+		Context("when has ServiceBrokerID set", func() {
 			BeforeEach(func() {
 				serviceBrokerID = "AwsomeID"
 			})
@@ -920,7 +920,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 		})
 
-		Context("when Parameters are not valid", func() {
+		Context("when RawParameters are not valid", func() {
 			BeforeEach(func() {
 				provisionDetails.RawParameters = []byte(`{"backup_retention_period": "invalid"}`)
 			})
@@ -928,7 +928,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Provision(context, instanceID, provisionDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal string into Go value of type int64"))
+				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal string into Go struct field ProvisionParameters.backup_retention_period of type int64"))
 			})
 
 			Context("and user provision parameters are not allowed", func() {
@@ -1052,15 +1052,15 @@ var _ = Describe("RDS Broker", func() {
 			asyncAllowed = true
 		})
 
-		It("Deals with empty Parameters", func() {
+		It("Deals with empty RawParameters", func() {
 			updateDetails.RawParameters = []byte{}
 			_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("returns the proper response", func() {
-			resp, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
-			Expect(resp.IsAsync).To(BeTrue())
+			response, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
+			Expect(response.IsAsync).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -1650,7 +1650,7 @@ var _ = Describe("RDS Broker", func() {
 			})
 		})
 
-		Context("when Parameters are not valid", func() {
+		Context("when RawParameters are not valid", func() {
 			BeforeEach(func() {
 				updateDetails.RawParameters = []byte(`{"backup_retention_period": "invalid"}`)
 			})
@@ -1658,7 +1658,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal string into Go value of type int64"))
+				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal string into Go struct field UpdateParameters.backup_retention_period of type int64"))
 			})
 
 			Context("and user update parameters are not allowed", func() {
@@ -1685,15 +1685,15 @@ var _ = Describe("RDS Broker", func() {
 			})
 		})
 
-		Context("when Plans is not updateable", func() {
+		Context("when Plans is not updatable", func() {
 			BeforeEach(func() {
-				planUpdateable = false
+				planUpdatable = false
 			})
 
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Update(context, instanceID, updateDetails, asyncAllowed)
 				Expect(err).To(HaveOccurred())
-				Expect(err).To(Equal(ErrInstanceNotUpdateable))
+				Expect(err).To(Equal(ErrInstanceNotUpdatable))
 			})
 		})
 
@@ -1957,9 +1957,9 @@ var _ = Describe("RDS Broker", func() {
 		})
 
 		It("returns the proper response", func() {
-			resp, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
-			Expect(resp.IsAsync).To(BeTrue())
-			Expect(resp.OperationData).To(Equal("Successfull deprovisioned Instance"))
+			response, err := rdsBroker.Deprovision(context, instanceID, DeprovisionDetails, asyncAllowed)
+			Expect(response.IsAsync).To(BeTrue())
+			Expect(response.OperationData).To(Equal("Successfully deprovisioned"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -2103,7 +2103,7 @@ var _ = Describe("RDS Broker", func() {
 			}
 		})
 
-		It("Deals with empty Parameters", func() {
+		It("Deals with empty RawParameters", func() {
 			bindDetails.RawParameters = []byte{}
 			_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 			Expect(err).ToNot(HaveOccurred())
@@ -2147,7 +2147,7 @@ var _ = Describe("RDS Broker", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		Context("when Parameters are not valid", func() {
+		Context("when RawParameters are not valid", func() {
 			BeforeEach(func() {
 				bindDetails.RawParameters = []byte(`{"dbname": true}`)
 			})
@@ -2155,7 +2155,7 @@ var _ = Describe("RDS Broker", func() {
 			It("returns the proper error", func() {
 				_, err := rdsBroker.Bind(context, instanceID, bindingID, bindDetails)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal bool into Go value of type string"))
+				Expect(err.Error()).To(ContainSubstring("json: cannot unmarshal bool into Go struct field BindParameters.dbname of type string"))
 			})
 
 			Context("and user bind parameters are not allowed", func() {
@@ -2687,7 +2687,7 @@ var _ = Describe("RDS Broker", func() {
 			Context("when deprovisioning", func() {
 				var operationData string
 				BeforeEach(func() {
-					operationData = "Successfull deprovisioned Instance"
+					operationData = "Successfully deprovisioned"
 					dbInstance.DescribeError = awsrds.ErrDBInstanceDoesNotExist
 				})
 

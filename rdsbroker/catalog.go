@@ -20,12 +20,12 @@ type Service struct {
 	ID              string                            `json:"id"`
 	Name            string                            `json:"name"`
 	Description     string                            `json:"description"`
-	Bindable        bool                              `json:"bindable,omitempty"`
+	Bindable        bool                              `json:"bindable"`
 	Tags            []string                          `json:"tags,omitempty"`
-	Metadata        *brokerapi.ServiceMetadata        `json:"metadata,omitempty"`
+	PlanUpdatable   bool                              `json:"plan_updateable"`
+	Plans           []ServicePlan                     `json:"plans"`
 	Requires        []brokerapi.RequiredPermission    `json:"requires,omitempty"`
-	PlanUpdateable  bool                              `json:"plan_updateable"`
-	Plans           []ServicePlan                     `json:"plans,omitempty"`
+	Metadata        *brokerapi.ServiceMetadata        `json:"metadata,omitempty"`
 	DashboardClient *brokerapi.ServiceDashboardClient `json:"dashboard_client,omitempty"`
 }
 
@@ -34,9 +34,10 @@ type ServicePlan struct {
 	ID            string                         `json:"id"`
 	Name          string                         `json:"name"`
 	Description   string                         `json:"description"`
+	Free          *bool                          `json:"free,omitempty"`
+	Bindable      *bool                          `json:"bindable,omitempty"`
 	Metadata      *brokerapi.ServicePlanMetadata `json:"metadata,omitempty"`
-	Free          *bool                          `json:"free"`
-	RDSProperties RDSProperties                  `json:"rds_properties,omitempty"`
+	RDSProperties RDSProperties                  `json:"rds_properties"`
 }
 
 // RDSProperties representation

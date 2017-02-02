@@ -39,7 +39,7 @@ var _ = Describe("Maintenance", func() {
 		allowUserUpdateParameters    bool
 		allowUserBindParameters      bool
 		serviceBindable              bool
-		planUpdateable               bool
+		planUpdatable                bool
 		skipFinalSnapshot            bool
 		serviceBrokerID              string
 		passwordSalt                 string
@@ -50,7 +50,7 @@ var _ = Describe("Maintenance", func() {
 		allowUserUpdateParameters = true
 		allowUserBindParameters = true
 		serviceBindable = true
-		planUpdateable = true
+		planUpdatable = true
 		skipFinalSnapshot = true
 		serviceBrokerID = ""
 		passwordSalt = "SuperSecureSaltThing"
@@ -158,20 +158,20 @@ var _ = Describe("Maintenance", func() {
 		}
 
 		service1 = Service{
-			ID:             "Service-1",
-			Name:           "Service 1",
-			Description:    "This is the Service 1",
-			Bindable:       serviceBindable,
-			PlanUpdateable: planUpdateable,
-			Plans:          []ServicePlan{plan1},
+			ID:            "Service-1",
+			Name:          "Service 1",
+			Description:   "This is the Service 1",
+			Bindable:      serviceBindable,
+			PlanUpdatable: planUpdatable,
+			Plans:         []ServicePlan{plan1},
 		}
 		service2 = Service{
-			ID:             "Service-2",
-			Name:           "Service 2",
-			Description:    "This is the Service 2",
-			Bindable:       serviceBindable,
-			PlanUpdateable: planUpdateable,
-			Plans:          []ServicePlan{plan2},
+			ID:            "Service-2",
+			Name:          "Service 2",
+			Description:   "This is the Service 2",
+			Bindable:      serviceBindable,
+			PlanUpdatable: planUpdatable,
+			Plans:         []ServicePlan{plan2},
 		}
 
 		catalog = Catalog{

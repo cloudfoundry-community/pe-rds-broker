@@ -1,7 +1,2 @@
-out
-pkg
-gobin/*
-
-*\.test
-config.json
-manifest.yml
+vendor
+pe-rds-broker
