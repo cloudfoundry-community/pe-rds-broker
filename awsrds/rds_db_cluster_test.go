@@ -2,20 +2,21 @@ package awsrds_test
 
 import (
 	"errors"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	. "github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 
+	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/lagertest"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/pivotal-golang/lager"
-	"github.com/pivotal-golang/lager/lagertest"
 )
 
 var _ = Describe("RDS DB Cluster", func() {
@@ -64,9 +65,18 @@ var _ = Describe("RDS DB Cluster", func() {
 
 			describeDBClustersInput *rds.DescribeDBClustersInput
 			describeDBClusterError  error
+			describeIsCalled        bool
+
+			listTagsForResourceInput *rds.ListTagsForResourceInput
+			tagList                  []*rds.Tag
+			listTagsForResourceError error
+			listIsCalled             bool
+
+			tags map[string]string
 		)
 
 		BeforeEach(func() {
+			tags = map[string]string{"Owner": "Cloud Foundry"}
 			properDBClusterDetails = DBClusterDetails{
 				Identifier:       dbClusterIdentifier,
 				Status:           "available",
@@ -77,10 +87,12 @@ var _ = Describe("RDS DB Cluster", func() {
 				AllocatedStorage: int64(100),
 				Endpoint:         "test-endpoint",
 				Port:             int64(3306),
+				Tags:             tags,
 			}
 
 			describeDBCluster = &rds.DBCluster{
 				DBClusterIdentifier: aws.String(dbClusterIdentifier),
+				DBClusterArn:        aws.String("superARN"),
 				Status:              aws.String("available"),
 				Engine:              aws.String("test-engine"),
 				EngineVersion:       aws.String("1.2.3"),
@@ -96,18 +108,42 @@ var _ = Describe("RDS DB Cluster", func() {
 				DBClusterIdentifier: aws.String(dbClusterIdentifier),
 			}
 			describeDBClusterError = nil
+
+			listTagsForResourceInput = &rds.ListTagsForResourceInput{
+				ResourceName: describeDBCluster.DBClusterArn,
+			}
+
+			tagList = []*rds.Tag{
+				&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
+			}
+
+			listTagsForResourceError = nil
+
+			listIsCalled = false
+			describeIsCalled = false
 		})
 
 		JustBeforeEach(func() {
 			rdssvc.Handlers.Clear()
 
 			rdsCall = func(r *request.Request) {
-				Expect(r.Operation.Name).To(Equal("DescribeDBClusters"))
-				Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBClustersInput{}))
-				Expect(r.Params).To(Equal(describeDBClustersInput))
-				data := r.Data.(*rds.DescribeDBClustersOutput)
-				data.DBClusters = describeDBClusters
-				r.Error = describeDBClusterError
+				Expect(r.Operation.Name).To(Or(Equal("DescribeDBClusters"), Equal("ListTagsForResource")))
+				switch r.Operation.Name {
+				case "DescribeDBClusters":
+					describeIsCalled = true
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBClustersInput{}))
+					Expect(r.Params).To(Equal(describeDBClustersInput))
+					data := r.Data.(*rds.DescribeDBClustersOutput)
+					data.DBClusters = describeDBClusters
+					r.Error = describeDBClusterError
+				case "ListTagsForResource":
+					listIsCalled = true
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ListTagsForResourceInput{}))
+					Expect(r.Params).To(Equal(listTagsForResourceInput))
+					data := r.Data.(*rds.ListTagsForResourceOutput)
+					data.TagList = tagList
+					r.Error = listTagsForResourceError
+				}
 			}
 			rdssvc.Handlers.Send.PushBack(rdsCall)
 		})
@@ -116,6 +152,21 @@ var _ = Describe("RDS DB Cluster", func() {
 			dbClusterDetails, err := rdsDBCluster.Describe(dbClusterIdentifier)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(dbClusterDetails).To(Equal(properDBClusterDetails))
+			Expect(describeIsCalled).To(BeTrue())
+			Expect(listIsCalled).To(BeTrue())
+		})
+
+		Context("when getTags is failing", func() {
+			BeforeEach(func() {
+				listTagsForResourceError = errors.New("Error")
+			})
+
+			It("is returning error", func() {
+				_, err := rdsDBCluster.Describe(dbClusterIdentifier)
+				Expect(err).To(HaveOccurred())
+				Expect(describeIsCalled).To(BeTrue())
+				Expect(listIsCalled).To(BeTrue())
+			})
 		})
 
 		Context("when the DB Cluster does not exists", func() {
@@ -760,6 +811,158 @@ var _ = Describe("RDS DB Cluster", func() {
 
 				It("returns the proper error", func() {
 					err := rdsDBCluster.Delete(dbClusterIdentifier, skipFinalSnapshot)
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(ErrDBClusterDoesNotExist))
+				})
+			})
+		})
+	})
+	var _ = Describe("List", func() {
+		var (
+			reqCount                int
+			marker                  *string
+			describeDBClustersInput *rds.DescribeDBClustersInput
+			describeDBClusterError  error
+			describeDBClusterError2 error
+
+			listTagsForResourceInput *rds.ListTagsForResourceInput
+			tagList                  []*rds.Tag
+			listTagsForResourceError error
+			listIsCalled             bool
+		)
+
+		BeforeEach(func() {
+			reqCount = 0
+			marker = nil
+			describeDBClustersInput = &rds.DescribeDBClustersInput{}
+			describeDBClusterError = nil
+			describeDBClusterError2 = nil
+
+			listTagsForResourceInput = &rds.ListTagsForResourceInput{
+				ResourceName: aws.String("superARN"),
+			}
+
+			tagList = []*rds.Tag{
+				&rds.Tag{Key: aws.String("Owner"), Value: aws.String("Cloud Foundry")},
+			}
+
+			listTagsForResourceError = nil
+
+			listIsCalled = false
+		})
+
+		JustBeforeEach(func() {
+			rdssvc.Handlers.Clear()
+
+			rdsCall = func(r *request.Request) {
+				describeDBClusters := []*rds.DBCluster{}
+				for i := 0; i < 5; i++ {
+					id := "cf-cluster-id-" + strconv.Itoa(i)
+					describeDBCluster := &rds.DBCluster{
+						DBClusterIdentifier: aws.String(id),
+						DBClusterArn:        aws.String("superARN"),
+						Status:              aws.String("available"),
+						Engine:              aws.String("test-engine"),
+						EngineVersion:       aws.String("1.2.3"),
+						DatabaseName:        aws.String("test-dbname"),
+						MasterUsername:      aws.String("test-master-username"),
+						AllocatedStorage:    aws.Int64(100),
+						Endpoint:            aws.String("test-endpoint"),
+						Port:                aws.Int64(3306),
+					}
+					describeDBClusters = append(describeDBClusters, describeDBCluster)
+				}
+
+				Expect(r.Operation.Name).To(Or(Equal("DescribeDBClusters"), Equal("ListTagsForResource")))
+				if r.Operation.Name == "DescribeDBClusters" {
+					reqCount++
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.DescribeDBClustersInput{}))
+					Expect(r.Params).To(Equal(describeDBClustersInput))
+					data := r.Data.(*rds.DescribeDBClustersOutput)
+					data.DBClusters = describeDBClusters
+					if marker != nil && reqCount <= 1 {
+						data.Marker = marker
+						describeDBClustersInput.Marker = marker
+						marker = nil
+						r.Error = describeDBClusterError2
+					} else {
+						r.Error = describeDBClusterError
+					}
+				} else if r.Operation.Name == "ListTagsForResource" {
+					listIsCalled = true
+					Expect(r.Params).To(BeAssignableToTypeOf(&rds.ListTagsForResourceInput{}))
+					Expect(r.Params).To(Equal(listTagsForResourceInput))
+					data := r.Data.(*rds.ListTagsForResourceOutput)
+					data.TagList = tagList
+					r.Error = listTagsForResourceError
+				}
+
+			}
+			rdssvc.Handlers.Send.PushBack(rdsCall)
+		})
+
+		It("returns the propper DB Cluster list", func() {
+			dbClusterList, err := rdsDBCluster.List()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(dbClusterList)).To(Equal(5))
+		})
+
+		Context("With Pagination", func() {
+
+			BeforeEach(func() {
+				m := "next-page"
+				marker = &m
+			})
+
+			It("returns full DB Cluster list", func() {
+				dbClusterList, err := rdsDBCluster.List()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(dbClusterList)).To(Equal(10))
+				Expect(reqCount).To(Equal(2))
+			})
+		})
+
+		Context("when getTags fails", func() {
+			BeforeEach(func() {
+				listTagsForResourceError = errors.New("failed")
+			})
+
+			It("returns propper error", func() {
+				_, err := rdsDBCluster.List()
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("failed"))
+			})
+		})
+		Context("when describing the DB Cluster fails", func() {
+			BeforeEach(func() {
+				describeDBClusterError = errors.New("operation failed")
+			})
+
+			It("returns the proper error", func() {
+				_, err := rdsDBCluster.List()
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("operation failed"))
+			})
+
+			Context("and it is an AWS error", func() {
+				BeforeEach(func() {
+					describeDBClusterError = awserr.New("code", "message", errors.New("operation failed"))
+				})
+
+				It("returns the proper error", func() {
+					_, err := rdsDBCluster.List()
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(Equal("code: message"))
+				})
+			})
+
+			Context("and it is a 404 error", func() {
+				BeforeEach(func() {
+					awsError := awserr.New("code", "message", errors.New("operation failed"))
+					describeDBClusterError = awserr.NewRequestFailure(awsError, 404, "request-id")
+				})
+				It("it is send propper response", func() {
+					_, err := rdsDBCluster.List()
 					Expect(err).To(HaveOccurred())
 					Expect(err).To(Equal(ErrDBClusterDoesNotExist))
 				})

@@ -1,8 +1,6 @@
 package fakes
 
-import (
-	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
-)
+import "github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 
 type FakeDBInstance struct {
 	DescribeCalled            bool
@@ -16,6 +14,7 @@ type FakeDBInstance struct {
 	CreateError             error
 
 	ModifyCalled            bool
+	ModifyCount             int
 	ModifyID                string
 	ModifyDBInstanceDetails awsrds.DBInstanceDetails
 	ModifyApplyImmediately  bool
@@ -25,6 +24,10 @@ type FakeDBInstance struct {
 	DeleteID                string
 	DeleteSkipFinalSnapshot bool
 	DeleteError             error
+
+	ListCalled             bool
+	ListDBInstancesDetails []awsrds.DBInstanceDetails
+	ListError              error
 }
 
 func (f *FakeDBInstance) Describe(ID string) (awsrds.DBInstanceDetails, error) {
@@ -44,6 +47,7 @@ func (f *FakeDBInstance) Create(ID string, dbInstanceDetails awsrds.DBInstanceDe
 
 func (f *FakeDBInstance) Modify(ID string, dbInstanceDetails awsrds.DBInstanceDetails, applyImmediately bool) error {
 	f.ModifyCalled = true
+	f.ModifyCount++
 	f.ModifyID = ID
 	f.ModifyDBInstanceDetails = dbInstanceDetails
 	f.ModifyApplyImmediately = applyImmediately
@@ -57,4 +61,10 @@ func (f *FakeDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	f.DeleteSkipFinalSnapshot = skipFinalSnapshot
 
 	return f.DeleteError
+}
+
+func (f *FakeDBInstance) List() ([]awsrds.DBInstanceDetails, error) {
+	f.ListCalled = true
+
+	return f.ListDBInstancesDetails, f.ListError
 }

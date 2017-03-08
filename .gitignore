@@ -1,5 +1,2 @@
-out
-pkg
-gobin/*
-
-*\.test
+vendor
+pe-rds-broker

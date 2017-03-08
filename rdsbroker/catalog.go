@@ -3,63 +3,44 @@ package rdsbroker
 import (
 	"fmt"
 	"strings"
+
+	"github.com/pivotal-cf/brokerapi"
 )
 
 const minAllocatedStorage = 5
 const maxAllocatedStorage = 6144
 
+// Catalog of services
 type Catalog struct {
 	Services []Service `json:"services,omitempty"`
 }
 
+// Service representation
 type Service struct {
-	ID              string           `json:"id"`
-	Name            string           `json:"name"`
-	Description     string           `json:"description"`
-	Bindable        bool             `json:"bindable,omitempty"`
-	Tags            []string         `json:"tags,omitempty"`
-	Metadata        *ServiceMetadata `json:"metadata,omitempty"`
-	Requires        []string         `json:"requires,omitempty"`
-	PlanUpdateable  bool             `json:"plan_updateable"`
-	Plans           []ServicePlan    `json:"plans,omitempty"`
-	DashboardClient *DashboardClient `json:"dashboard_client,omitempty"`
+	ID              string                            `json:"id"`
+	Name            string                            `json:"name"`
+	Description     string                            `json:"description"`
+	Bindable        bool                              `json:"bindable"`
+	Tags            []string                          `json:"tags,omitempty"`
+	PlanUpdatable   bool                              `json:"plan_updateable"`
+	Plans           []ServicePlan                     `json:"plans"`
+	Requires        []brokerapi.RequiredPermission    `json:"requires,omitempty"`
+	Metadata        *brokerapi.ServiceMetadata        `json:"metadata,omitempty"`
+	DashboardClient *brokerapi.ServiceDashboardClient `json:"dashboard_client,omitempty"`
 }
 
-type ServiceMetadata struct {
-	DisplayName         string `json:"displayName,omitempty"`
-	ImageURL            string `json:"imageUrl,omitempty"`
-	LongDescription     string `json:"longDescription,omitempty"`
-	ProviderDisplayName string `json:"providerDisplayName,omitempty"`
-	DocumentationURL    string `json:"documentationUrl,omitempty"`
-	SupportURL          string `json:"supportUrl,omitempty"`
-}
-
+// ServicePlan representation
 type ServicePlan struct {
-	ID            string               `json:"id"`
-	Name          string               `json:"name"`
-	Description   string               `json:"description"`
-	Metadata      *ServicePlanMetadata `json:"metadata,omitempty"`
-	Free          bool                 `json:"free"`
-	RDSProperties RDSProperties        `json:"rds_properties,omitempty"`
+	ID            string                         `json:"id"`
+	Name          string                         `json:"name"`
+	Description   string                         `json:"description"`
+	Free          *bool                          `json:"free,omitempty"`
+	Bindable      *bool                          `json:"bindable,omitempty"`
+	Metadata      *brokerapi.ServicePlanMetadata `json:"metadata,omitempty"`
+	RDSProperties RDSProperties                  `json:"rds_properties"`
 }
 
-type ServicePlanMetadata struct {
-	Bullets     []string `json:"bullets,omitempty"`
-	Costs       []Cost   `json:"costs,omitempty"`
-	DisplayName string   `json:"displayName,omitempty"`
-}
-
-type DashboardClient struct {
-	ID          string `json:"id,omitempty"`
-	Secret      string `json:"secret,omitempty"`
-	RedirectURI string `json:"redirect_uri,omitempty"`
-}
-
-type Cost struct {
-	Amount map[string]interface{} `json:"amount,omitempty"`
-	Unit   string                 `json:"unit,omitempty"`
-}
-
+// RDSProperties representation
 type RDSProperties struct {
 	DBInstanceClass             string   `json:"db_instance_class"`
 	Engine                      string   `json:"engine"`
@@ -89,6 +70,7 @@ type RDSProperties struct {
 	SkipFinalSnapshot           bool     `json:"skip_final_snapshot,omitempty"`
 }
 
+// Validate catalog data
 func (c Catalog) Validate() error {
 	for _, service := range c.Services {
 		if err := service.Validate(); err != nil {
@@ -99,6 +81,7 @@ func (c Catalog) Validate() error {
 	return nil
 }
 
+// FindService in catalog
 func (c Catalog) FindService(serviceID string) (service Service, found bool) {
 	for _, service := range c.Services {
 		if service.ID == serviceID {
@@ -109,6 +92,7 @@ func (c Catalog) FindService(serviceID string) (service Service, found bool) {
 	return service, false
 }
 
+// FindServicePlan in catalog
 func (c Catalog) FindServicePlan(planID string) (plan ServicePlan, found bool) {
 	for _, service := range c.Services {
 		for _, plan := range service.Plans {
@@ -121,6 +105,7 @@ func (c Catalog) FindServicePlan(planID string) (plan ServicePlan, found bool) {
 	return plan, false
 }
 
+// Validate service configuration
 func (s Service) Validate() error {
 	if s.ID == "" {
 		return fmt.Errorf("Must provide a non-empty ID (%+v)", s)
@@ -143,6 +128,7 @@ func (s Service) Validate() error {
 	return nil
 }
 
+// Validate ServicePlan configuration
 func (sp ServicePlan) Validate() error {
 	if sp.ID == "" {
 		return fmt.Errorf("Must provide a non-empty ID (%+v)", sp)
@@ -163,6 +149,7 @@ func (sp ServicePlan) Validate() error {
 	return nil
 }
 
+// Validate RDSProperties configuration.
 func (rp RDSProperties) Validate() error {
 	if rp.DBInstanceClass == "" {
 		return fmt.Errorf("Must provide a non-empty DBInstanceClass (%+v)", rp)

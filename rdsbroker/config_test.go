@@ -15,7 +15,7 @@ var _ = Describe("Config", func() {
 			Region:   "rds-region",
 			DBPrefix: "cf",
 			Catalog: Catalog{
-				[]Service{
+				Services: []Service{
 					Service{
 						ID:          "service-1",
 						Name:        "Service 1",
@@ -54,7 +54,7 @@ var _ = Describe("Config", func() {
 
 		It("returns error if Catalog is not valid", func() {
 			config.Catalog = Catalog{
-				[]Service{
+				Services: []Service{
 					Service{},
 				},
 			}

@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"code.cloudfoundry.org/lager"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/pivotal-golang/lager"
 )
 
+// RDSDBCluster specific DBCluster implementation for RDS
 type RDSDBCluster struct {
 	region string
 	iamsvc *iam.IAM
@@ -19,6 +20,7 @@ type RDSDBCluster struct {
 	logger lager.Logger
 }
 
+// NewRDSDBCluster is creating new RDSDBCluster struct
 func NewRDSDBCluster(
 	region string,
 	iamsvc *iam.IAM,
@@ -33,6 +35,7 @@ func NewRDSDBCluster(
 	}
 }
 
+// Describe returning DBClusterDetails
 func (r *RDSDBCluster) Describe(ID string) (DBClusterDetails, error) {
 	dbClusterDetails := DBClusterDetails{}
 
@@ -59,13 +62,18 @@ func (r *RDSDBCluster) Describe(ID string) (DBClusterDetails, error) {
 	for _, dbCluster := range dbClusters.DBClusters {
 		if aws.StringValue(dbCluster.DBClusterIdentifier) == ID {
 			r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbCluster})
-			return r.buildDBCluster(dbCluster), nil
+			t, err := GetTags(dbCluster.DBClusterArn, r.rdssvc)
+			if err != nil {
+				return dbClusterDetails, err
+			}
+			return r.buildDBCluster(dbCluster, t), nil
 		}
 	}
 
 	return dbClusterDetails, ErrDBClusterDoesNotExist
 }
 
+// Create new RDSDBCluster on AWS
 func (r *RDSDBCluster) Create(ID string, dbClusterDetails DBClusterDetails) error {
 	createDBClusterInput := r.buildCreateDBClusterInput(ID, dbClusterDetails)
 	r.logger.Debug("create-db-cluster", lager.Data{"input": createDBClusterInput})
@@ -83,6 +91,7 @@ func (r *RDSDBCluster) Create(ID string, dbClusterDetails DBClusterDetails) erro
 	return nil
 }
 
+// Modify RDSDBCluster on AWS
 func (r *RDSDBCluster) Modify(ID string, dbClusterDetails DBClusterDetails, applyImmediately bool) error {
 	modifyDBClusterInput := r.buildModifyDBClusterInput(ID, dbClusterDetails, applyImmediately)
 	r.logger.Debug("modify-db-cluster", lager.Data{"input": modifyDBClusterInput})
@@ -116,6 +125,7 @@ func (r *RDSDBCluster) Modify(ID string, dbClusterDetails DBClusterDetails, appl
 	return nil
 }
 
+// Delete RDSDBCluster on AWS
 func (r *RDSDBCluster) Delete(ID string, skipFinalSnapshot bool) error {
 	deleteDBClusterInput := r.buildDeleteDBClusterInput(ID, skipFinalSnapshot)
 	r.logger.Debug("delete-db-cluster", lager.Data{"input": deleteDBClusterInput})
@@ -138,7 +148,56 @@ func (r *RDSDBCluster) Delete(ID string, skipFinalSnapshot bool) error {
 
 	return nil
 }
-func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster) DBClusterDetails {
+
+// List all available Instances
+func (r *RDSDBCluster) List() ([]DBClusterDetails, error) {
+	return r.listClusters(nil)
+}
+func (r *RDSDBCluster) listClusters(marker *string) ([]DBClusterDetails, error) {
+
+	describeDBClustersInput := &rds.DescribeDBClustersInput{
+		Marker: marker,
+	}
+
+	r.logger.Debug("describe-db-clusters", lager.Data{"input": describeDBClustersInput})
+
+	dbClusters, err := r.rdssvc.DescribeDBClusters(describeDBClustersInput)
+	if err != nil {
+		r.logger.Error("aws-rds-error", err)
+		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return nil, ErrDBClusterDoesNotExist
+				}
+			}
+			return nil, errors.New(awsErr.Code() + ": " + awsErr.Message())
+		}
+		return nil, err
+	}
+
+	dbClustersDetails := []DBClusterDetails{}
+
+	if dbClusters.Marker != nil {
+		dbClustersDetails, err = r.listClusters(dbClusters.Marker)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, dbCluster := range dbClusters.DBClusters {
+		r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbCluster})
+		t, err := GetTags(dbCluster.DBClusterArn, r.rdssvc)
+		if err != nil {
+			return dbClustersDetails, err
+		}
+		dbClustersDetails = append(dbClustersDetails, r.buildDBCluster(dbCluster, t))
+	}
+
+	return dbClustersDetails, nil
+}
+
+func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster, tags map[string]string) DBClusterDetails {
+
 	dbClusterDetails := DBClusterDetails{
 		Identifier:       aws.StringValue(dbCluster.DBClusterIdentifier),
 		Status:           aws.StringValue(dbCluster.Status),
@@ -149,6 +208,7 @@ func (r *RDSDBCluster) buildDBCluster(dbCluster *rds.DBCluster) DBClusterDetails
 		AllocatedStorage: aws.Int64Value(dbCluster.AllocatedStorage),
 		Endpoint:         aws.StringValue(dbCluster.Endpoint),
 		Port:             aws.Int64Value(dbCluster.Port),
+		Tags:             tags,
 	}
 
 	return dbClusterDetails

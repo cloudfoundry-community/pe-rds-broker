@@ -10,6 +10,7 @@ import (
 	"github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"
 )
 
+// Config of app context
 type Config struct {
 	LogLevel  string           `json:"log_level"`
 	Username  string           `json:"username"`
@@ -17,6 +18,7 @@ type Config struct {
 	RDSConfig rdsbroker.Config `json:"rds_config"`
 }
 
+// LoadConfig from file
 func LoadConfig(configFile string) (config *Config, err error) {
 	if configFile == "" {
 		return config, errors.New("Must provide a config file")
@@ -44,6 +46,7 @@ func LoadConfig(configFile string) (config *Config, err error) {
 	return config, nil
 }
 
+// Validate Config
 func (c Config) Validate() error {
 	if c.LogLevel == "" {
 		return errors.New("Must provide a non-empty LogLevel")

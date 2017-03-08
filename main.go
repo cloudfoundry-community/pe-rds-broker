@@ -8,12 +8,12 @@ import (
 	"os"
 	"strings"
 
+	"code.cloudfoundry.org/lager"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/frodenas/brokerapi"
-	"github.com/pivotal-golang/lager"
+	"github.com/pivotal-cf/brokerapi"
 
 	"github.com/cloudfoundry-community/pe-rds-broker/awsrds"
 	"github.com/cloudfoundry-community/pe-rds-broker/rdsbroker"
@@ -21,8 +21,9 @@ import (
 )
 
 var (
-	configFilePath string
-	port           string
+	configFilePath     string
+	port               string
+	updateServicePlans bool
 
 	logLevels = map[string]lager.LogLevel{
 		"DEBUG": lager.DEBUG,
@@ -35,6 +36,7 @@ var (
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
 	flag.StringVar(&port, "port", "3000", "Listen port")
+	flag.BoolVar(&updateServicePlans, "updateServicePlans", false, "Will update all master passwords. Use this if you like to change the master generation method or update the salt.")
 }
 
 func buildLogger(logLevel string) lager.Logger {
@@ -71,14 +73,23 @@ func main() {
 
 	serviceBroker := rdsbroker.New(config.RDSConfig, dbInstance, dbCluster, sqlProvider, logger)
 
-	credentials := brokerapi.BrokerCredentials{
-		Username: config.Username,
-		Password: config.Password,
+	if updateServicePlans {
+		log.Println("UpdateServicePlans started")
+		err := rdsbroker.UpdateServices(serviceBroker)
+		if err != nil {
+			log.Fatalf("Error setting passwords: %s", err)
+		}
+
+	} else {
+		credentials := brokerapi.BrokerCredentials{
+			Username: config.Username,
+			Password: config.Password,
+		}
+
+		brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
+		http.Handle("/", brokerAPI)
+
+		fmt.Println("RDS Service Broker started on port " + port + "...")
+		http.ListenAndServe(":"+port, nil)
 	}
-
-	brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
-	http.Handle("/", brokerAPI)
-
-	fmt.Println("RDS Service Broker started on port " + port + "...")
-	http.ListenAndServe(":"+port, nil)
 }

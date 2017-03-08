@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"code.cloudfoundry.org/lager"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/pivotal-golang/lager"
 )
 
+// RDSDBInstance specific DBInstance Implementation for RDS
 type RDSDBInstance struct {
 	region string
 	iamsvc *iam.IAM
@@ -20,6 +21,7 @@ type RDSDBInstance struct {
 	logger lager.Logger
 }
 
+// NewRDSDBInstance factory for RDSDBInstance
 func NewRDSDBInstance(
 	region string,
 	iamsvc *iam.IAM,
@@ -34,6 +36,7 @@ func NewRDSDBInstance(
 	}
 }
 
+// Describe RDSDBInstance
 func (r *RDSDBInstance) Describe(ID string) (DBInstanceDetails, error) {
 	dbInstanceDetails := DBInstanceDetails{}
 
@@ -60,13 +63,18 @@ func (r *RDSDBInstance) Describe(ID string) (DBInstanceDetails, error) {
 	for _, dbInstance := range dbInstances.DBInstances {
 		if aws.StringValue(dbInstance.DBInstanceIdentifier) == ID {
 			r.logger.Debug("describe-db-instances", lager.Data{"db-instance": dbInstance})
-			return r.buildDBInstance(dbInstance), nil
+			t, err := GetTags(dbInstance.DBInstanceArn, r.rdssvc)
+			if err != nil {
+				return dbInstanceDetails, err
+			}
+			return r.buildDBInstance(dbInstance, t), nil
 		}
 	}
 
 	return dbInstanceDetails, ErrDBInstanceDoesNotExist
 }
 
+// Create RDSDBInstance
 func (r *RDSDBInstance) Create(ID string, dbInstanceDetails DBInstanceDetails) error {
 	createDBInstanceInput := r.buildCreateDBInstanceInput(ID, dbInstanceDetails)
 	r.logger.Debug("create-db-instance", lager.Data{"input": createDBInstanceInput})
@@ -89,6 +97,7 @@ func (r *RDSDBInstance) Create(ID string, dbInstanceDetails DBInstanceDetails) e
 	return nil
 }
 
+// Modify RDSDBInstance on AWS
 func (r *RDSDBInstance) Modify(ID string, dbInstanceDetails DBInstanceDetails, applyImmediately bool) error {
 	oldDBInstanceDetails, err := r.Describe(ID)
 	if err != nil {
@@ -131,6 +140,7 @@ func (r *RDSDBInstance) Modify(ID string, dbInstanceDetails DBInstanceDetails, a
 	return nil
 }
 
+// Delete RDSDBInstance on AWS.
 func (r *RDSDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	deleteDBInstanceInput := r.buildDeleteDBInstanceInput(ID, skipFinalSnapshot)
 	r.logger.Debug("delete-db-instance", lager.Data{"input": deleteDBInstanceInput})
@@ -154,7 +164,54 @@ func (r *RDSDBInstance) Delete(ID string, skipFinalSnapshot bool) error {
 	return nil
 }
 
-func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance) DBInstanceDetails {
+// List all available Instances
+func (r *RDSDBInstance) List() ([]DBInstanceDetails, error) {
+	return r.listInstances(nil)
+}
+func (r *RDSDBInstance) listInstances(marker *string) ([]DBInstanceDetails, error) {
+
+	describeDBInstancesInput := &rds.DescribeDBInstancesInput{
+		Marker: marker,
+	}
+
+	r.logger.Debug("describe-db-clusters", lager.Data{"input": describeDBInstancesInput})
+
+	dbInstances, err := r.rdssvc.DescribeDBInstances(describeDBInstancesInput)
+	if err != nil {
+		r.logger.Error("aws-rds-error", err)
+		if awsErr, ok := err.(awserr.Error); ok {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 404 {
+					return nil, ErrDBInstanceDoesNotExist
+				}
+			}
+			return nil, errors.New(awsErr.Code() + ": " + awsErr.Message())
+		}
+		return nil, err
+	}
+
+	dbInstancesDetails := []DBInstanceDetails{}
+
+	if dbInstances.Marker != nil {
+		dbInstancesDetails, err = r.listInstances(dbInstances.Marker)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, dbInstance := range dbInstances.DBInstances {
+		r.logger.Debug("describe-db-clusters", lager.Data{"db-cluster": dbInstance})
+		t, err := GetTags(dbInstance.DBInstanceArn, r.rdssvc)
+		if err != nil {
+			return dbInstancesDetails, err
+		}
+		dbInstancesDetails = append(dbInstancesDetails, r.buildDBInstance(dbInstance, t))
+	}
+
+	return dbInstancesDetails, nil
+}
+
+func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance, tags map[string]string) DBInstanceDetails {
 	dbInstanceDetails := DBInstanceDetails{
 		Identifier:       aws.StringValue(dbInstance.DBInstanceIdentifier),
 		Status:           aws.StringValue(dbInstance.DBInstanceStatus),
@@ -163,6 +220,7 @@ func (r *RDSDBInstance) buildDBInstance(dbInstance *rds.DBInstance) DBInstanceDe
 		DBName:           aws.StringValue(dbInstance.DBName),
 		MasterUsername:   aws.StringValue(dbInstance.MasterUsername),
 		AllocatedStorage: aws.Int64Value(dbInstance.AllocatedStorage),
+		Tags:             tags,
 	}
 
 	if dbInstance.Endpoint != nil {

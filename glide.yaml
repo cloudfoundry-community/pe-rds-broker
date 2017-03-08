@@ -1,0 +1,9 @@
+package: github.com/cloudfoundry-community/pe-rds-broker
+import:
+- package: code.cloudfoundry.org/lager
+- package: github.com/aws/aws-sdk-go
+- package: github.com/go-sql-driver/mysql
+- package: github.com/lib/pq
+- package: github.com/onsi/ginkgo
+- package: github.com/onsi/gomega
+- package: github.com/pivotal-cf/brokerapi

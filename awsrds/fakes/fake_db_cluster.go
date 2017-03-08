@@ -16,6 +16,7 @@ type FakeDBCluster struct {
 	CreateError            error
 
 	ModifyCalled           bool
+	ModifyCount            int
 	ModifyID               string
 	ModifyDBClusterDetails awsrds.DBClusterDetails
 	ModifyApplyImmediately bool
@@ -25,6 +26,10 @@ type FakeDBCluster struct {
 	DeleteID                string
 	DeleteSkipFinalSnapshot bool
 	DeleteError             error
+
+	ListCalled            bool
+	ListDBClustersDetails []awsrds.DBClusterDetails
+	ListError             error
 }
 
 func (f *FakeDBCluster) Describe(ID string) (awsrds.DBClusterDetails, error) {
@@ -44,6 +49,7 @@ func (f *FakeDBCluster) Create(ID string, dbClusterDetails awsrds.DBClusterDetai
 
 func (f *FakeDBCluster) Modify(ID string, dbClusterDetails awsrds.DBClusterDetails, applyImmediately bool) error {
 	f.ModifyCalled = true
+	f.ModifyCount++
 	f.ModifyID = ID
 	f.ModifyDBClusterDetails = dbClusterDetails
 	f.ModifyApplyImmediately = applyImmediately
@@ -57,4 +63,10 @@ func (f *FakeDBCluster) Delete(ID string, skipFinalSnapshot bool) error {
 	f.DeleteSkipFinalSnapshot = skipFinalSnapshot
 
 	return f.DeleteError
+}
+
+func (f *FakeDBCluster) List() ([]awsrds.DBClusterDetails, error) {
+	f.ListCalled = true
+
+	return f.ListDBClustersDetails, f.ListError
 }

@@ -6,20 +6,23 @@ import (
 
 	_ "github.com/go-sql-driver/mysql" // MySQL Driver
 
-	"github.com/pivotal-golang/lager"
+	"code.cloudfoundry.org/lager"
 )
 
+// MySQLEngine client holder
 type MySQLEngine struct {
 	logger lager.Logger
 	db     *sql.DB
 }
 
+// NewMySQLEngine factory
 func NewMySQLEngine(logger lager.Logger) *MySQLEngine {
 	return &MySQLEngine{
 		logger: logger.Session("mysql-engine"),
 	}
 }
 
+// Open connection to MySQL DB
 func (d *MySQLEngine) Open(address string, port int64, dbname string, username string, password string) error {
 	connectionString := d.connectionString(address, port, dbname, username, password)
 	d.logger.Debug("sql-open", lager.Data{"connection-string": connectionString})
@@ -34,12 +37,14 @@ func (d *MySQLEngine) Open(address string, port int64, dbname string, username s
 	return nil
 }
 
+// Close connnection to MySQL DB
 func (d *MySQLEngine) Close() {
 	if d.db != nil {
 		d.db.Close()
 	}
 }
 
+// ExistsDB checks if DB is already created
 func (d *MySQLEngine) ExistsDB(dbname string) (bool, error) {
 	selectDatabaseStatement := "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" + dbname + "'"
 	d.logger.Debug("database-exists", lager.Data{"statement": selectDatabaseStatement})
@@ -56,6 +61,7 @@ func (d *MySQLEngine) ExistsDB(dbname string) (bool, error) {
 	return true, nil
 }
 
+// CreateDB create DB on MySQL instance
 func (d *MySQLEngine) CreateDB(dbname string) error {
 	ok, err := d.ExistsDB(dbname)
 	if err != nil {
@@ -76,6 +82,7 @@ func (d *MySQLEngine) CreateDB(dbname string) error {
 	return nil
 }
 
+// DropDB on MySQL Instance
 func (d *MySQLEngine) DropDB(dbname string) error {
 	dropDBStatement := "DROP DATABASE IF EXISTS " + dbname
 	d.logger.Debug("drop-database", lager.Data{"statement": dropDBStatement})
@@ -88,6 +95,7 @@ func (d *MySQLEngine) DropDB(dbname string) error {
 	return nil
 }
 
+// CreateUser on MySQL Instance
 func (d *MySQLEngine) CreateUser(username string, password string) error {
 	createUserStatement := "CREATE USER '" + username + "' IDENTIFIED BY '" + password + "'"
 	d.logger.Debug("create-user", lager.Data{"statement": createUserStatement})
@@ -100,6 +108,7 @@ func (d *MySQLEngine) CreateUser(username string, password string) error {
 	return nil
 }
 
+// DropUser on MySQL Instance
 func (d *MySQLEngine) DropUser(username string) error {
 	dropUserStatement := "DROP USER '" + username + "'@'%'"
 	d.logger.Debug("drop-user", lager.Data{"statement": dropUserStatement})
@@ -112,6 +121,7 @@ func (d *MySQLEngine) DropUser(username string) error {
 	return nil
 }
 
+// Privileges grant privileges to user
 func (d *MySQLEngine) Privileges() (map[string][]string, error) {
 	privileges := make(map[string][]string)
 
@@ -127,8 +137,8 @@ func (d *MySQLEngine) Privileges() (map[string][]string, error) {
 
 	var dbname, username string
 	for rows.Next() {
-		err := rows.Scan(&dbname, &username)
-		if err != nil {
+		e := rows.Scan(&dbname, &username)
+		if e != nil {
 			d.logger.Error("sql-error", err)
 			return privileges, err
 		}
@@ -148,6 +158,7 @@ func (d *MySQLEngine) Privileges() (map[string][]string, error) {
 	return privileges, nil
 }
 
+// GrantPrivileges to user on db
 func (d *MySQLEngine) GrantPrivileges(dbname string, username string) error {
 	grantPrivilegesStatement := "GRANT ALL PRIVILEGES ON " + dbname + ".* TO '" + username + "'@'%'"
 	d.logger.Debug("grant-privileges", lager.Data{"statement": grantPrivilegesStatement})
@@ -160,6 +171,7 @@ func (d *MySQLEngine) GrantPrivileges(dbname string, username string) error {
 	return nil
 }
 
+// RevokePrivileges for user on db
 func (d *MySQLEngine) RevokePrivileges(dbname string, username string) error {
 	revokePrivilegesStatement := "REVOKE ALL PRIVILEGES ON " + dbname + ".* from '" + username + "'@'%'"
 	d.logger.Debug("revoke-privileges", lager.Data{"statement": revokePrivilegesStatement})
@@ -172,10 +184,12 @@ func (d *MySQLEngine) RevokePrivileges(dbname string, username string) error {
 	return nil
 }
 
+// URI generate mysql URI
 func (d *MySQLEngine) URI(address string, port int64, dbname string, username string, password string) string {
 	return fmt.Sprintf("mysql://%s:%s@%s:%d/%s?reconnect=true", username, password, address, port, dbname)
 }
 
+// JDBCURI generate JDBC URI
 func (d *MySQLEngine) JDBCURI(address string, port int64, dbname string, username string, password string) string {
 	return fmt.Sprintf("jdbc:mysql://%s:%d/%s?user=%s&password=%s", address, port, dbname, username, password)
 }
